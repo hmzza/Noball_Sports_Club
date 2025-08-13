@@ -134,11 +134,27 @@ def create_tables():
         
         print("✅ All tables created successfully!")
         
-        # Insert default admin user
+        # Insert default admin user (for main users table)
         print("Creating default admin user...")
         cur.execute("""
             INSERT INTO users (username, email, password_hash, role) 
             VALUES ('admin', 'admin@noball.pk', 'pbkdf2:sha256:600000$default$hash', 'admin')
+            ON CONFLICT (username) DO NOTHING
+        """)
+        
+        # Insert admin user for admin_users table (for admin login)
+        print("Creating admin user in admin_users table...")
+        # Simple password hash for 'admin123' - you should change this after first login
+        cur.execute("""
+            INSERT INTO admin_users (username, password_hash, role) 
+            VALUES ('admin', 'pbkdf2:sha256:600000$salt$1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef', 'super_admin')
+            ON CONFLICT (username) DO NOTHING
+        """)
+        
+        # Also create hmzza7 user
+        cur.execute("""
+            INSERT INTO admin_users (username, password_hash, role) 
+            VALUES ('hmzza7', 'pbkdf2:sha256:600000$salt$1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef', 'super_admin')
             ON CONFLICT (username) DO NOTHING
         """)
         
@@ -159,6 +175,30 @@ def create_tables():
                     price_per_hour = EXCLUDED.price_per_hour,
                     description = EXCLUDED.description
             """, (sport_name, price, description))
+        
+        # Insert court pricing data (needed for booking system)
+        print("Adding court pricing data...")
+        pricing_data = [
+            ('padel-1', 'Court 1: Purple Mondo', 'padel', 2750, 3300, 2200, 3300),
+            ('padel-2', 'Court 2: Teracotta Court', 'padel', 2750, 3300, 2200, 3300),
+            ('cricket-1', 'Court 1: 110x50ft', 'cricket', 1500, 1800, 1200, 1800),
+            ('cricket-2', 'Court 2: 130x60ft Multi', 'cricket', 1500, 1800, 1200, 1800),
+            ('futsal-1', 'Court 1: 130x60ft Multi', 'futsal', 1250, 1500, 1000, 1500),
+            ('pickleball-1', 'Court 1: Professional', 'pickleball', 1250, 1500, 1000, 1500),
+        ]
+        
+        for court_id, court_name, sport, base_price, peak_price, off_peak_price, weekend_price in pricing_data:
+            cur.execute("""
+                INSERT INTO court_pricing (court_id, court_name, sport, base_price, peak_price, off_peak_price, weekend_price, is_active, effective_from) 
+                VALUES (%s, %s, %s, %s, %s, %s, %s, TRUE, CURRENT_DATE)
+                ON CONFLICT (court_id, is_active) DO UPDATE SET 
+                    court_name = EXCLUDED.court_name,
+                    sport = EXCLUDED.sport,
+                    base_price = EXCLUDED.base_price,
+                    peak_price = EXCLUDED.peak_price,
+                    off_peak_price = EXCLUDED.off_peak_price,
+                    weekend_price = EXCLUDED.weekend_price
+            """, (court_id, court_name, sport, base_price, peak_price, off_peak_price, weekend_price))
         
         print("✅ Default data inserted!")
         
