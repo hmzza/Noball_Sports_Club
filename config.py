@@ -17,6 +17,16 @@ class Config:
         "sslmode": "require" if os.environ.get('FLASK_ENV') == 'production' else "prefer",
     }
     
+    # Debug: Print environment variables in production (remove this after debugging)
+    if os.environ.get('FLASK_ENV') == 'production':
+        print(f"🔍 DEBUG - Environment Variables:")
+        print(f"DB_HOST: {os.environ.get('DB_HOST', 'NOT SET')}")
+        print(f"DB_NAME: {os.environ.get('DB_NAME', 'NOT SET')}")
+        print(f"DB_USER: {os.environ.get('DB_USER', 'NOT SET')}")
+        print(f"DB_PORT: {os.environ.get('DB_PORT', 'NOT SET')}")
+        print(f"FLASK_ENV: {os.environ.get('FLASK_ENV', 'NOT SET')}")
+        print(f"🔍 Final DATABASE_CONFIG: {DATABASE_CONFIG}")
+    
     # Court Configurations
     COURT_CONFIG = {
         "padel": [
