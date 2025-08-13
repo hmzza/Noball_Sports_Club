@@ -13,7 +13,8 @@ class Config:
         "database": os.environ.get('DB_NAME', "noball_sports"),
         "user": os.environ.get('DB_USER', "postgres"),
         "password": os.environ.get('DB_PASSWORD', "admin@123"),
-        "port": os.environ.get('DB_PORT', "5432"),
+        "port": int(os.environ.get('DB_PORT', "5432")),
+        "sslmode": "require" if os.environ.get('FLASK_ENV') == 'production' else "prefer",
     }
     
     # Court Configurations

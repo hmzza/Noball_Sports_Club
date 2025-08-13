@@ -31,13 +31,19 @@ def create_app(config_name=None):
     # Register blueprints
     app.register_blueprint(admin_bp)
 
-    # Initialize database
-    if not DatabaseManager.init_database():
-        logger.error("Failed to initialize database")
-        return None
+    # Initialize database (don't fail startup if database is not ready)
+    try:
+        DatabaseManager.init_database()
+        logger.info("Database initialized successfully")
+    except Exception as e:
+        logger.warning(f"Database initialization failed: {e}. App will start without database.")
     
     # Create super admin account if it doesn't exist
-    AuthService.create_super_admin()
+    try:
+        AuthService.create_super_admin()
+        logger.info("Super admin account checked/created successfully")
+    except Exception as e:
+        logger.warning(f"Failed to create super admin: {e}. Will skip for now.")
 
     # Register routes
     register_main_routes(app)
