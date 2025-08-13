@@ -7,25 +7,32 @@ class Config:
     """Base configuration class"""
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'your-secret-key-here'
     
-    # Database Configuration
-    DATABASE_CONFIG = {
-        "host": os.environ.get('DB_HOST', "localhost"),
-        "database": os.environ.get('DB_NAME', "noball_sports"),
-        "user": os.environ.get('DB_USER', "postgres"),
-        "password": os.environ.get('DB_PASSWORD', "admin@123"),
-        "port": int(os.environ.get('DB_PORT', "5432")),
-        "sslmode": "require" if os.environ.get('FLASK_ENV') == 'production' else "prefer",
-    }
+    # Database Configuration - Force production settings if on DigitalOcean
+    # Detect if running on DigitalOcean (they set this environment variable)
+    is_digitalocean = os.environ.get('DYNO') or os.environ.get('DIGITAL_OCEAN') or 'digitalocean.app' in os.environ.get('SERVER_NAME', '')
     
-    # Debug: Print environment variables in production (remove this after debugging)
-    if os.environ.get('FLASK_ENV') == 'production':
-        print(f"🔍 DEBUG - Environment Variables:")
-        print(f"DB_HOST: {os.environ.get('DB_HOST', 'NOT SET')}")
-        print(f"DB_NAME: {os.environ.get('DB_NAME', 'NOT SET')}")
-        print(f"DB_USER: {os.environ.get('DB_USER', 'NOT SET')}")
-        print(f"DB_PORT: {os.environ.get('DB_PORT', 'NOT SET')}")
-        print(f"FLASK_ENV: {os.environ.get('FLASK_ENV', 'NOT SET')}")
-        print(f"🔍 Final DATABASE_CONFIG: {DATABASE_CONFIG}")
+    if is_digitalocean or os.environ.get('FLASK_ENV') == 'production':
+        # Force DigitalOcean production database settings
+        DATABASE_CONFIG = {
+            "host": "db-postgresql-sgp1-34347-do-user-24629537-0.h.db.ondigitalocean.com",
+            "database": "defaultdb",
+            "user": "doadmin",
+            "password": "AVNS_IYR5Wif0JXj2883WILC",
+            "port": 25060,
+            "sslmode": "require",
+        }
+        print("🚀 Using FORCED production database settings for DigitalOcean")
+    else:
+        # Local development settings
+        DATABASE_CONFIG = {
+            "host": os.environ.get('DB_HOST', "localhost"),
+            "database": os.environ.get('DB_NAME', "noball_sports"),
+            "user": os.environ.get('DB_USER', "postgres"),
+            "password": os.environ.get('DB_PASSWORD', "admin@123"),
+            "port": int(os.environ.get('DB_PORT', "5432")),
+            "sslmode": "prefer",
+        }
+        print("🏠 Using local development database settings")
     
     # Court Configurations
     COURT_CONFIG = {
