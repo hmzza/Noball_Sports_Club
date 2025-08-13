@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Control - Modern Admin Panel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modern-components.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        .admin-header {
+            background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .admin-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .admin-title i {
+            color: #ffc107;
+        }
+        
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .action-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .action-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .action-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #2c5aa0, #28a745);
+        }
+        
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--primary-color);
+        }
+        
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+        
+        .card-content h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--gray-800);
+        }
+        
+        .card-content p {
+            color: var(--gray-600);
+            line-height: 1.6;
+        }
+        
+        .section-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+            display: none;
+            border: 1px solid var(--gray-200);
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--gray-200);
+        }
+        
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--gray-800);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .section-title i {
+            color: var(--primary-color);
+        }
+        
+        .close-section-btn {
+            background: var(--error-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .close-section-btn:hover {
+            background: #bd2130;
+            transform: scale(1.05);
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .search-methods {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .search-method {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid var(--gray-300);
+            background: white;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .search-method:hover,
+        .search-method.active {
+            border-color: var(--primary-color);
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .search-form {
+            display: none;
+            background: var(--gray-50);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+        }
+        
+        .search-form.active {
+            display: block;
+        }
+        
+        .empty-results {
+            text-align: center;
+            padding: 3rem;
+            color: var(--gray-500);
+        }
+        
+        .empty-results i {
+            font-size: 4rem;
+            opacity: 0.3;
+            margin-bottom: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .action-cards-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .admin-title {
+                font-size: 2rem;
+            }
+            
+            .search-methods {
+                flex-direction: column;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="admin-header">
+        <div class="modern-container modern-flex-between">
+            <h1 class="admin-title">
+                <i class="fas fa-cogs"></i>
+                Booking Control Center
+            </h1>
+            <div class="header-actions">
+                <a href="{{ url_for('admin_panel.admin_dashboard') }}" class="back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="modern-container" id="booking-control-container">
+        <!-- Quick Actions -->
+        <div class="action-cards-grid">
+            <div class="action-card" id="create-booking-card">
+                <div class="card-icon">
+                    <i class="fas fa-plus-circle"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Create New Booking</h3>
+                    <p>Create a new booking directly from admin panel with full control over all parameters</p>
+                </div>
+            </div>
+
+            <div class="action-card" id="search-booking-card">
+                <div class="card-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Find & Manage Booking</h3>
+                    <p>Search, update, or delete existing bookings with powerful search filters</p>
+                </div>
+            </div>
+
+            <div class="action-card" id="bulk-operations-card">
+                <div class="card-icon">
+                    <i class="fas fa-layer-group"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Bulk Operations</h3>
+                    <p>Perform bulk operations on multiple bookings at once</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create Booking Section -->
+        <div class="section-card" id="create-booking-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-plus-circle"></i>
+                    Create New Booking
+                </h2>
+                <button class="close-section-btn" data-section="create-booking-section">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+
+            <form id="create-booking-form" class="needs-validation">
+                <div class="form-grid">
+                    <div class="modern-form-group">
+                        <label for="create-sport" class="modern-form-label required">Sport</label>
+                        <select id="create-sport" name="create-sport" class="modern-form-select" required>
+                            <option value="">Select Sport</option>
+                            <option value="padel">Padel</option>
+                            <option value="cricket">Cricket</option>
+                            <option value="futsal">Futsal</option>
+                            <option value="pickleball">Pickleball</option>
+                        </select>
+                    </div>
+
+                    <div class="modern-form-group">
+                        <label for="create-court" class="modern-form-label required">Court</label>
+                        <select id="create-court" name="create-court" class="modern-form-select" required>
+                            <option value="">Select Court</option>
+                        </select>
+                    </div>
+
+                    <div class="modern-form-group">
+                        <label for="create-date" class="modern-form-label required">Date</label>
+                        <input type="date" id="create-date" name="create-date" class="modern-form-input" required>
+                    </div>
+
+                    <div class="modern-form-group">
+                        <label for="create-start-time" class="modern-form-label required">Start Time</label>
+                        <input type="time" id="create-start-time" name="create-start-time" class="modern-form-input" required>
+                    </div>
+
+                    <div class="modern-form-group">
+                        <label for="create-duration" class="modern-form-label required">Duration (hours)</label>
+                        <select id="create-duration" name="create-duration" class="modern-form-select" required>
+                            <option value="">Select Duration</option>
+                            <option value="0.5">30 minutes</option>
+                            <option value="1">1 hour</option>
+                            <option value="1.5">1.5 hours</option>
+                            <option value="2">2 hours</option>
+                            <option value="2.5">2.5 hours</option>
+                            <option value="3">3 hours</option>
+                        </select>
+                    </div>
+
+                    <div class="modern-form-group">
+                        <label for="create-amount" class="modern-form-label">Total Amount (PKR)</label>
+                        <input type="number" id="create-amount" name="create-amount" class="modern-form-input" readonly>
+                    </div>
+
+                    <div class="modern-form-group">
+                        <label for="create-player-name" class="modern-form-label required">Player Name</label>
+                        <input type="text" id="create-player-name" name="create-player-name" class="modern-form-input" required>
+                    </div>
+
+                    <div class="modern-form-group">
+                        <label for="create-player-phone" class="modern-form-label required">Phone Number</label>
+                        <input type="tel" id="create-player-phone" name="create-player-phone" class="modern-form-input" required>
+                    </div>
+
+                    <div class="modern-form-group">
+                        <label for="create-player-email" class="modern-form-label">Email</label>
+                        <input type="email" id="create-player-email" name="create-player-email" class="modern-form-input">
+                    </div>
+
+                    <div class="modern-form-group">
+                        <label for="create-player-count" class="modern-form-label">Player Count</label>
+                        <select id="create-player-count" name="create-player-count" class="modern-form-select">
+                            <option value="2">2 Players</option>
+                            <option value="3">3 Players</option>
+                            <option value="4">4 Players</option>
+                            <option value="5">5 Players</option>
+                            <option value="6">6 Players</option>
+                        </select>
+                    </div>
+
+                    <div class="modern-form-group">
+                        <label for="create-status" class="modern-form-label">Status</label>
+                        <select id="create-status" name="create-status" class="modern-form-select">
+                            <option value="pending_payment">Pending Payment</option>
+                            <option value="confirmed">Confirmed</option>
+                        </select>
+                    </div>
+
+                    <div class="modern-form-group">
+                        <label for="create-payment-type" class="modern-form-label">Payment Type</label>
+                        <select id="create-payment-type" name="create-payment-type" class="modern-form-select">
+                            <option value="advance">Advance</option>
+                            <option value="full">Full Payment</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modern-form-group">
+                    <label for="create-special-requests" class="modern-form-label">Special Requests</label>
+                    <textarea id="create-special-requests" name="create-special-requests" class="modern-form-textarea" rows="3" placeholder="Any special requirements or notes..."></textarea>
+                </div>
+
+                <div class="modern-flex" style="gap: 1rem; margin-top: 2rem; justify-content: flex-end;">
+                    <button type="button" class="modern-btn modern-btn-ghost close-section-btn" data-section="create-booking-section">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="modern-btn modern-btn-success modern-btn-lg">
+                        <i class="fas fa-plus"></i> Create Booking
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Search Booking Section -->
+        <div class="section-card" id="search-booking-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-search"></i>
+                    Find & Manage Bookings
+                </h2>
+                <button class="close-section-btn" data-section="search-booking-section">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+
+            <!-- Search Methods -->
+            <div class="search-methods">
+                <div class="search-method active" data-method="id">
+                    <i class="fas fa-hashtag"></i> Booking ID
+                </div>
+                <div class="search-method" data-method="phone">
+                    <i class="fas fa-phone"></i> Phone Number
+                </div>
+                <div class="search-method" data-method="name">
+                    <i class="fas fa-user"></i> Player Name
+                </div>
+                <div class="search-method" data-method="date">
+                    <i class="fas fa-calendar"></i> Date Range
+                </div>
+            </div>
+
+            <!-- Search Forms -->
+            <div id="search-by-id" class="search-form active">
+                <div class="modern-form-group">
+                    <label for="booking-id-input" class="modern-form-label">Booking ID</label>
+                    <div class="modern-flex">
+                        <input type="text" id="booking-id-input" class="modern-form-input" placeholder="Enter booking ID..." style="flex: 1;">
+                        <button type="button" class="modern-btn modern-btn-primary" onclick="window.bookingManager?.searchById()">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="search-by-phone" class="search-form">
+                <div class="modern-form-group">
+                    <label for="phone-input" class="modern-form-label">Phone Number</label>
+                    <div class="modern-flex">
+                        <input type="tel" id="phone-input" class="modern-form-input" placeholder="Enter phone number..." style="flex: 1;">
+                        <button type="button" class="modern-btn modern-btn-primary" onclick="window.bookingManager?.searchByPhone()">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="search-by-name" class="search-form">
+                <div class="modern-form-group">
+                    <label for="name-input" class="modern-form-label">Player Name</label>
+                    <div class="modern-flex">
+                        <input type="text" id="name-input" class="modern-form-input" placeholder="Enter player name..." style="flex: 1;">
+                        <button type="button" class="modern-btn modern-btn-primary" onclick="window.bookingManager?.searchByName()">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="search-by-date" class="search-form">
+                <div class="modern-grid-cols-2">
+                    <div class="modern-form-group">
+                        <label for="start-date" class="modern-form-label">Start Date</label>
+                        <input type="date" id="start-date" class="modern-form-input">
+                    </div>
+                    <div class="modern-form-group">
+                        <label for="end-date" class="modern-form-label">End Date</label>
+                        <input type="date" id="end-date" class="modern-form-input">
+                    </div>
+                </div>
+                <button type="button" class="modern-btn modern-btn-primary" onclick="window.bookingManager?.searchByDate()">
+                    <i class="fas fa-search"></i> Search Date Range
+                </button>
+            </div>
+
+            <!-- Search Results -->
+            <div id="search-results" style="display: none; margin-top: 2rem;">
+                <div class="modern-flex-between" style="margin-bottom: 1rem;">
+                    <h3 style="margin: 0; color: var(--gray-800);">
+                        <i class="fas fa-list"></i> Search Results
+                    </h3>
+                    <button class="modern-btn modern-btn-ghost" onclick="document.getElementById('search-results').style.display='none'">
+                        <i class="fas fa-times"></i> Clear Results
+                    </button>
+                </div>
+                <div id="results-container"></div>
+            </div>
+        </div>
+
+        <!-- Bulk Operations Section -->
+        <div class="section-card" id="bulk-operations-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-layer-group"></i>
+                    Bulk Operations
+                </h2>
+                <button class="close-section-btn" data-section="bulk-operations-section">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+
+            <div class="modern-card" style="background: linear-gradient(135deg, #fff3cd, #ffeaa7); border-color: #ffc107;">
+                <div class="modern-card-body">
+                    <h4 style="color: #856404; margin-bottom: 1rem;">
+                        <i class="fas fa-construction"></i> Coming Soon
+                    </h4>
+                    <p style="color: #856404; margin: 0;">
+                        Bulk operations functionality will be available in the next update. This will include bulk confirmation, cancellation, and export features.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load JavaScript -->
+    <script src="{{ url_for('static', filename='js/core/__init__.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/components/BookingManager.js') }}"></script>
+    
+    <script>
+        // Section management
+        document.addEventListener('DOMContentLoaded', function() {
+            // Action card clicks
+            document.getElementById('create-booking-card')?.addEventListener('click', () => {
+                showSection('create-booking-section');
+            });
+            
+            document.getElementById('search-booking-card')?.addEventListener('click', () => {
+                showSection('search-booking-section');
+            });
+            
+            document.getElementById('bulk-operations-card')?.addEventListener('click', () => {
+                showSection('bulk-operations-section');
+            });
+            
+            // Close section buttons
+            document.querySelectorAll('.close-section-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const section = e.target.closest('.close-section-btn').dataset.section;
+                    if (section) closeSection(section);
+                });
+            });
+            
+            // Search method switching
+            document.querySelectorAll('.search-method').forEach(method => {
+                method.addEventListener('click', (e) => {
+                    const methodType = e.target.closest('.search-method').dataset.method;
+                    switchSearchMethod(methodType);
+                });
+            });
+            
+            // URL parameter handling
+            const urlParams = new URLSearchParams(window.location.search);
+            const bookingId = urlParams.get('booking');
+            if (bookingId) {
+                showSection('search-booking-section');
+                document.getElementById('booking-id-input').value = bookingId;
+                setTimeout(() => {
+                    if (window.bookingManager) {
+                        window.bookingManager.searchById();
+                    }
+                }, 500);
+            }
+        });
+        
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section-card').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Show target section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.style.display = 'block';
+                targetSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+        
+        function closeSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.style.display = 'none';
+                
+                // Clear forms
+                const forms = section.querySelectorAll('form');
+                forms.forEach(form => form.reset());
+                
+                // Clear results
+                const resultsContainer = document.getElementById('results-container');
+                if (resultsContainer) resultsContainer.innerHTML = '';
+                
+                const searchResults = document.getElementById('search-results');
+                if (searchResults) searchResults.style.display = 'none';
+            }
+        }
+        
+        function switchSearchMethod(method) {
+            // Update active method
+            document.querySelectorAll('.search-method').forEach(m => {
+                m.classList.toggle('active', m.dataset.method === method);
+            });
+            
+            // Show corresponding form
+            document.querySelectorAll('.search-form').forEach(form => {
+                form.classList.toggle('active', form.id === `search-by-${method}`);
+            });
+            
+            // Clear results
+            const searchResults = document.getElementById('search-results');
+            if (searchResults) searchResults.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

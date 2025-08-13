@@ -1,0 +1,571 @@
+<!-- Admin Navigation Header -->
+<header class="admin-header">
+    <div class="admin-container">
+        <div class="admin-header-content">
+            <!-- Page Title Section -->
+            <div class="admin-title-section">
+                <h1 class="admin-title">
+                    <i class="{{ icon_class or 'fas fa-tachometer-alt' }}"></i>
+                    {{ page_title or 'Admin Panel' }}
+                </h1>
+                {% if page_subtitle %}
+                <p class="admin-subtitle">{{ page_subtitle }}</p>
+                {% endif %}
+            </div>
+            
+            <!-- Navigation Section -->
+            <div class="admin-nav-section">
+                <div class="admin-nav-links">
+                    <!-- Quick Navigation -->
+                    {% if page_title != 'Admin Dashboard' %}
+                    <a href="{{ url_for('admin_panel.admin_dashboard') }}" class="nav-link">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                    {% endif %}
+                    
+                    {% if page_title != 'Booking Management' %}
+                    <a href="{{ url_for('admin_panel.admin_bookings') }}" class="nav-link">
+                        <i class="fas fa-list-alt"></i> Bookings
+                    </a>
+                    {% endif %}
+                    
+                    {% if page_title != 'Schedule Management' %}
+                    <a href="{{ url_for('admin_panel.admin_schedule') }}" class="nav-link">
+                        <i class="fas fa-calendar-alt"></i> Schedule
+                    </a>
+                    {% endif %}
+                    
+                    {% if page_title != 'Booking Control' %}
+                    <a href="{{ url_for('admin_panel.admin_booking_control') }}" class="nav-link">
+                        <i class="fas fa-cogs"></i> Control
+                    </a>
+                    {% endif %}
+                    
+                    <!-- Admin/Super Admin Only Links -->
+                    {% if g.current_user and g.current_user.role in ['admin', 'super_admin'] %}
+                        {% if page_title != 'Pricing Management' %}
+                        <a href="{{ url_for('admin_panel.admin_pricing') }}" class="nav-link">
+                            <i class="fas fa-tags"></i> Pricing
+                        </a>
+                        {% endif %}
+                        
+                        {% if page_title != 'Promo Codes' %}
+                        <a href="{{ url_for('admin_panel.admin_promo_codes') }}" class="nav-link">
+                            <i class="fas fa-percent"></i> Promos
+                        </a>
+                        {% endif %}
+                        
+                        {% if page_title != 'Expense Management' %}
+                        <a href="{{ url_for('admin_panel.admin_expenses') }}" class="nav-link">
+                            <i class="fas fa-money-bill-wave"></i> Expenses
+                        </a>
+                        {% endif %}
+                        
+                        {% if page_title != 'Reports & Analytics' %}
+                        <a href="{{ url_for('admin_panel.reports') }}" class="nav-link">
+                            <i class="fas fa-chart-line"></i> Reports
+                        </a>
+                        {% endif %}
+                    {% endif %}
+                    
+                    <!-- Admin/Super Admin Logs -->
+                    {% if g.current_user and g.current_user.role in ['admin', 'super_admin'] %}
+                        {% if page_title != 'Activity Logs' %}
+                        <a href="{{ url_for('admin_panel.admin_logs') }}" class="nav-link">
+                            <i class="fas fa-history"></i> Logs
+                        </a>
+                        {% endif %}
+                    {% endif %}
+                    
+                    <!-- Super Admin Only Links -->
+                    {% if g.current_user and g.current_user.role == 'super_admin' %}
+                        {% if page_title != 'User Management' %}
+                        <a href="{{ url_for('admin_panel.admin_users') }}" class="nav-link">
+                            <i class="fas fa-users"></i> Users
+                        </a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                
+                <div class="admin-nav-actions">
+                    <!-- User Info -->
+                    {% if g.current_user %}
+                    <div class="nav-link user-info" title="Current User">
+                        <i class="fas fa-user-circle"></i>
+                        <span>{{ g.current_user.username }}</span>
+                        {% if g.current_user.role == 'super_admin' %}
+                            <i class="fas fa-crown" style="color: #ffd700; margin-left: 0.25rem;" title="Super Admin"></i>
+                        {% elif g.current_user.role == 'admin' %}
+                            <i class="fas fa-user-shield" style="color: #17a2b8; margin-left: 0.25rem;" title="Admin"></i>
+                        {% else %}
+                            <i class="fas fa-user" style="color: #28a745; margin-left: 0.25rem;" title="Staff"></i>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    <a href="{{ url_for('index') }}" class="nav-link" title="View Website">
+                        <i class="fas fa-external-link-alt"></i> Website
+                    </a>
+                    <button id="logout-btn" class="nav-link logout-btn" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<style>
+/* Consistent Admin Header Styles - High Priority Override */
+.admin-header {
+    background: linear-gradient(135deg, #2c5f3f, #1a5f3f) !important;
+    color: white !important;
+    padding: 1rem 0 !important;
+    margin-bottom: 2rem !important;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
+}
+
+.admin-container {
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+    padding: 0 1rem !important;
+}
+
+/* Override any conflicting header container styles */
+.admin-header .admin-container {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    flex-direction: row !important;
+    text-align: left !important;
+    gap: 1rem !important;
+}
+
+/* Fix schedule page specific conflicts */
+.admin-header {
+    margin-bottom: 1rem !important;
+}
+
+/* Professional Court Headers */
+.day-header, .court-header {
+    background: linear-gradient(135deg, #1b5e20, #2e7d32, #388e3c) !important;
+    color: white !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-weight: 700 !important;
+    font-size: 0.85rem !important;
+    text-align: center !important;
+    padding: 8px 4px !important;
+    border-radius: 8px 8px 0 0 !important;
+    box-shadow: 0 2px 8px rgba(27, 94, 32, 0.3) !important;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3) !important;
+    border: 2px solid #1b5e20 !important;
+    min-height: 50px !important;
+    line-height: 1.2 !important;
+}
+
+.excel-court-header {
+    background: linear-gradient(135deg, #1b5e20, #2e7d32, #388e3c) !important;
+    color: white !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    padding: 6px 4px !important;
+    border-radius: 8px 8px 0 0 !important;
+    box-shadow: 0 2px 8px rgba(27, 94, 32, 0.3) !important;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3) !important;
+    border: 2px solid #1b5e20 !important;
+    border-bottom: none !important;
+    min-height: 60px !important;
+    gap: 2px !important;
+}
+
+/* Sport name styling in court headers */
+.court-header > div:first-child,
+.excel-court-header > div:first-child {
+    font-size: 0.8rem !important;
+    font-weight: 800 !important;
+    color: white !important;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.4) !important;
+    margin-bottom: 1px !important;
+    letter-spacing: 0.5px !important;
+}
+
+/* Court details styling in court headers */
+.court-header > div:last-child,
+.excel-court-header > div:last-child {
+    font-size: 0.65rem !important;
+    font-weight: 500 !important;
+    color: rgba(255,255,255,0.9) !important;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.3) !important;
+    opacity: 0.95 !important;
+    line-height: 1.1 !important;
+}
+
+/* Schedule slots optimized layout - Better space utilization */
+.time-slot {
+    font-size: 0.75rem !important;
+    line-height: 1.2 !important;
+    text-align: center !important;
+    padding: 4px !important;
+    overflow: hidden !important;
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.time-slot .slot-content {
+    padding: 2px !important;
+    gap: 0px !important;
+    font-size: 0.75rem !important;
+    line-height: 1.1 !important;
+    text-align: center !important;
+    overflow: hidden !important;
+    height: 100% !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    position: relative !important;
+}
+
+/* Professional Time Headers */
+.time-header {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+    color: #2e7d32 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-weight: 600 !important;
+    font-size: 0.75rem !important;
+    border-right: 2px solid #2e7d32 !important;
+    border-bottom: 1px solid #dee2e6 !important;
+    text-shadow: 1px 1px 1px rgba(255,255,255,0.8) !important;
+    box-shadow: inset 0 1px 2px rgba(255,255,255,0.5) !important;
+}
+
+.excel-time-header {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+    color: #2e7d32 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-weight: 600 !important;
+    font-size: 0.7rem !important;
+    border-bottom: 1px solid #dee2e6 !important;
+    text-shadow: 1px 1px 1px rgba(255,255,255,0.8) !important;
+    box-shadow: inset 0 1px 2px rgba(255,255,255,0.5) !important;
+}
+
+/* Special request star indicator */
+.time-slot .special-request-star {
+    position: absolute !important;
+    top: 2px !important;
+    right: 2px !important;
+    color: #ffc107 !important;
+    font-size: 0.7rem !important;
+    z-index: 5 !important;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3) !important;
+}
+
+/* Player name - Main title - MORE SPACE */
+.slot-title {
+    font-size: 0.75rem !important;
+    line-height: 1.0 !important;
+    font-weight: 700 !important;
+    margin: 0 0 2px 0 !important;
+    padding: 0 !important;
+    text-overflow: ellipsis !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    max-width: 100% !important;
+    display: block !important;
+    color: inherit !important;
+    flex: 2 !important;
+    min-height: 12px !important;
+}
+
+/* Price display - EQUAL SPACE */
+.slot-subtitle {
+    font-size: 0.6rem !important;
+    line-height: 0.9 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-weight: 600 !important;
+    text-overflow: ellipsis !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    max-width: 100% !important;
+    display: block !important;
+    color: inherit !important;
+    flex: 1 !important;
+    min-height: 10px !important;
+}
+
+/* Time info - EQUAL SPACE AS PRICE */
+.slot-time {
+    font-size: 0.6rem !important;
+    line-height: 0.9 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    opacity: 0.8 !important;
+    font-weight: 500 !important;
+    display: block !important;
+    color: inherit !important;
+    flex: 1 !important;
+    min-height: 10px !important;
+}
+
+/* Excel view slots - same optimized layout */
+.excel-slot {
+    font-size: 0.75rem !important;
+    line-height: 1.2 !important;
+    text-align: center !important;
+    padding: 4px !important;
+    overflow: hidden !important;
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.excel-slot .special-request-star {
+    position: absolute !important;
+    top: 2px !important;
+    right: 2px !important;
+    color: #ffc107 !important;
+    font-size: 0.7rem !important;
+    z-index: 5 !important;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3) !important;
+}
+
+/* Mobile responsive - maintain readability */
+@media (max-width: 768px) {
+    .admin-header {
+        margin-bottom: 0.5rem !important;
+    }
+    
+    .time-slot {
+        font-size: 0.7rem !important;
+        padding: 3px !important;
+    }
+    
+    .time-slot .slot-content {
+        font-size: 0.7rem !important;
+        padding: 2px !important;
+    }
+    
+    .slot-title {
+        font-size: 0.7rem !important;
+        line-height: 1.0 !important;
+    }
+    
+    .slot-subtitle {
+        font-size: 0.65rem !important;
+        line-height: 1.0 !important;
+    }
+    
+    .slot-time {
+        font-size: 0.55rem !important;
+    }
+    
+    .excel-slot {
+        font-size: 0.7rem !important;
+        padding: 3px !important;
+    }
+    
+    .special-request-star {
+        font-size: 0.65rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .time-slot {
+        font-size: 0.65rem !important;
+        padding: 2px !important;
+    }
+    
+    .time-slot .slot-content {
+        font-size: 0.65rem !important;
+        padding: 2px 1px !important;
+    }
+    
+    .slot-title {
+        font-size: 0.65rem !important;
+        line-height: 1.0 !important;
+    }
+    
+    .slot-subtitle {
+        font-size: 0.6rem !important;
+        line-height: 1.0 !important;
+    }
+    
+    .slot-time {
+        font-size: 0.5rem !important;
+    }
+    
+    .excel-slot {
+        font-size: 0.65rem !important;
+        padding: 2px !important;
+    }
+    
+    .special-request-star {
+        font-size: 0.6rem !important;
+        top: 1px !important;
+        right: 1px !important;
+    }
+}
+
+.admin-header-content {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 1rem !important;
+    width: 100% !important;
+}
+
+.admin-title-section {
+    flex: 1;
+}
+
+.admin-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: white;
+}
+
+.admin-subtitle {
+    margin: 0.25rem 0 0 0;
+    font-size: 0.9rem;
+    opacity: 0.8;
+    color: rgba(255,255,255,0.9);
+}
+
+.admin-nav-section {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-left: auto;
+}
+
+.admin-nav-links {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.admin-nav-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255,255,255,0.15);
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.nav-link:hover {
+    background: rgba(255,255,255,0.25);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.logout-btn {
+    background: rgba(220, 53, 69, 0.2) !important;
+    border-color: rgba(220, 53, 69, 0.3) !important;
+}
+
+.logout-btn:hover {
+    background: rgba(220, 53, 69, 0.4) !important;
+}
+
+.user-info {
+    background: rgba(255,255,255,0.1) !important;
+    border-color: rgba(255,255,255,0.3) !important;
+    pointer-events: none;
+}
+
+.user-info span {
+    font-weight: 600;
+    margin: 0 0.25rem;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .admin-header-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .admin-title {
+        font-size: 1.5rem;
+    }
+    
+    .admin-nav-section {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .admin-nav-links {
+        gap: 0.25rem;
+    }
+    
+    .nav-link {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-nav-section {
+        flex-direction: column;
+        gap: 0.75rem;
+        width: 100%;
+    }
+    
+    .admin-nav-links, .admin-nav-actions {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+
+<script>
+// Consistent logout functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = '{{ url_for("admin_panel.logout") }}';
+            }
+        });
+    }
+});
+</script>

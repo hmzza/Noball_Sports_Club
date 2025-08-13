@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Management - Admin Panel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_bookings.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Inline styles to ensure it works */
+        .admin-header {
+            background: linear-gradient(135deg, #2c5f3f, #1a5f3f);
+            color: white;
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        .admin-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 0;
+            font-size: 1.8rem;
+        }
+        
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            color: white;
+        }
+        
+        .bookings-table {
+            width: 100%;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .bookings-table th,
+        .bookings-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .bookings-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .bookings-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-pending-payment {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-confirmed {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 0.8rem;
+            margin: 0.25rem;
+            display: inline-block;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .confirm-btn {
+            background: #28a745;
+            color: white;
+        }
+        
+        .confirm-btn:hover {
+            background: #218838;
+            color: white;
+        }
+        
+        .decline-btn {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .decline-btn:hover {
+            background: #c82333;
+            color: white;
+        }
+        
+        .no-bookings {
+            text-align: center;
+            padding: 3rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .booking-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .special-requests-row {
+            background: #f8f9fa !important;
+        }
+        
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2c5f3f;
+        }
+        
+        .stat-label {
+            color: #666;
+            margin-top: 0.5rem;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .bookings-table {
+                font-size: 0.8rem;
+            }
+            
+            .bookings-table th,
+            .bookings-table td {
+                padding: 0.5rem;
+            }
+            
+            .booking-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Admin Navigation Header -->
+    {% set page_title = "Booking Management" %}
+    {% set icon_class = "fas fa-list-alt" %}
+    {% set page_subtitle = "View and manage customer bookings" %}
+    {% include 'admin_navbar.html' %}
+
+    <div class="admin-container">
+        <!-- Error Display -->
+        {% if error %}
+        <div class="error-message">
+            <strong>Error:</strong> {{ error }}
+        </div>
+        {% endif %}
+
+        <!-- Stats Summary -->
+        <div class="stats-summary">
+            <div class="stat-card">
+                <div class="stat-number">{{ bookings|length }}</div>
+                <div class="stat-label">Total Bookings</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ bookings|selectattr('status', 'equalto', 'pending_payment')|list|length }}</div>
+                <div class="stat-label">Pending Payment</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ bookings|selectattr('status', 'equalto', 'confirmed')|list|length }}</div>
+                <div class="stat-label">Confirmed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ bookings|selectattr('status', 'equalto', 'cancelled')|list|length }}</div>
+                <div class="stat-label">Cancelled</div>
+            </div>
+        </div>
+
+        <!-- Debug Info (Remove in production) -->
+        <div style="background: #e9ecef; padding: 1rem; border-radius: 5px; margin-bottom: 1rem; font-family: monospace; font-size: 0.8rem;">
+            <strong>Debug Info:</strong><br>
+            Total bookings found: {{ bookings|length }}<br>
+            Template loaded at: <span id="load-time"></span>
+        </div>
+
+        <!-- Bookings Table -->
+        {% if bookings %}
+            <div class="bookings-table-container">
+                <table class="bookings-table">
+                    <thead>
+                        <tr>
+                            <th>Booking ID</th>
+                            <th>Date & Time</th>
+                            <th>Sport & Court</th>
+                            <th>Player Details</th>
+                            <th>Payment</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in bookings %}
+                        <tr>
+                            <td>
+                                <strong>{{ booking.id or booking.get('id', 'N/A') }}</strong>
+                                <div style="font-size: 0.8rem; color: #666;">
+                                    Created: {{ booking.createdDateTime or booking.get('createdDateTime', 'N/A') }}
+                                </div>
+                            </td>
+                            <td>
+                                <div style="line-height: 1.4;">
+                                    {% if booking.formatted_time %}
+                                        {{ booking.formatted_time|safe }}
+                                    {% else %}
+                                        {{ booking.booking_date or booking.get('booking_date', 'N/A') }}<br>
+                                        {{ booking.start_time or booking.get('start_time', 'N/A') }} - 
+                                        {{ booking.end_time or booking.get('end_time', 'N/A') }}
+                                    {% endif %}
+                                </div>
+                                <div style="font-size: 0.8rem; color: #666; margin-top: 4px;">
+                                    Duration: {{ booking.duration or booking.get('duration', 'N/A') }}h
+                                </div>
+                            </td>
+                            <td>
+                                <strong>{{ (booking.sport or booking.get('sport', 'N/A'))|title }}</strong><br>
+                                <div style="color: #666; font-size: 0.9rem;">
+                                    {{ booking.courtName or booking.court_name or booking.get('court_name', booking.court or booking.get('court', 'N/A')) }}
+                                </div>
+                            </td>
+                            <td>
+                                <div><strong>{{ booking.playerName or booking.player_name or booking.get('player_name', 'N/A') }}</strong></div>
+                                <div style="color: #666; font-size: 0.9rem;">{{ booking.playerPhone or booking.player_phone or booking.get('player_phone', 'N/A') }}</div>
+                                {% if booking.playerEmail or booking.player_email or booking.get('player_email') %}
+                                    <div style="color: #666; font-size: 0.9rem;">{{ booking.playerEmail or booking.player_email or booking.get('player_email') }}</div>
+                                {% endif %}
+                                <div style="color: #666; font-size: 0.9rem;">{{ booking.playerCount or booking.player_count or booking.get('player_count', '2') }} players</div>
+                                {% if booking.special_requests or booking.get('special_requests') %}
+                                    <div style="color: #6c757d; font-size: 0.85rem; font-style: italic; margin-top: 4px; padding: 4px 8px; background: #f8f9fa; border-radius: 4px;">
+                                        <i class="fas fa-comment-dots"></i> <strong>Request:</strong> {{ booking.special_requests or booking.get('special_requests') }}
+                                    </div>
+                                {% endif %}
+                                {% if booking.admin_comments or booking.get('admin_comments') %}
+                                    <div style="color: #28a745; font-size: 0.85rem; font-style: italic; margin-top: 4px; padding: 4px 8px; background: #e8f5e9; border-radius: 4px;">
+                                        <i class="fas fa-user-shield"></i> <strong>Admin:</strong> {{ booking.admin_comments or booking.get('admin_comments') }}
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div>
+                                    <strong>PKR {{ "{:,}".format(booking.totalAmount or booking.total_amount or booking.get('total_amount', 0)) }}</strong>
+                                    {% if booking.promo_code or booking.get('promo_code') %}
+                                        <div style="color: #28a745; font-size: 0.8rem; font-weight: 600;">
+                                            🎟️ {{ booking.promo_code or booking.get('promo_code') }}
+                                            {% if booking.discount_amount or booking.get('discount_amount') %}
+                                                (-PKR {{ "{:,}".format(booking.discount_amount or booking.get('discount_amount', 0)) }})
+                                            {% endif %}
+                                        </div>
+                                        {% if booking.original_amount or booking.get('original_amount') %}
+                                            <div style="color: #999; font-size: 0.8rem; text-decoration: line-through;">
+                                                Original: PKR {{ "{:,}".format(booking.original_amount or booking.get('original_amount', 0)) }}
+                                            </div>
+                                        {% endif %}
+                                    {% endif %}
+                                    <span style="color: #666; font-size: 0.9rem;">
+                                        {% if (booking.paymentType or booking.payment_type or booking.get('payment_type', 'advance')) == 'advance' %}
+                                            50% Advance
+                                        {% else %}
+                                            Full Payment
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                {% set status = booking.status or booking.get('status', 'unknown') %}
+                                <span class="status-badge status-{{ status.replace('_', '-') }}">
+                                    {% if status == 'pending_payment' %}
+                                        Pending Payment
+                                    {% elif status == 'confirmed' %}
+                                        Confirmed
+                                    {% elif status == 'cancelled' %}
+                                        Cancelled
+                                    {% else %}
+                                        {{ status|title }}
+                                    {% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                {% set status = booking.status or booking.get('status', 'unknown') %}
+                                {% set booking_id = booking.id or booking.get('id') %}
+                                
+                                {% if status == 'pending_payment' %}
+                                    <div class="booking-actions">
+                                        <a href="/admin/confirm-booking/{{ booking_id }}" 
+                                           class="action-btn confirm-btn"
+                                           onclick="return confirm('Confirm this booking? This will mark the slot as occupied.')">
+                                            <i class="fas fa-check"></i> Confirm
+                                        </a>
+                                        <a href="/admin/decline-booking/{{ booking_id }}" 
+                                           class="action-btn decline-btn"
+                                           onclick="return confirm('Decline this booking? This will free up the time slot.')">
+                                            <i class="fas fa-times"></i> Decline
+                                        </a>
+                                    </div>
+                                {% elif status == 'confirmed' %}
+                                    <span style="color: #28a745; font-weight: 600;">
+                                        <i class="fas fa-check-circle"></i> 
+                                        {% if booking.confirmedDateTime or booking.get('confirmedDateTime') %}
+                                            Confirmed {{ booking.confirmedDateTime or booking.get('confirmedDateTime') }}
+                                        {% else %}
+                                            Confirmed
+                                        {% endif %}
+                                    </span>
+                                {% elif status == 'cancelled' %}
+                                    <span style="color: #dc3545; font-weight: 600;">
+                                        <i class="fas fa-times-circle"></i> 
+                                        {% if booking.cancelledDateTime or booking.get('cancelledDateTime') %}
+                                            Cancelled {{ booking.cancelledDateTime or booking.get('cancelledDateTime') }}
+                                        {% else %}
+                                            Cancelled
+                                        {% endif %}
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        
+                        <!-- Comments Row (Customer Requests & Admin Comments) -->
+                        {% set customer_requests = booking.specialRequests or booking.special_requests or booking.get('special_requests') %}
+                        {% set admin_comments = booking.adminComments or booking.admin_comments or booking.get('admin_comments') %}
+                        {% if customer_requests or admin_comments %}
+                        <!-- <tr class="comments-row" style="background: #f8f9fa;">
+                            <td colspan="7" style="padding: 0.75rem 1rem;">
+                                {% if customer_requests %}
+                                <div style="margin-bottom: 0.5rem;">
+                                    <strong style="color: #007bff;"><i class="fas fa-user"></i> Customer Request:</strong>
+                                    <span style="font-style: italic; color: #495057;">{{ customer_requests }}</span>
+                                </div>
+                                {% endif %}
+                                {% if admin_comments %}
+                                <div>
+                                    <strong style="color: #28a745;"><i class="fas fa-user-tie"></i> Admin Notes:</strong>
+                                    <span style="font-weight: 600; color: #155724;">{{ admin_comments }}</span>
+                                </div>
+                                {% endif %}
+                            </td>
+                        </tr> -->
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="no-bookings">
+                <i class="fas fa-calendar-times" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+                <h3>No bookings found</h3>
+                <p>Booking requests will appear here when customers submit them.</p>
+                <div style="margin-top: 2rem;">
+                    <a href="{{ url_for('admin_panel.admin_booking_control') }}" class="action-btn confirm-btn">
+                        <i class="fas fa-plus"></i> Create New Booking
+                    </a>
+                    <button onclick="window.location.reload()" class="action-btn" style="background: #17a2b8; color: white;">
+                        <i class="fas fa-refresh"></i> Refresh Page
+                    </button>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Navigation Links -->
+        <div style="margin-top: 2rem; text-align: center;">
+            <a href="{{ url_for('admin_panel.admin_dashboard') }}" class="action-btn" style="background: #6c757d; color: white;">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a href="{{ url_for('admin_panel.admin_schedule') }}" class="action-btn" style="background: #17a2b8; color: white;">
+                <i class="fas fa-calendar-alt"></i> Schedule View
+            </a>
+            <a href="{{ url_for('admin_panel.admin_booking_control') }}" class="action-btn" style="background: #6f42c1; color: white;">
+                <i class="fas fa-cogs"></i> Booking Control
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Set load time
+        document.getElementById('load-time').textContent = new Date().toLocaleString();
+        
+        // Auto-refresh every 30 seconds
+        let refreshInterval = setInterval(() => {
+            if (document.visibilityState === 'visible') {
+                console.log('Auto-refreshing bookings...');
+                window.location.reload();
+            }
+        }, 30000);
+        
+        // Stop auto-refresh when page is hidden
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') {
+                clearInterval(refreshInterval);
+            } else {
+                refreshInterval = setInterval(() => {
+                    if (document.visibilityState === 'visible') {
+                        window.location.reload();
+                    }
+                }, 30000);
+            }
+        });
+        
+        // Highlight pending bookings
+        document.querySelectorAll('.status-pending-payment').forEach(element => {
+            const row = element.closest('tr');
+            if (row) {
+                row.style.backgroundColor = '#fff3cd';
+                row.style.borderLeft = '4px solid #ffc107';
+            }
+        });
+        
+        console.log('✅ Admin Bookings page loaded successfully');
+        console.log('📊 Found {{ bookings|length }} bookings');
+    </script>
+</body>
+</html>

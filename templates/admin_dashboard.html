@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - The Noball Sports Club</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Admin Navigation Header -->
+    {% set page_title = "Admin Dashboard" %}
+    {% set icon_class = "fas fa-tachometer-alt" %}
+    {% set page_subtitle = "Manage your sports club operations" %}
+    {% include 'admin_navbar.html' %}
+
+    <div class="admin-container">
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" data-stat="total-bookings">{{ stats.total_bookings or 0 }}</div>
+                    <div class="stat-label">Total Bookings</div>
+                </div>
+            </div>
+            
+            <div class="stat-card pending">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" data-stat="pending-payment">{{ stats.pending_payment or 0 }}</div>
+                    <div class="stat-label">Pending Payment</div>
+                </div>
+            </div>
+            
+            <div class="stat-card confirmed">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" data-stat="confirmed">{{ stats.confirmed or 0 }}</div>
+                    <div class="stat-label">Confirmed</div>
+                </div>
+            </div>
+            
+            <div class="stat-card cancelled">
+                <div class="stat-icon">
+                    <i class="fas fa-times-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" data-stat="cancelled">{{ stats.cancelled or 0 }}</div>
+                    <div class="stat-label">Cancelled</div>
+                </div>
+            </div>
+            
+            {% if g.current_user and g.current_user.role in ['admin', 'super_admin'] %}
+            <div class="stat-card revenue">
+                <div class="stat-icon">
+                    <i class="fas fa-rupee-sign"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" data-stat="revenue">PKR {{ "{:,}".format(stats.revenue or 0) }}</div>
+                    <div class="stat-label">Total Revenue</div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Management Cards -->
+        <div class="management-grid">
+            <!-- FIXED: Correct URL for booking management -->
+            <div class="management-card" data-url="{{ url_for('admin_panel.admin_bookings') }}">
+                <div class="card-icon">
+                    <i class="fas fa-list-alt"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Booking Management</h3>
+                    <p>View, confirm, or decline booking requests</p>
+                    <div class="card-stats">
+                        <span class="pending-count">{{ stats.pending_payment or 0 }} pending</span>
+                    </div>
+                </div>
+                <div class="card-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+
+            <div class="management-card schedule-card" data-url="{{ url_for('admin_panel.admin_schedule') }}">
+                <div class="card-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Schedule View</h3>
+                    <p>Visual schedule management and slot booking</p>
+                    <div class="card-stats">
+                        <span class="schedule-info">Graphical timeline view</span>
+                    </div>
+                </div>
+                <div class="card-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+
+            <div class="management-card control-card" data-url="{{ url_for('admin_panel.admin_booking_control') }}">
+                <div class="card-icon">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Booking Control</h3>
+                    <p>Create, update, or delete bookings directly</p>
+                    <div class="card-stats">
+                        <span class="control-info">Advanced management</span>
+                    </div>
+                </div>
+                <div class="card-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+
+            <div class="management-card pricing-card" data-url="{{ url_for('admin_panel.admin_pricing') }}">
+                <div class="card-icon">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Pricing Management</h3>
+                    <p>Set and manage court pricing for all sports</p>
+                    <div class="card-stats">
+                        <span class="pricing-info">Dynamic pricing</span>
+                    </div>
+                </div>
+                <div class="card-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+
+            <div class="management-card promo-card" data-url="{{ url_for('admin_panel.admin_promo_codes') }}">
+                <div class="card-icon">
+                    <i class="fas fa-tags"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Promo Codes</h3>
+                    <p>Create and manage promotional discount codes</p>
+                    <div class="card-stats">
+                        <span class="promo-info">Discount management</span>
+                    </div>
+                </div>
+                <div class="card-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+
+            <div class="management-card expenses-card" id="expenses-btn">
+                <div class="card-icon">
+                    <i class="fas fa-receipt"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Expenses Management</h3>
+                    <p>Track daily and monthly expenses and costs</p>
+                    <div class="card-stats">
+                        <span class="expenses-info">Financial tracking</span>
+                    </div>
+                </div>
+                <div class="card-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+
+            <a href="{{ url_for('admin_panel.reports') }}" class="management-card reports-card" style="text-decoration: none; color: inherit;">
+                <div class="card-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Reports & Analytics</h3>
+                    <p>View detailed analytics and generate reports</p>
+                    <div class="card-stats">
+                        <span class="reports-info">Export available</span>
+                    </div>
+                </div>
+                <div class="card-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </a>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <h2>Quick Actions</h2>
+            <div class="actions-grid">
+                <button class="action-btn primary" id="quick-book-btn">
+                    <i class="fas fa-plus"></i>
+                    Quick Booking
+                </button>
+                <button class="action-btn secondary" id="today-schedule-btn">
+                    <i class="fas fa-calendar-day"></i>
+                    Today's Schedule
+                </button>
+                <button class="action-btn tertiary" id="export-data-btn">
+                    <i class="fas fa-download"></i>
+                    Export Data
+                </button>
+                <button class="action-btn quaternary" id="bulk-notify-btn">
+                    <i class="fas fa-envelope"></i>
+                    Send Notifications
+                </button>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="recent-activity">
+            <h2>Recent Activity</h2>
+            <div class="activity-list">
+                {% if bookings %}
+                    {% for booking in bookings[:5] %}
+                    <div class="activity-item">
+                        <div class="activity-icon status-{{ booking.status.replace('_', '-') }}">
+                            {% if booking.status == 'pending_payment' %}
+                                <i class="fas fa-clock"></i>
+                            {% elif booking.status == 'confirmed' %}
+                                <i class="fas fa-check"></i>
+                            {% elif booking.status == 'cancelled' %}
+                                <i class="fas fa-times"></i>
+                            {% endif %}
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">
+                                {{ booking.player_name }} - {{ booking.sport.title() }}
+                            </div>
+                            <div class="activity-details">
+                                {{ booking.court_name }} • {{ booking.formatted_time|safe }} • PKR {{ "{:,}".format(booking.total_amount or 0) }}
+                                {% if booking.promo_code %}
+                                    <br><span style="color: #28a745; font-weight: 600; font-size: 0.9rem;">🎟️ {{ booking.promo_code }} (-PKR {{ "{:,}".format(booking.discount_amount or 0) }})</span>
+                                {% endif %}
+                                {% if booking.admin_comments %}
+                                    <br><span style="color: #28a745; font-weight: 600; font-size: 0.85rem;"><i class="fas fa-user-tie"></i> {{ booking.admin_comments }}</span>
+                                {% elif booking.special_requests %}
+                                    <br><span style="color: #007bff; font-style: italic; font-size: 0.85rem;"><i class="fas fa-user"></i> {{ booking.special_requests }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="activity-time">{{ booking.createdDateTime or 'N/A' }}</div>
+                        </div>
+                        <div class="activity-status">
+                            <span class="status-badge status-{{ booking.status.replace('_', '-') }}">
+                                {% if booking.status == 'pending_payment' %}
+                                    Pending
+                                {% elif booking.status == 'confirmed' %}
+                                    Confirmed
+                                {% elif booking.status == 'cancelled' %}
+                                    Cancelled
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="no-activity">
+                        <i class="fas fa-info-circle"></i>
+                        <p>No recent activity found</p>
+                    </div>
+                {% endif %}
+            </div>
+            
+            {% if bookings|length > 5 %}
+            <div class="view-all-activity">
+                <a href="{{ url_for('admin_panel.admin_bookings') }}" class="btn btn-outline">
+                    <i class="fas fa-list"></i> View All Bookings
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- System Status -->
+        <div class="system-status">
+            <h2>System Status</h2>
+            <div class="status-grid">
+                <div class="status-item">
+                    <div class="status-indicator online"></div>
+                    <div class="status-content">
+                        <div class="status-title">Database</div>
+                        <div class="status-subtitle">Connected</div>
+                    </div>
+                </div>
+                <div class="status-item">
+                    <div class="status-indicator online"></div>
+                    <div class="status-content">
+                        <div class="status-title">Booking System</div>
+                        <div class="status-subtitle">Online</div>
+                    </div>
+                </div>
+                <div class="status-item">
+                    <div class="status-indicator online"></div>
+                    <div class="status-content">
+                        <div class="status-title">Payment Gateway</div>
+                        <div class="status-subtitle">Active</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Last refresh indicator - FIXED: No moment.js dependency -->
+        <div class="refresh-indicator">
+            <small id="last-refresh-time">Dashboard loaded successfully</small>
+        </div>
+    </div>
+
+    <!-- Loading indicator for dashboard updates -->
+    <div id="dashboard-loading" style="display: none;">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span>Updating dashboard...</span>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/admin_dashboard.js') }}"></script>
+    <script>
+        // Add some inline scripts for immediate functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Admin Dashboard loaded successfully');
+
+            // Update last refresh time with current time
+            const refreshTimeEl = document.getElementById('last-refresh-time');
+            if (refreshTimeEl) {
+                const now = new Date();
+                refreshTimeEl.textContent = `Last updated: ${now.toLocaleString()}`;
+            }
+
+            // Logout functionality is now handled by admin_navbar.html
+
+            // Add click handlers for management cards
+            document.querySelectorAll('.management-card[data-url]').forEach(card => {
+                card.addEventListener('click', function() {
+                    const url = this.dataset.url;
+                    if (url) {
+                        console.log(`🔗 Navigating to: ${url}`);
+                        window.location.href = url;
+                    }
+                });
+                
+                // Add hover effects
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-4px)';
+                    this.style.boxShadow = '0 12px 40px rgba(0,0,0,0.15)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = '';
+                });
+            });
+
+            // Add loading states for buttons
+            document.querySelectorAll('.action-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const icon = this.querySelector('i');
+                    if (icon && !icon.classList.contains('fa-spin')) {
+                        icon.classList.add('fa-spin');
+                        setTimeout(() => {
+                            icon.classList.remove('fa-spin');
+                        }, 2000);
+                    }
+                });
+            });
+
+            // Quick action handlers
+            const quickBookBtn = document.getElementById('quick-book-btn');
+            if (quickBookBtn) {
+                quickBookBtn.addEventListener('click', function() {
+                    window.location.href = '{{ url_for("admin_panel.admin_booking_control") }}';
+                });
+            }
+
+            const todayScheduleBtn = document.getElementById('today-schedule-btn');
+            if (todayScheduleBtn) {
+                todayScheduleBtn.addEventListener('click', function() {
+                    const today = new Date().toISOString().split('T')[0];
+                    window.location.href = `{{ url_for("admin_panel.admin_schedule") }}?date=${today}`;
+                });
+            }
+
+            const exportBtn = document.getElementById('export-data-btn');
+            if (exportBtn) {
+                exportBtn.addEventListener('click', function() {
+                    alert('Export feature will be available soon!');
+                });
+            }
+
+            const bulkNotifyBtn = document.getElementById('bulk-notify-btn');
+            if (bulkNotifyBtn) {
+                bulkNotifyBtn.addEventListener('click', function() {
+                    alert('Bulk notification feature will be available soon!');
+                });
+            }
+
+            // Reports button now links directly to reports page
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1336 @@
+/* admin_schedule.css */
+
+:root {
+    --royal-green: #1b5e20;
+    --dark-text: #212529;
+}
+
+/* Admin Header - Fixed to match dashboard */
+.admin-header {
+    background: linear-gradient(135deg, var(--royal-green), #1a5f3f);
+    color: white;
+    padding: 1.5rem 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.admin-header .admin-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.admin-title {
+    font-size: 2rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: white;
+}
+
+.admin-title i {
+    background: rgba(255,255,255,0.2);
+    padding: 0.75rem;
+    border-radius: 12px;
+    font-size: 1.5rem;
+}
+
+.back-btn {
+    background: rgba(255,255,255,0.2);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid rgba(255,255,255,0.3);
+}
+
+.back-btn:hover {
+    background: rgba(255,255,255,0.3);
+    transform: translateY(-2px);
+}
+
+/* Modern Controls Panel */
+.controls-panel {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border: 1px solid #f0f0f0;
+}
+
+.controls-panel > .view-controls {
+    display: grid;
+    grid-template-columns: auto auto 1fr auto auto;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.controls-panel > .date-controls {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: center;
+}
+
+.date-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.date-nav-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 10px;
+    background: var(--royal-green);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.date-nav-btn:hover {
+    background: #1a5f3f;
+    transform: scale(1.05);
+}
+
+.date-selector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#schedule-date {
+    padding: 0.75rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1rem;
+    background: white;
+}
+
+.date-display {
+    font-weight: 600;
+    color: var(--dark-text);
+    text-align: center;
+}
+
+.view-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.view-toggle {
+    display: flex;
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 0.25rem;
+}
+
+.view-btn {
+    padding: 0.75rem 1rem;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.view-btn.active {
+    background: var(--royal-green);
+    color: white;
+}
+
+.filter-select {
+    padding: 0.75rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    background: white;
+    font-size: 0.9rem;
+}
+
+.refresh-btn {
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 10px;
+    background: #17a2b8;
+    color: white;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.refresh-btn:hover {
+    background: #138496;
+    transform: translateY(-2px);
+}
+
+/* Modern Legend */
+.legend {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border: 1px solid #f0f0f0;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    background: #fafafa;
+    transition: all 0.2s ease;
+}
+
+.legend-item:hover {
+    background: #f5f5f5;
+    transform: translateY(-1px);
+}
+
+.legend-color {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    border: 1px solid #ddd;
+    flex-shrink: 0;
+}
+
+.legend-color.available { 
+    background: #f8f9fa; 
+    border-color: #dee2e6;
+}
+.legend-color.booked-pending { 
+    background: #fff3cd; 
+    border-color: #ffc107;
+}
+.legend-color.booked-confirmed { 
+    background: #d4edda; 
+    border-color: #28a745;
+}
+.legend-color.booked-conflict { 
+    background: #f8d7da; 
+    border-color: #dc3545;
+}
+.legend-color.blocked { 
+    background: #e9ecef; 
+    border-color: #adb5bd;
+}
+
+/* Schedule Container */
+.schedule-container {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+.schedule-grid {
+    display: grid;
+    gap: 1px;
+    background: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    min-height: 600px;
+}
+
+/* Week View Grid */
+.schedule-grid.week-view {
+    grid-template-columns: 80px repeat(7, 1fr);
+    grid-template-rows: 60px repeat(48, 40px); /* 48 half-hour slots */
+}
+
+/* Day View Grid */
+.schedule-grid.day-view {
+    grid-template-columns: 100px repeat(4, 1fr); /* 4 courts */
+    grid-template-rows: 60px repeat(48, 50px);
+}
+
+/* Time Headers */
+.time-header {
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: var(--dark-text);
+    border-right: 1px solid #ddd;
+}
+
+/* Day Separator Header - Spans full width */
+.time-header.day-separator {
+    background: var(--royal-green) !important;
+    color: white !important;
+    font-weight: 700 !important;
+    font-size: 0.9rem !important;
+    grid-column: 1 / -1 !important; /* Span all columns */
+    text-align: center !important;
+    padding: 1rem !important;
+    border: none !important;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Day Headers */
+.day-header, .court-header {
+    background: linear-gradient(135deg, var(--royal-green), #1a5f3f);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+/* Time Slots */
+.time-slot {
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+    min-height: 50px;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    overflow: hidden;
+    word-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.time-slot:hover {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    transform: translateY(-1px);
+    z-index: 2;
+}
+
+/* Slot States */
+.time-slot.available {
+    background: #f8f9fa;
+    color: #6c757d;
+    border: 1px solid #dee2e6;
+}
+
+.time-slot.available:hover {
+    background: #e9ecef;
+}
+
+.time-slot.booked-pending {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffc107;
+}
+
+.time-slot.booked-confirmed {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #28a745;
+}
+
+.time-slot.booked-conflict {
+    background: #f8d7da;
+    color: #721c24;
+    border: 2px dashed #dc3545;
+}
+
+.time-slot.blocked {
+    background: #6c757d !important;
+    color: white !important;
+    border: 2px solid #6c757d !important;
+}
+
+/* Slot Content */
+.slot-content {
+    text-align: center;
+    padding: 0.5rem 0.25rem;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.25rem;
+    line-height: 1.2;
+}
+
+.slot-title {
+    font-weight: 700;
+    font-size: 0.8rem;
+    margin: 0;
+    line-height: 1.1;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.slot-subtitle {
+    font-size: 0.7rem;
+    opacity: 0.85;
+    margin: 0;
+    line-height: 1.1;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.slot-time {
+    font-size: 0.65rem;
+    opacity: 0.7;
+    font-weight: 500;
+    margin: 0;
+}
+
+/* Create Booking Section */
+.create-booking-section {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+.booking-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.create-booking-btn {
+    background: var(--royal-green);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(27, 94, 32, 0.2);
+}
+
+.create-booking-btn:hover {
+    background: #1a5f3f;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(27, 94, 32, 0.3);
+}
+
+.booking-instructions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    background: #e3f2fd;
+    padding: 1rem;
+    border-radius: 12px;
+    border-left: 4px solid #2196f3;
+    margin-top: 1rem;
+}
+
+.instruction-text {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #1565c0;
+    font-weight: 600;
+}
+
+.instruction-text i {
+    color: #2196f3;
+}
+
+.cancel-booking-btn {
+    background: #f44336;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    transition: all 0.3s ease;
+}
+
+.cancel-booking-btn:hover {
+    background: #d32f2f;
+    transform: translateY(-1px);
+}
+
+/* Slot Selection States */
+.time-slot.selection-start {
+    background: #4caf50 !important;
+    color: white !important;
+    border: 2px solid #2e7d32 !important;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3) !important;
+}
+
+.time-slot.selection-end {
+    background: #ff9800 !important;
+    color: white !important;
+    border: 2px solid #f57c00 !important;
+    box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.3) !important;
+}
+
+.time-slot.selection-between {
+    background: #ffeb3b !important;
+    color: #333 !important;
+    border: 2px solid #fbc02d !important;
+    box-shadow: 0 0 0 2px rgba(255, 235, 59, 0.3) !important;
+}
+
+.time-slot.selection-invalid {
+    background: #f44336 !important;
+    color: white !important;
+    border: 2px solid #d32f2f !important;
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-3px); }
+    75% { transform: translateX(3px); }
+}
+
+/* Hide mobile view on desktop screens */
+.mobile-schedule {
+    display: none;
+}
+
+/* Excel-like Schedule for Mobile - FIXED */
+.schedule-excel {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    position: relative;
+    height: 70vh;
+    min-height: 500px;
+    max-height: 700px;
+}
+
+/* Fixed Excel Layout Structure */
+.excel-container {
+    display: grid;
+    grid-template-areas: 
+        "corner headers"
+        "times content";
+    grid-template-columns: 80px 1fr;
+    grid-template-rows: 60px 1fr;
+    height: 100%;
+    width: 100%;
+}
+
+/* Top-left corner cell - FIXED */
+.excel-corner {
+    grid-area: corner;
+    background: #e9ecef;
+    border-right: 2px solid #dee2e6;
+    border-bottom: 2px solid #dee2e6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: #6c757d;
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 30;
+}
+
+/* Court headers row - FIXED at top */
+.excel-court-headers {
+    grid-area: headers;
+    background: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    overflow-x: auto;
+    overflow-y: hidden;
+    display: flex;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+}
+
+.excel-court-headers::-webkit-scrollbar {
+    display: none;
+}
+
+.excel-court-header {
+    min-width: 120px;
+    width: 120px;
+    height: 60px;
+    background: #f8f9fa;
+    border-right: 1px solid #dee2e6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: #495057;
+    text-align: center;
+    padding: 0.5rem;
+    flex-shrink: 0;
+}
+
+/* Time column - FIXED on left */
+.excel-time-column {
+    grid-area: times;
+    background: #f8f9fa;
+    border-right: 2px solid #dee2e6;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #ced4da #f8f9fa;
+    position: sticky;
+    left: 0;
+    z-index: 10;
+}
+
+.excel-time-header {
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid #dee2e6;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6c757d;
+    background: #f8f9fa;
+}
+
+.excel-time-header.day-separator {
+    background: var(--cream, #f8f9fa);
+    color: var(--royal-green, #1b5e20);
+    border-left: 3px solid var(--royal-green, #1b5e20);
+    border-radius: 6px;
+    margin: 0.5rem 0;
+    font-weight: bold;
+    font-size: 0.75rem;
+    text-align: center;
+    height: auto;
+    min-height: 40px;
+    padding: 0.5rem;
+}
+
+/* Main scrollable content area */
+.excel-slots-container {
+    grid-area: content;
+    overflow: auto;
+    position: relative;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    background: white;
+    /* Force scrollbars to always be visible for better UX */
+    scrollbar-width: thin;
+    scrollbar-color: #ced4da #f8f9fa;
+}
+
+.excel-slots-container::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.excel-slots-container::-webkit-scrollbar-track {
+    background: #f8f9fa;
+}
+
+.excel-slots-container::-webkit-scrollbar-thumb {
+    background: #ced4da;
+    border-radius: 4px;
+}
+
+.excel-slots-container::-webkit-scrollbar-thumb:hover {
+    background: #adb5bd;
+}
+
+.excel-slots-grid {
+    display: block;
+    min-width: max-content;
+}
+
+.excel-slot-row {
+    display: flex;
+    border-bottom: 1px solid #f0f0f0;
+    height: 50px;
+    min-width: max-content;
+}
+
+.excel-slot {
+    min-width: 120px;
+    width: 120px;
+    height: 50px;
+    border-right: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    background: white;
+    position: relative;
+}
+
+.excel-slot:hover {
+    box-shadow: inset 0 0 0 2px #007bff;
+    z-index: 2;
+}
+
+.excel-slot.available {
+    background: #f8f9fa;
+    color: #6c757d;
+}
+
+.excel-slot.booked-pending {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffc107;
+}
+
+.excel-slot.booked-confirmed {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #28a745;
+}
+
+.excel-slot.booked-conflict {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #dc3545;
+}
+
+.excel-slot.blocked {
+    background: #6c757d !important;
+    color: white !important;
+    border: 2px solid #6c757d !important;
+}
+
+/* Selection states for Excel view */
+.excel-slot.selection-start {
+    background: #4caf50 !important;
+    color: white !important;
+    border: 2px solid #2e7d32 !important;
+}
+
+.excel-slot.selection-end {
+    background: #ff9800 !important;
+    color: white !important;
+    border: 2px solid #f57c00 !important;
+}
+
+.excel-slot.selection-between {
+    background: #ffeb3b !important;
+    color: #333 !important;
+    border: 2px solid #fbc02d !important;
+}
+
+.excel-slot.selection-invalid {
+    background: #f44336 !important;
+    color: white !important;
+    border: 2px solid #d32f2f !important;
+    animation: shake 0.5s ease-in-out;
+}
+
+/* Loading Overlay */
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255,255,255,0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+    z-index: 1000;
+}
+
+.loading-overlay.hidden {
+    display: none;
+}
+
+.loading-spinner {
+    text-align: center;
+    color: var(--royal-green);
+}
+
+.loading-spinner i {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 1rem;
+}
+
+.modal-overlay.hidden {
+    display: none;
+}
+
+.modal {
+    background: white;
+    border-radius: 16px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.modal-header {
+    padding: 2rem 2rem 1rem;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--dark-text);
+    margin: 0;
+}
+
+.close-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: #f8f9fa;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+    background: #e9ecef;
+    transform: scale(1.1);
+}
+
+.modal-body {
+    padding: 2rem;
+}
+
+/* Slot Info */
+.slot-info, .booking-info {
+    margin-bottom: 2rem;
+}
+
+.info-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.info-group:last-child {
+    border-bottom: none;
+}
+
+.info-group label {
+    font-weight: 600;
+    color: var(--dark-text);
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.status-badge.available { background: #e8f5e8; color: #28a745; }
+.status-badge.booked-pending { background: #fff3cd; color: #856404; }
+.status-badge.booked-confirmed { background: #d4edda; color: #155724; }
+.status-badge.blocked { background: #f8d7da; color: #721c24; }
+
+/* Comments Section */
+.comments-section {
+    margin: 2rem 0;
+}
+
+.comments-section label {
+    display: block;
+    font-weight: 600;
+    color: var(--dark-text);
+    margin-bottom: 0.5rem;
+}
+
+.comments-section textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    resize: vertical;
+    font-family: inherit;
+    margin-bottom: 1rem;
+}
+
+.save-comment-btn {
+    background: var(--royal-green);
+    color: white;
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.save-comment-btn:hover {
+    background: #1a5f3f;
+    transform: translateY(-2px);
+}
+
+/* Action Groups */
+.action-group, .booking-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.book-btn { background: var(--royal-green); color: white; }
+.block-btn { background: #6c757d; color: white; }
+.confirm-btn { background: #28a745; color: white; }
+.decline-btn { background: #dc3545; color: white; }
+.cancel-btn { background: #6c757d; color: white; }
+.edit-btn { background: #17a2b8; color: white; }
+.unblock-btn { background: #ffc107; color: #212529; }
+
+/* Form Styles */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    color: var(--dark-text);
+    margin-bottom: 0.5rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--royal-green);
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+}
+
+.btn-primary {
+    background: var(--royal-green);
+    color: white;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: #1a5f3f;
+    transform: translateY(-2px);
+}
+
+.btn-cancel {
+    background: #6c757d;
+    color: white;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-cancel:hover {
+    background: #545b62;
+    transform: translateY(-2px);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    /* Hide ONLY the desktop schedule grid on mobile */
+    #schedule-grid {
+        display: none !important;
+    }
+
+    /* Show only mobile Excel view */
+    .mobile-schedule {
+        display: block !important;
+    }
+
+    .admin-header .admin-container {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .admin-header {
+        padding: 1.5rem 0;
+    }
+
+    .admin-title {
+        font-size: 2rem;
+    }
+
+    .admin-title i {
+        font-size: 1.5rem;
+        padding: 0.8rem;
+    }
+
+    .back-btn {
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+    }
+
+    .controls-panel {
+        padding: 1rem;
+    }
+
+    .controls-panel > .view-controls {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .view-toggle {
+        order: 1;
+    }
+    
+    .sport-filter {
+        order: 2;
+    }
+    
+    .refresh-btn {
+        order: 3;
+    }
+    
+    .create-booking-btn {
+        order: 4;
+        justify-self: stretch;
+    }
+
+    .controls-panel > .date-controls {
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.75rem;
+    }
+
+    .legend {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 0.75rem;
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .schedule-grid.week-view {
+        grid-template-columns: 60px repeat(7, minmax(80px, 1fr));
+        grid-template-rows: 50px repeat(48, 35px);
+        font-size: 0.7rem;
+    }
+
+    .schedule-grid.day-view {
+        grid-template-columns: 80px repeat(4, 1fr);
+        grid-template-rows: 50px repeat(48, 45px);
+    }
+
+    .time-slot {
+        min-height: 45px;
+        font-size: 0.75rem;
+        border-radius: 6px;
+    }
+
+    .slot-content {
+        padding: 0.4rem 0.2rem;
+        gap: 0.2rem;
+    }
+
+    .slot-title {
+        font-size: 0.7rem;
+        -webkit-line-clamp: 1;
+    }
+
+    .slot-subtitle {
+        font-size: 0.65rem;
+    }
+
+    .slot-time {
+        font-size: 0.6rem;
+    }
+
+    .modal {
+        margin: 1rem;
+        max-width: none;
+    }
+
+    .modal-header,
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .action-group,
+    .booking-actions {
+        flex-direction: column;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-header {
+        padding: 1rem 0;
+    }
+
+    .admin-title {
+        font-size: 1.5rem;
+        gap: 0.75rem;
+    }
+
+    .admin-title i {
+        font-size: 1.2rem;
+        padding: 0.6rem;
+        border-radius: 12px;
+    }
+
+    .back-btn {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.9rem;
+        border-radius: 30px;
+    }
+
+    .schedule-grid.week-view {
+        grid-template-columns: 50px repeat(7, minmax(60px, 1fr));
+        grid-template-rows: 40px repeat(48, 35px);
+        font-size: 0.65rem;
+    }
+
+    .schedule-grid.day-view {
+        grid-template-columns: 70px repeat(4, 1fr);
+        grid-template-rows: 45px repeat(48, 40px);
+    }
+
+    .time-slot {
+        min-height: 35px;
+        font-size: 0.65rem;
+        border-radius: 4px;
+    }
+
+    .slot-content {
+        padding: 0.3rem 0.15rem;
+        gap: 0.15rem;
+    }
+
+    .slot-title {
+        font-size: 0.65rem;
+        -webkit-line-clamp: 1;
+    }
+
+    .slot-subtitle {
+        font-size: 0.6rem;
+        display: none; /* Hide subtitle on very small screens */
+    }
+
+    .slot-time {
+        font-size: 0.55rem;
+    }
+
+    .legend-item {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.6rem;
+        gap: 0.6rem;
+    }
+
+    .legend-color {
+        width: 10px;
+        height: 10px;
+    }
+
+    .controls-panel {
+        padding: 1rem;
+    }
+
+    /* Excel view already shown at 768px breakpoint */
+
+    .create-booking-section {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .booking-controls {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .create-booking-btn {
+        font-size: 1rem;
+        padding: 0.8rem 1.5rem;
+    }
+
+    .booking-instructions {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+        padding: 1rem;
+        border-radius: 12px;
+    }
+}
+
+/* Comment Icons for Slots */
+.customer-comment-icon,
+.admin-comment-icon {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 0.7rem;
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    padding: 2px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    cursor: help;
+}
+
+.customer-comment-icon {
+    color: #007bff;
+    border: 1px solid #007bff;
+}
+
+.admin-comment-icon {
+    color: #28a745;
+    border: 1px solid #28a745;
+    right: 16px; /* Position next to customer comment if both exist */
+}
+
+/* Ensure slot content is positioned relatively for absolute positioning of icons */
+.slot-content {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+/* Adjust icon size for smaller slots */
+@media (max-width: 768px) {
+    .customer-comment-icon,
+    .admin-comment-icon {
+        font-size: 0.6rem;
+        padding: 1px;
+        top: 1px;
+        right: 1px;
+    }
+    
+    .admin-comment-icon {
+        right: 12px;
+    }
+}
