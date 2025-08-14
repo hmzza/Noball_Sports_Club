@@ -24,8 +24,11 @@ def login():
         
         user = AuthService.authenticate_user(username, password)
         if user:
-            session_id = SessionManager.create_session(user)
-            session["admin_session_id"] = session_id
+            # Store user data directly in Flask session instead of using in-memory SessionManager
+            session["admin_logged_in"] = True
+            session["admin_user_id"] = user.id
+            session["admin_username"] = user.username
+            session["admin_role"] = user.role
             return redirect(url_for("admin_panel.admin_dashboard"))
         else:
             return render_template("admin_login.html", error="Invalid credentials")
@@ -35,10 +38,11 @@ def login():
 @admin_bp.route("/logout")
 def logout():
     """Admin logout"""
-    session_id = session.get("admin_session_id")
-    if session_id:
-        SessionManager.destroy_session(session_id)
-    session.pop("admin_session_id", None)
+    # Clear all admin session data
+    session.pop("admin_logged_in", None)
+    session.pop("admin_user_id", None)
+    session.pop("admin_username", None)
+    session.pop("admin_role", None)
     return redirect(url_for("admin_panel.login"))
 
 # Check current user before every request
@@ -52,7 +56,7 @@ def before_request():
 @admin_bp.route("/")
 def admin_root():
     """Admin root - redirect to login or dashboard"""
-    if session.get('admin_session_id'):
+    if session.get('admin_logged_in'):
         return redirect(url_for('admin_panel.admin_dashboard'))
     return redirect(url_for('admin_panel.login'))
 

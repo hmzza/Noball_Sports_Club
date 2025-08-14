@@ -11,15 +11,26 @@ def require_auth(f):
     """Decorator that requires authentication for admin routes"""
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        session_id = session.get('admin_session_id')
-        if not session_id:
+        if not session.get('admin_logged_in'):
             if request.is_json:
                 return jsonify({'error': 'Authentication required'}), 401
             return redirect(url_for('admin_panel.login'))
         
-        user = SessionManager.get_user_from_session(session_id)
+        user_id = session.get('admin_user_id')
+        if not user_id:
+            # Clear invalid session
+            session.pop('admin_logged_in', None)
+            if request.is_json:
+                return jsonify({'error': 'Invalid session'}), 401
+            return redirect(url_for('admin_panel.login'))
+        
+        user = AuthService.get_user_by_id(user_id)
         if not user or not user.is_active:
-            session.pop('admin_session_id', None)
+            # Clear invalid session
+            session.pop('admin_logged_in', None)
+            session.pop('admin_user_id', None)
+            session.pop('admin_username', None)
+            session.pop('admin_role', None)
             if request.is_json:
                 return jsonify({'error': 'Invalid session'}), 401
             return redirect(url_for('admin_panel.login'))
@@ -108,11 +119,12 @@ def admin_or_higher(f):
 
 def check_current_user():
     """Set current user in g if session exists"""
-    session_id = session.get('admin_session_id')
-    if session_id:
-        user = SessionManager.get_user_from_session(session_id)
-        if user and user.is_active:
-            g.current_user = user
-            return user
+    if session.get('admin_logged_in'):
+        user_id = session.get('admin_user_id')
+        if user_id:
+            user = AuthService.get_user_by_id(user_id)
+            if user and user.is_active:
+                g.current_user = user
+                return user
     g.current_user = None
     return None
