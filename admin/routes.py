@@ -7,6 +7,7 @@ import logging
 from auth_middleware import require_auth, require_permission, super_admin_only, admin_or_higher, check_current_user
 from services.auth_service import AuthService, SessionManager
 from services.activity_service import ActivityService
+from services.admin_service import AdminService
 from .views import AdminDashboardView, AdminBookingView, AdminScheduleView, AdminBookingControlView, AdminPricingView, AdminAPIView, AdminExpenseView
 from services.contact_service import ContactService
 
@@ -576,3 +577,99 @@ def api_monthly_expenses():
 def api_daily_expenses():
     """Get daily expenses"""
     return AdminExpenseView.get_daily_expenses()
+
+# Excel Export Routes
+@admin_bp.route("/export/bookings")
+@require_auth
+@require_permission('view_reports')
+def export_bookings():
+    """Export all bookings to Excel"""
+    try:
+        from openpyxl import Workbook
+        from openpyxl.styles import Font, PatternFill, Alignment
+        from flask import make_response
+        from io import BytesIO
+        from datetime import datetime
+        
+        # Get all bookings
+        bookings = AdminService.get_all_bookings()
+        
+        # Create workbook
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "All Bookings"
+        
+        # Header style
+        header_font = Font(bold=True, color="FFFFFF")
+        header_fill = PatternFill(start_color="2E7D32", end_color="2E7D32", fill_type="solid")
+        header_alignment = Alignment(horizontal="center", vertical="center")
+        
+        # Headers
+        headers = [
+            "Booking ID", "Sport", "Court", "Player Name", "Phone", "Email", 
+            "Date", "Start Time", "End Time", "Duration (hrs)", "Player Count",
+            "Total Amount", "Status", "Payment Type", "Created At", "Special Requests"
+        ]
+        
+        for col, header in enumerate(headers, 1):
+            cell = ws.cell(row=1, column=col, value=header)
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.alignment = header_alignment
+        
+        # Data rows
+        for row, booking in enumerate(bookings, 2):
+            data = [
+                booking.get('id', ''),
+                booking.get('sport', ''),
+                booking.get('court_name', booking.get('court', '')),
+                booking.get('player_name', ''),
+                booking.get('player_phone', ''),
+                booking.get('player_email', ''),
+                booking.get('booking_date', ''),
+                booking.get('start_time', ''),
+                booking.get('end_time', ''),
+                booking.get('duration', 1.0),
+                booking.get('player_count', '2'),
+                f"PKR {booking.get('total_amount', 0)}",
+                booking.get('status', '').title().replace('_', ' '),
+                booking.get('payment_type', '').title(),
+                booking.get('createdDateTime', ''),
+                booking.get('special_requests', '')
+            ]
+            
+            for col, value in enumerate(data, 1):
+                ws.cell(row=row, column=col, value=value)
+        
+        # Auto-adjust column widths
+        for column in ws.columns:
+            max_length = 0
+            column_letter = column[0].column_letter
+            for cell in column:
+                if cell.value:
+                    max_length = max(max_length, len(str(cell.value)))
+            adjusted_width = min(max_length + 2, 50)
+            ws.column_dimensions[column_letter].width = adjusted_width
+        
+        # Save to BytesIO
+        output = BytesIO()
+        wb.save(output)
+        output.seek(0)
+        
+        # Create response
+        response = make_response(output.read())
+        response.headers['Content-Type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        response.headers['Content-Disposition'] = f'attachment; filename=noball_bookings_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+        
+        # Log the export activity
+        try:
+            from services.activity_service import ActivityService
+            ActivityService.log_activity('export', 'bookings', 'all', 'All Bookings', f'Exported {len(bookings)} bookings to Excel')
+        except Exception as log_error:
+            logger.warning(f"Failed to log export activity: {log_error}")
+        
+        return response
+        
+    except Exception as e:
+        logger.error(f"Error exporting bookings: {e}")
+        return jsonify({"error": "Failed to export bookings"}), 500

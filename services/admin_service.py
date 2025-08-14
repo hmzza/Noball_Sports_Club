@@ -28,6 +28,7 @@ class AdminService:
     def get_dashboard_stats() -> Dict:
         """Get dashboard statistics"""
         try:
+            # Get current month stats only
             stats_query = """
                 SELECT 
                     COUNT(*) as total_bookings,
@@ -36,6 +37,8 @@ class AdminService:
                     COUNT(CASE WHEN status = 'cancelled' THEN 1 END) as cancelled,
                     COALESCE(SUM(CASE WHEN status = 'confirmed' THEN total_amount END), 0) as revenue
                 FROM bookings
+                WHERE EXTRACT(MONTH FROM booking_date) = EXTRACT(MONTH FROM CURRENT_DATE)
+                  AND EXTRACT(YEAR FROM booking_date) = EXTRACT(YEAR FROM CURRENT_DATE)
             """
             
             result = DatabaseManager.execute_query(stats_query, fetch_one=True)

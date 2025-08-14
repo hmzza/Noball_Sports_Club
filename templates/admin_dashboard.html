@@ -384,7 +384,27 @@
             const exportBtn = document.getElementById('export-data-btn');
             if (exportBtn) {
                 exportBtn.addEventListener('click', function() {
-                    alert('Export feature will be available soon!');
+                    // Show loading state
+                    const icon = this.querySelector('i');
+                    const originalClass = icon.className;
+                    icon.className = 'fas fa-spinner fa-spin';
+                    this.disabled = true;
+                    this.style.opacity = '0.7';
+                    
+                    // Create a temporary link to trigger download
+                    const link = document.createElement('a');
+                    link.href = '{{ url_for("admin_panel.export_bookings") }}';
+                    link.download = '';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    // Reset button state after 2 seconds
+                    setTimeout(() => {
+                        icon.className = originalClass;
+                        this.disabled = false;
+                        this.style.opacity = '1';
+                    }, 2000);
                 });
             }
 

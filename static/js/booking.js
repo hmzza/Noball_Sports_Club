@@ -315,10 +315,13 @@ class BookingSystem {
     // Form validation
     const playerName = document.getElementById("player-name");
     const playerPhone = document.getElementById("player-phone");
+    const playerEmail = document.getElementById("player-email");
     if (playerName)
       playerName.addEventListener("input", () => this.validateStep3());
     if (playerPhone)
       playerPhone.addEventListener("input", () => this.validateStep3());
+    if (playerEmail)
+      playerEmail.addEventListener("input", () => this.validateStep3());
 
     // Payment type selection
     document.querySelectorAll('input[name="payment-type"]').forEach((radio) => {
@@ -390,10 +393,14 @@ class BookingSystem {
   validateStep3() {
     const name = document.getElementById("player-name")?.value.trim() || "";
     const phone = document.getElementById("player-phone")?.value.trim() || "";
+    const email = document.getElementById("player-email")?.value.trim() || "";
     const nextBtn = document.querySelector("#step-3 .next-step");
 
+    // Email validation regex
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     if (nextBtn) {
-      nextBtn.disabled = !(name && phone);
+      nextBtn.disabled = !(name && phone && email && emailRegex.test(email));
     }
   }
 
