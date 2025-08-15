@@ -594,6 +594,11 @@
     position: sticky;
     top: 0;
     z-index: 20;
+    /* Mobile-optimized scrolling */
+    -webkit-overflow-scrolling: touch;
+    transform: translateZ(0);
+    will-change: scroll-position;
+    overscroll-behavior-x: contain;
 }
 
 .excel-court-headers::-webkit-scrollbar {
@@ -630,6 +635,11 @@
     position: sticky;
     left: 0;
     z-index: 10;
+    /* Mobile-optimized scrolling */
+    -webkit-overflow-scrolling: touch;
+    transform: translateZ(0);
+    will-change: scroll-position;
+    overscroll-behavior-y: contain;
 }
 
 .excel-time-header {
@@ -666,9 +676,16 @@
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
     background: white;
-    /* Force scrollbars to always be visible for better UX */
+    /* Mobile-optimized scrolling */
     scrollbar-width: thin;
     scrollbar-color: #ced4da #f8f9fa;
+    /* Improve mobile touch scrolling */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    will-change: scroll-position;
+    /* Better momentum scrolling on iOS */
+    -webkit-scroll-behavior: smooth;
+    overscroll-behavior: contain;
 }
 
 .excel-slots-container::-webkit-scrollbar {
@@ -1055,7 +1072,7 @@
     transform: translateY(-2px);
 }
 
-/* Mobile Responsiveness */
+/* Mobile-specific improvements */
 @media (max-width: 768px) {
     /* Hide ONLY the desktop schedule grid on mobile */
     #schedule-grid {
@@ -1066,6 +1083,107 @@
     .mobile-schedule {
         display: block !important;
     }
+
+    /* Improve Excel view for mobile */
+    .excel-container {
+        height: 100%;
+        grid-template-columns: 70px 1fr;
+        grid-template-rows: 50px 1fr;
+    }
+
+    .excel-corner {
+        font-size: 0.7rem;
+    }
+
+    .excel-court-header {
+        min-width: 100px;
+        width: 100px;
+        height: 50px;
+        font-size: 0.75rem;
+        padding: 0.3rem;
+    }
+
+    .excel-time-column {
+        /* Better mobile scrolling */
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .excel-time-column::-webkit-scrollbar {
+        display: none;
+    }
+
+    .excel-slots-container {
+        /* Enhanced mobile scrolling */
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        /* Prevent elastic bounce on iOS */
+        overscroll-behavior: none;
+        /* Improve scrolling performance */
+        -webkit-transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0);
+    }
+
+    .excel-slots-container::-webkit-scrollbar {
+        display: none;
+    }
+
+    .excel-slot-row {
+        height: 45px;
+    }
+
+    .excel-slot {
+        min-width: 100px;
+        width: 100px;
+        height: 45px;
+        font-size: 0.7rem;
+        /* Better touch targets */
+        min-height: 44px;
+    }
+
+    .excel-time-header {
+        height: 45px;
+        font-size: 0.7rem;
+    }
+
+    /* Mobile scroll indicators */
+    .excel-court-headers::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 20px;
+        height: 100%;
+        background: linear-gradient(to left, rgba(248, 249, 250, 0.9), transparent);
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .excel-court-headers.scrollable::after {
+        opacity: 1;
+    }
+
+    /* Touch-friendly scroll hint */
+    .mobile-scroll-hint {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 0.5rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        z-index: 100;
+    }
+
+    .mobile-scroll-hint.show {
+        opacity: 1;
+    }
+}
 
     .admin-header .admin-container {
         flex-direction: column;

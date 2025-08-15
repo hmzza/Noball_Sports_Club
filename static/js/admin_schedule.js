@@ -2648,45 +2648,133 @@ class AdminScheduleManager {
 
     if (!courtHeaders || !slotsContainer || !timeColumn) return;
 
-    // Sync horizontal scrolling between headers and content
     let isSyncing = false;
+    let animationId = null;
 
-    slotsContainer.addEventListener("scroll", () => {
+    // Throttled scroll sync for better performance
+    const throttledSync = (callback) => {
+      if (animationId) return;
+      animationId = requestAnimationFrame(() => {
+        callback();
+        animationId = null;
+      });
+    };
+
+    // Enhanced horizontal scroll sync (headers ↔ content)
+    const syncHorizontal = (source, target) => {
       if (isSyncing) return;
-      isSyncing = true;
-      courtHeaders.scrollLeft = slotsContainer.scrollLeft;
-      setTimeout(() => {
-        isSyncing = false;
-      }, 10);
-    });
+      throttledSync(() => {
+        isSyncing = true;
+        target.scrollLeft = source.scrollLeft;
+        setTimeout(() => { isSyncing = false; }, 16); // ~60fps
+      });
+    };
+
+    // Enhanced vertical scroll sync (time column ↔ content)
+    const syncVertical = (source, target) => {
+      if (isSyncing) return;
+      throttledSync(() => {
+        isSyncing = true;
+        target.scrollTop = source.scrollTop;
+        setTimeout(() => { isSyncing = false; }, 16); // ~60fps
+      });
+    };
+
+    // Horizontal scroll synchronization
+    slotsContainer.addEventListener("scroll", () => {
+      syncHorizontal(slotsContainer, courtHeaders);
+    }, { passive: true });
 
     courtHeaders.addEventListener("scroll", () => {
-      if (isSyncing) return;
-      isSyncing = true;
-      slotsContainer.scrollLeft = courtHeaders.scrollLeft;
-      setTimeout(() => {
-        isSyncing = false;
-      }, 10);
-    });
+      syncHorizontal(courtHeaders, slotsContainer);
+    }, { passive: true });
 
-    // Sync vertical scrolling between time column and content
+    // Vertical scroll synchronization  
     slotsContainer.addEventListener("scroll", () => {
-      if (isSyncing) return;
-      isSyncing = true;
-      timeColumn.scrollTop = slotsContainer.scrollTop;
-      setTimeout(() => {
-        isSyncing = false;
-      }, 10);
-    });
+      syncVertical(slotsContainer, timeColumn);
+    }, { passive: true });
 
     timeColumn.addEventListener("scroll", () => {
-      if (isSyncing) return;
-      isSyncing = true;
-      slotsContainer.scrollTop = timeColumn.scrollTop;
-      setTimeout(() => {
-        isSyncing = false;
-      }, 10);
-    });
+      syncVertical(timeColumn, slotsContainer);
+    }, { passive: true });
+
+    // Mobile-specific touch optimizations
+    if ('ontouchstart' in window) {
+      const containers = [courtHeaders, slotsContainer, timeColumn];
+      
+      containers.forEach(container => {
+        // Improve touch scrolling momentum
+        container.style.webkitOverflowScrolling = 'touch';
+        container.style.overscrollBehavior = 'contain';
+        
+        // Add touch-friendly scrollbar indicators for mobile
+        container.addEventListener('touchstart', () => {
+          container.style.scrollbarWidth = 'thin';
+        }, { passive: true });
+        
+        container.addEventListener('touchend', () => {
+          setTimeout(() => {
+            container.style.scrollbarWidth = 'none';
+          }, 1000);
+        }, { passive: true });
+      });
+
+      // Add smooth scroll behavior for mobile
+      slotsContainer.style.scrollBehavior = 'smooth';
+      courtHeaders.style.scrollBehavior = 'smooth';
+      timeColumn.style.scrollBehavior = 'smooth';
+    }
+
+    // Add mobile scroll hint functionality
+    this.setupMobileScrollHints();
+
+    console.log("📱 Enhanced mobile scroll sync initialized");
+  }
+
+  setupMobileScrollHints() {
+    if (!('ontouchstart' in window)) return; // Only for touch devices
+
+    const slotsContainer = document.getElementById("excel-slots-container");
+    const courtHeaders = document.getElementById("excel-court-headers");
+    const scrollHint = document.getElementById("mobile-scroll-hint");
+    
+    if (!slotsContainer || !scrollHint) return;
+
+    let hintShown = false;
+    let hintTimeout = null;
+
+    // Show hint initially for 3 seconds
+    setTimeout(() => {
+      if (!hintShown) {
+        scrollHint.classList.add('show');
+        hintTimeout = setTimeout(() => {
+          scrollHint.classList.remove('show');
+        }, 3000);
+      }
+    }, 1000);
+
+    // Hide hint when user starts scrolling
+    const hideHint = () => {
+      if (hintTimeout) clearTimeout(hintTimeout);
+      scrollHint.classList.remove('show');
+      hintShown = true;
+    };
+
+    slotsContainer.addEventListener('touchstart', hideHint, { passive: true });
+    slotsContainer.addEventListener('scroll', hideHint, { passive: true });
+
+    // Add scrollable indicator to court headers
+    const updateScrollIndicator = () => {
+      if (courtHeaders.scrollWidth > courtHeaders.clientWidth) {
+        courtHeaders.classList.add('scrollable');
+      } else {
+        courtHeaders.classList.remove('scrollable');
+      }
+    };
+
+    // Update indicator when content changes
+    setTimeout(updateScrollIndicator, 500);
+    window.addEventListener('resize', updateScrollIndicator);
   }
 
   // Update clearSlotSelections to work with both views
