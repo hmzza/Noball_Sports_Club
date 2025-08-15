@@ -309,7 +309,15 @@ class BookingSystem {
 
     // Step back buttons
     document.querySelectorAll(".step-back-btn").forEach((btn) => {
-      btn.addEventListener("click", () => this.goBackOneStep());
+      btn.addEventListener("click", () => {
+        if (btn.id === 'back-to-step-1' && this.currentStep === 2) {
+          this.prevStep();
+        } else if (btn.id === 'back-to-step-2' && this.currentStep === 3) {
+          this.prevStep();
+        } else if (btn.id === 'back-to-step-3' && this.currentStep === 4) {
+          this.prevStep();
+        }
+      });
     });
 
     // Form validation

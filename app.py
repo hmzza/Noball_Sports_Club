@@ -36,8 +36,10 @@ def create_app(config_name=None):
         DatabaseManager.init_database()
         logger.info("Database initialized successfully")
     except Exception as e:
-        logger.warning(f"Database initialization failed: {e}. App will start without database.")
-    
+        logger.warning(
+            f"Database initialization failed: {e}. App will start without database."
+        )
+
     # Create super admin account if it doesn't exist
     try:
         AuthService.create_super_admin()
@@ -60,12 +62,12 @@ def register_main_routes(app):
     @app.route("/")
     def index():
         """Main page route"""
-        return render_template("index.html")
+        return render_template("index_modern.html")
 
     @app.route("/booking")
     def booking():
         """Booking page route"""
-        return render_template("booking.html")
+        return render_template("booking_modern.html")
 
 
 def register_api_routes(app):
@@ -422,30 +424,56 @@ def register_api_routes(app):
 
             data = request.json
             logger.info(f"Promo code request data: {data}")
-            
+
             if not data:
                 return jsonify({"success": False, "message": "No data provided"}), 400
-            
+
             promo_code = data.get("promo_code", "").strip().upper()
             sport = data.get("sport")
-            
+
             # Better validation for booking_amount
             booking_amount_raw = data.get("booking_amount")
             if booking_amount_raw is None:
-                return jsonify({"success": False, "message": "Booking amount is required"}), 400
-            
+                return (
+                    jsonify(
+                        {"success": False, "message": "Booking amount is required"}
+                    ),
+                    400,
+                )
+
             try:
                 booking_amount = int(booking_amount_raw)
             except (ValueError, TypeError):
-                return jsonify({"success": False, "message": f"Invalid booking amount: {booking_amount_raw}"}), 400
+                return (
+                    jsonify(
+                        {
+                            "success": False,
+                            "message": f"Invalid booking amount: {booking_amount_raw}",
+                        }
+                    ),
+                    400,
+                )
 
-            logger.info(f"Applying promo code: {promo_code}, amount: {booking_amount}, sport: {sport}")
+            logger.info(
+                f"Applying promo code: {promo_code}, amount: {booking_amount}, sport: {sport}"
+            )
 
             if not promo_code:
-                return jsonify({"success": False, "message": "Promo code is required"}), 400
-                
+                return (
+                    jsonify({"success": False, "message": "Promo code is required"}),
+                    400,
+                )
+
             if booking_amount <= 0:
-                return jsonify({"success": False, "message": f"Booking amount must be greater than 0, got: {booking_amount}"}), 400
+                return (
+                    jsonify(
+                        {
+                            "success": False,
+                            "message": f"Booking amount must be greater than 0, got: {booking_amount}",
+                        }
+                    ),
+                    400,
+                )
 
             # Apply promo code
             success, message, discount_amount, final_amount = (
@@ -576,6 +604,6 @@ app = create_app()
 if __name__ == "__main__":
     if app:
         logger.info("Starting NoBall Sports Club application...")
-        app.run(debug=True, host="0.0.0.0", port=5007)
+        app.run(debug=True, host="0.0.0.0", port=5010)
     else:
         logger.error("Failed to create application. Please check your configuration.")

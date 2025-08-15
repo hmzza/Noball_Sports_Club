@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NoBall Sports Club - Where Champions Are Made</title>
+    <link rel="stylesheet" href="static/css/modern_styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <!-- Modern Loading Screen -->
+    <div id="loading-screen" class="modern-loading">
+        <div class="loading-orb">
+            <div class="orb-inner">
+                <div class="orb-pulse"></div>
+            </div>
+        </div>
+        <div class="loading-brand">
+            <span class="brand-text">NoBall Sports Club</span>
+            <div class="loading-dots">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+    </div>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <div class="floating-shape shape-1"></div>
+        <div class="floating-shape shape-2"></div>
+        <div class="floating-shape shape-3"></div>
+        <div class="floating-shape shape-4"></div>
+        <div class="floating-shape shape-5"></div>
+    </div>
+
+    <!-- Modern Header -->
+    <header class="modern-header">
+        <nav class="nav-glass">
+            <div class="nav-brand">
+                <img src="static/images/logo_bw.png" alt="NoBall Sports Club" class="brand-logo" style="width: 30px; height: 30px; border-radius: 50%;">
+            </div>
+            
+            <ul class="nav-links">
+                <li><a href="#home" class="nav-link">Home</a></li>
+                <li><a href="#sports" class="nav-link">Sports</a></li>
+                <li><a href="#about" class="nav-link">About</a></li>
+                <li><a href="#location" class="nav-link">Location</a></li>
+                <li><a href="#contact" class="nav-link">Contact</a></li>
+            </ul>
+            
+            <button class="mobile-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-modern">
+        <div class="hero-container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span class="badge-text">
+                        <i class="fas fa-star"></i>
+                        Premium Sports Experience
+                    </span>
+                </div>
+                
+                <h1 class="hero-title">
+                    <span class="title-main">NoBall Sports Club</span>
+                    <span class="title-accent">Islamabad's All in one Club</span>
+                </h1>
+                
+                <p class="hero-description">
+                    All-in-one Sports Club with Premium Facilities • Open 24/7
+                </p>
+                
+                <div class="hero-actions">
+                    <a href="{{ url_for('booking') }}" class="btn-modern primary">
+                        <span class="btn-text">Book Your Court</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                    <button class="btn-modern secondary" onclick="exploreMore()">
+                        <span class="btn-text">Explore Sports</span>
+                        <i class="fas fa-play"></i>
+                    </button>
+                </div>
+                
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">4</span>
+                        <span class="stat-label">Sports</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">24/7</span>
+                        <span class="stat-label">Available</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">Premium</span>
+                        <span class="stat-label">Quality</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="hero-visual">
+                <div class="visual-container">
+                    <div class="animated-logo-container">
+                        <img src="static/images/logo_bw.png" alt="NoBall Sports Club" class="rotating-logo">
+                        <div class="logo-glow"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sports Section -->
+    <section id="sports" class="sports-modern">
+        <div class="container-modern">
+            <div class="section-header">
+                <span class="section-badge">Our Sports</span>
+                <h2 class="section-title">Four Sports, Endless Possibilities</h2>
+                <p class="section-description">
+                    Choose from our premium sports facilities, each designed to elevate your game to the next level
+                </p>
+            </div>
+            
+            <div class="sports-grid">
+                <!-- Padel Card -->
+                <div class="sport-card modern" data-sport="padel">
+                    <div class="card-glow"></div>
+                    <div class="card-content">
+                        <div class="sport-icon-container">
+                            <div class="sport-icon padel-icon">
+                                <img src="static/images/sports_icons/padel.png" alt="Padel" style="width: 40px; height: 40px; filter: brightness(0) invert(1);">
+                            </div>
+                        </div>
+                        
+                        <h3 class="sport-title">Padel</h3>
+                        <p class="sport-description">
+                            Experience the fastest growing racquet sport with professional-grade courts and equipment.
+                        </p>
+                        
+                        <div class="sport-features">
+                            <div class="feature-tag">Purple Mondo Surface</div>
+                            <div class="feature-tag">Teracotta Surface</div>
+                        </div>
+                        
+                        <div class="card-footer">
+                            <span class="sport-price">From PKR 5,500</span>
+                            <button class="card-btn">
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Cricket Card -->
+                <div class="sport-card modern" data-sport="cricket">
+                    <div class="card-glow"></div>
+                    <div class="card-content">
+                        <div class="sport-icon-container">
+                            <div class="sport-icon cricket-icon">
+                                <img src="static/images/sports_icons/cricket.png" alt="Cricket" style="width: 40px; height: 40px; filter: brightness(0) invert(1);">
+                            </div>
+                        </div>
+                        
+                        <h3 class="sport-title">Cricket</h3>
+                        <p class="sport-description">
+                            Perfect your batting and bowling skills on our meticulously maintained cricket facilities.
+                        </p>
+                        
+                        <div class="sport-features">
+                            <div class="feature-tag">110x50ft Practice Court</div>
+                            <div class="feature-tag">130x60ft Multi-purpose</div>
+                        </div>
+                        
+                        <div class="card-footer">
+                            <span class="sport-price">From PKR 3,000</span>
+                            <button class="card-btn">
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Futsal Card -->
+                <div class="sport-card modern" data-sport="futsal">
+                    <div class="card-glow"></div>
+                    <div class="card-content">
+                        <div class="sport-icon-container">
+                            <div class="sport-icon futsal-icon">
+                                <img src="static/images/sports_icons/futsal.png" alt="Futsal" style="width: 40px; height: 40px; filter: brightness(0) invert(1);">
+                            </div>
+                        </div>
+                        
+                        <h3 class="sport-title">Futsal</h3>
+                        <p class="sport-description">
+                            FIFA-standard futsal court for intense 5v5 matches with professional lighting and surface.
+                        </p>
+                        
+                        <div class="sport-features">
+                            <div class="feature-tag">130x60ft Multi-purpose</div>
+                            <div class="feature-tag">FIFA Standard</div>
+                        </div>
+                        
+                        <div class="card-footer">
+                            <span class="sport-price">From PKR 2,500</span>
+                            <button class="card-btn">
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pickleball Card -->
+                <div class="sport-card modern" data-sport="pickleball">
+                    <div class="card-glow"></div>
+                    <div class="card-content">
+                        <div class="sport-icon-container">
+                            <div class="sport-icon pickleball-icon">
+                                <img src="static/images/sports_icons/pickleball.png" alt="Pickleball" style="width: 40px; height: 40px; filter: brightness(0) invert(1);">
+                            </div>
+                        </div>
+                        
+                        <h3 class="sport-title">Pickleball</h3>
+                        <p class="sport-description">
+                            Professional pickleball court with premium nets and perfect surface for competitive play.
+                        </p>
+                        
+                        <div class="sport-features">
+                            <div class="feature-tag">Professional Setup</div>
+                            <div class="feature-tag">Premium Nets</div>
+                        </div>
+                        
+                        <div class="card-footer">
+                            <span class="sport-price">From PKR 2,500</span>
+                            <button class="card-btn">
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section id="gallery" class="gallery-modern">
+        <div class="container-modern">
+            <div class="section-header">
+                <span class="section-badge">Our Courts</span>
+                <h2 class="section-title">Premium Sports Facilities</h2>
+                <p class="section-description">
+                    Take a closer look at our world-class courts and facilities
+                </p>
+            </div>
+            
+            <div class="gallery-slider">
+                <div class="gallery-track" id="gallery-track">
+                    <div class="gallery-slide" data-image="static/images/padelPurple.png" data-title="Padel Court - Purple Mondo Surface">
+                        <img src="static/images/padelPurple.png" alt="Padel Court Purple" class="gallery-image">
+                        <div class="slide-overlay">
+                            <h3>Padel Court</h3>
+                            <p>Purple Mondo Surface</p>
+                        </div>
+                    </div>
+                    
+                    <div class="gallery-slide" data-image="static/images/padelTerra.png" data-title="Padel Court - Teracotta Surface">
+                        <img src="static/images/padelTerra.png" alt="Padel Court Teracotta" class="gallery-image">
+                        <div class="slide-overlay">
+                            <h3>Padel Court</h3>
+                            <p>Teracotta Surface</p>
+                        </div>
+                    </div>
+                    
+                    <div class="gallery-slide" data-image="static/images/cricketfield1.png" data-title="Cricket Court - Professional Setup">
+                        <img src="static/images/cricketfield1.png" alt="Cricket Court" class="gallery-image">
+                        <div class="slide-overlay">
+                            <h3>Cricket Court</h3>
+                            <p>Professional Setup</p>
+                        </div>
+                    </div>
+                    
+                    <div class="gallery-slide" data-image="static/images/futsalField.jpeg" data-title="Futsal Court - FIFA Standard">
+                        <img src="static/images/futsalField.jpeg" alt="Futsal Court" class="gallery-image">
+                        <div class="slide-overlay">
+                            <h3>Futsal Court</h3>
+                            <p>FIFA Standard</p>
+                        </div>
+                    </div>
+                    
+                    <div class="gallery-slide" data-image="static/images/pickle.png" data-title="Pickleball Court - Premium Setup">
+                        <img src="static/images/pickle.png" alt="Pickleball Court" class="gallery-image">
+                        <div class="slide-overlay">
+                            <h3>Pickleball Court</h3>
+                            <p>Premium Setup</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="gallery-nav prev" id="gallery-prev">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="gallery-nav next" id="gallery-next">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                
+                <div class="gallery-dots" id="gallery-dots"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Image Modal -->
+    <div class="image-modal" id="image-modal">
+        <div class="modal-backdrop" onclick="closeImageModal()"></div>
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeImageModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <img id="modal-image" src="" alt="">
+            <div class="modal-info">
+                <h3 id="modal-title"></h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Experience Section -->
+    <section id="experience" class="experience-modern">
+        <div class="container-modern">
+            <div class="experience-content">
+                <div class="experience-text">
+                    <span class="section-badge dark">Why Choose NoBall</span>
+                    <h2 class="section-title white">Elevate Your Game Experience</h2>
+                    <p class="section-description white">
+                        More than just courts - we provide a complete sports ecosystem designed for champions.
+                    </p>
+                    
+                    <div class="features-list">
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="feature-content">
+                                <h4>24/7 Availability</h4>
+                                <p>Book your preferred time slots anytime, anywhere</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <i class="fas fa-medal"></i>
+                            </div>
+                            <div class="feature-content">
+                                <h4>Premium Quality</h4>
+                                <p>Professional-grade equipment and surfaces</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <i class="fas fa-mobile-alt"></i>
+                            </div>
+                            <div class="feature-content">
+                                <h4>Easy Booking</h4>
+                                <p>Simple online booking system with instant confirmation</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="experience-visual">
+                    <div class="visual-elements">
+                        <div class="element element-1">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="element element-2">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="element element-3">
+                            <i class="fas fa-crown"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="experience-modern">
+        <div class="container-modern">
+            <div class="section-header">
+                <span class="section-badge">About Us</span>
+                <h2 class="section-title white">The NoBall Experience</h2>
+                <p class="section-description white">Where passion meets precision in every game</p>
+            </div>
+            
+            <div class="experience-content">
+                <div class="features-list">
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h4>Premium Facilities</h4>
+                            <p>State-of-the-art courts with professional-grade surfaces and equipment for the ultimate sports experience.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h4>Flexible Hours</h4>
+                            <p>Open from 2 PM to 6 AM daily, accommodating all schedules with convenient booking options.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h4>Community Focus</h4>
+                            <p>Building a vibrant sports community where players of all levels can connect and improve together.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h4>Quality Service</h4>
+                            <p>Dedicated staff ensuring every visit exceeds expectations with top-notch service and support.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="experience-visual">
+                    <div class="visual-elements">
+                        <div class="element element-1">
+                            <i class="fas fa-medal"></i>
+                        </div>
+                        <div class="element element-2">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <div class="element element-3">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Location Section -->
+    <section id="location" class="sports-modern">
+        <div class="container-modern">
+            <div class="section-header">
+                <span class="section-badge">Find Us</span>
+                <h2 class="section-title">Our Location</h2>
+                <p class="section-description">Conveniently located in the heart of the city</p>
+            </div>
+            
+            <div class="location-content" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; margin-top: 3rem;">
+                <div class="location-info">
+                    <div class="info-card" style="background: white; padding: 2rem; border-radius: 1rem; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <div class="info-icon" style="width: 50px; height: 50px; background: var(--accent-gradient); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem;">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="info-content">
+                            <h4 style="color: var(--gray-900); margin-bottom: 0.5rem;">Address</h4>
+                            <p style="color: var(--gray-600); margin: 0;">Premium Sports Complex<br>Main Boulevard, City Center<br>Lahore, Pakistan</p>
+                        </div>
+                    </div>
+                    
+                    <div class="info-card" style="background: white; padding: 2rem; border-radius: 1rem; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <div class="info-icon" style="width: 50px; height: 50px; background: var(--accent-gradient); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem;">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="info-content">
+                            <h4 style="color: var(--gray-900); margin-bottom: 0.5rem;">Operating Hours</h4>
+                            <p style="color: var(--gray-600); margin: 0;">Monday - Sunday<br>2:00 PM - 6:00 AM<br>Daily Operations</p>
+                        </div>
+                    </div>
+                    
+                    <div class="info-card" style="background: white; padding: 2rem; border-radius: 1rem; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <div class="info-icon" style="width: 50px; height: 50px; background: var(--accent-gradient); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem;">
+                            <i class="fas fa-parking"></i>
+                        </div>
+                        <div class="info-content">
+                            <h4 style="color: var(--gray-900); margin-bottom: 0.5rem;">Parking</h4>
+                            <p style="color: var(--gray-600); margin: 0;">Free parking available<br>Secure & covered<br>24/7 access</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="map-container">
+                    <div class="map-placeholder" style="background: white; padding: 3rem; border-radius: 1.5rem; text-align: center; height: 400px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+                        <i class="fas fa-map" style="font-size: 3rem; color: var(--accent-gradient); margin-bottom: 1rem;"></i>
+                        <h4 style="color: var(--gray-900); margin-bottom: 0.5rem;">Interactive Map</h4>
+                        <p style="color: var(--gray-600); margin-bottom: 2rem;">GPS coordinates and directions available</p>
+                        <a href="https://share.google/YuWCEWVAqzenSBcsX" target="_blank" class="btn-modern primary">
+                            <span class="btn-text">Get Directions</span>
+                            <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact-modern">
+        <div class="container-modern">
+            <div class="contact-content">
+                <div class="contact-info">
+                    <span class="section-badge">Get In Touch</span>
+                    <h2 class="section-title">Ready to Play?</h2>
+                    <p class="section-description">
+                        Contact us for bookings, inquiries, or just to learn more about our facilities.
+                    </p>
+                    
+                    <div class="contact-methods">
+                        <div class="contact-method">
+                            <div class="method-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="method-content">
+                                <span class="method-label">Call Us</span>
+                                <span class="method-value">+92 3XX-XXXXXXX</span>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-method">
+                            <div class="method-icon">
+                                <i class="fab fa-whatsapp"></i>
+                            </div>
+                            <div class="method-content">
+                                <span class="method-label">WhatsApp</span>
+                                <span class="method-value">+92 3XX-XXXXXXX</span>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-method">
+                            <div class="method-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="method-content">
+                                <span class="method-label">Email</span>
+                                <span class="method-value">info@noball.pk</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="contact-cta">
+                    <div class="cta-card">
+                        <h3>Start Your Journey</h3>
+                        <p>Book your first session and experience the difference</p>
+                        <a href="{{ url_for('booking') }}" class="btn-modern primary large">
+                            <span class="btn-text">Book Now</span>
+                            <i class="fas fa-calendar-plus"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modern Footer -->
+    <footer class="footer-modern">
+        <div class="container-modern">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="brand-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <span class="brand-name">NoBall Sports Club</span>
+                    <p class="brand-tagline">Where Champions Are Made</p>
+                </div>
+                
+                <div class="footer-links">
+                    <div class="link-group">
+                        <h4>Sports</h4>
+                        <a href="#padel">Padel</a>
+                        <a href="#cricket">Cricket</a>
+                        <a href="#futsal">Futsal</a>
+                        <a href="#pickleball">Pickleball</a>
+                    </div>
+                    
+                    <div class="link-group">
+                        <h4>Services</h4>
+                        <a href="{{ url_for('booking') }}">Book Courts</a>
+                        <a href="#equipment">Equipment Rental</a>
+                        <a href="#coaching">Coaching</a>
+                        <a href="#events">Events</a>
+                    </div>
+                    
+                    <div class="link-group">
+                        <h4>Contact</h4>
+                        <a href="tel:+923XXXXXXXXX">+92 3XX-XXXXXXX</a>
+                        <a href="mailto:info@noball.pk">info@noball.pk</a>
+                        <a href="#location">Location</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 NoBall Sports Club. All rights reserved.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="static/js/modern_scripts.js"></script>
+    <script>
+        // Modern animations and interactions
+        function exploreMore() {
+            document.getElementById('sports').scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+
+        // Gallery functionality
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.gallery-slide');
+        const totalSlides = slides.length;
+
+        function initGallery() {
+            // Create dots
+            const dotsContainer = document.getElementById('gallery-dots');
+            for (let i = 0; i < totalSlides; i++) {
+                const dot = document.createElement('div');
+                dot.className = `gallery-dot ${i === 0 ? 'active' : ''}`;
+                dot.addEventListener('click', () => goToSlide(i));
+                dotsContainer.appendChild(dot);
+            }
+
+            // Add click event to slides for modal
+            slides.forEach(slide => {
+                slide.addEventListener('click', () => {
+                    const imageSrc = slide.dataset.image;
+                    const title = slide.dataset.title;
+                    openImageModal(imageSrc, title);
+                });
+            });
+
+            // Navigation buttons
+            document.getElementById('gallery-prev').addEventListener('click', prevSlide);
+            document.getElementById('gallery-next').addEventListener('click', nextSlide);
+        }
+
+        function updateGallery() {
+            const track = document.getElementById('gallery-track');
+            track.style.transform = `translateX(-${currentSlide * 100}%)`;
+            
+            // Update dots
+            document.querySelectorAll('.gallery-dot').forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlide);
+            });
+        }
+
+        function goToSlide(slideIndex) {
+            currentSlide = slideIndex;
+            updateGallery();
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            updateGallery();
+        }
+
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+            updateGallery();
+        }
+
+        function openImageModal(imageSrc, title) {
+            const modal = document.getElementById('image-modal');
+            const modalImage = document.getElementById('modal-image');
+            const modalTitle = document.getElementById('modal-title');
+            
+            modalImage.src = imageSrc;
+            modalTitle.textContent = title;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeImageModal() {
+            const modal = document.getElementById('image-modal');
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Auto-slide gallery
+        setInterval(nextSlide, 5000);
+
+        // Initialize gallery when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initGallery);
+    </script>
+</body>
+</html>
