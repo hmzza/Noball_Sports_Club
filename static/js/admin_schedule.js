@@ -2680,7 +2680,9 @@ class AdminScheduleManager {
       });
     };
 
-    // Horizontal scroll synchronization
+    // FIXED: Separate horizontal and vertical scroll synchronization
+    
+    // Horizontal-only sync between court headers and slots
     slotsContainer.addEventListener("scroll", () => {
       syncHorizontal(slotsContainer, courtHeaders);
     }, { passive: true });
@@ -2689,7 +2691,7 @@ class AdminScheduleManager {
       syncHorizontal(courtHeaders, slotsContainer);
     }, { passive: true });
 
-    // Vertical scroll synchronization  
+    // Vertical-only sync between time column and slots
     slotsContainer.addEventListener("scroll", () => {
       syncVertical(slotsContainer, timeColumn);
     }, { passive: true });
@@ -2706,6 +2708,30 @@ class AdminScheduleManager {
         // Improve touch scrolling momentum
         container.style.webkitOverflowScrolling = 'touch';
         container.style.overscrollBehavior = 'contain';
+        
+        // FIXED: Court headers should NEVER scroll vertically
+        if (container === courtHeaders) {
+          container.style.overflowY = 'hidden';
+          container.style.overscrollBehaviorY = 'none';
+          // Prevent any vertical scrolling on court headers
+          container.addEventListener('scroll', (e) => {
+            if (container.scrollTop !== 0) {
+              container.scrollTop = 0;
+            }
+          }, { passive: false });
+        }
+        
+        // Time column should NEVER scroll horizontally
+        if (container === timeColumn) {
+          container.style.overflowX = 'hidden';
+          container.style.overscrollBehaviorX = 'none';
+          // Prevent any horizontal scrolling on time column
+          container.addEventListener('scroll', (e) => {
+            if (container.scrollLeft !== 0) {
+              container.scrollLeft = 0;
+            }
+          }, { passive: false });
+        }
         
         // Add touch-friendly scrollbar indicators for mobile
         container.addEventListener('touchstart', () => {
@@ -2725,10 +2751,35 @@ class AdminScheduleManager {
       timeColumn.style.scrollBehavior = 'smooth';
     }
 
+    // FIXED: Enforce scroll restrictions for ALL devices (not just mobile)
+    this.enforceScrollRestrictions(courtHeaders, slotsContainer, timeColumn);
+
     // Add mobile scroll hint functionality
     this.setupMobileScrollHints();
 
     console.log("📱 Enhanced mobile scroll sync initialized");
+  }
+
+  enforceScrollRestrictions(courtHeaders, slotsContainer, timeColumn) {
+    if (!courtHeaders || !timeColumn) return;
+
+    // CRITICAL FIX: Court headers should ONLY scroll horizontally
+    courtHeaders.style.overflowY = 'hidden';
+    courtHeaders.addEventListener('scroll', () => {
+      if (courtHeaders.scrollTop !== 0) {
+        courtHeaders.scrollTop = 0;
+      }
+    }, { passive: false });
+
+    // CRITICAL FIX: Time column should ONLY scroll vertically  
+    timeColumn.style.overflowX = 'hidden';
+    timeColumn.addEventListener('scroll', () => {
+      if (timeColumn.scrollLeft !== 0) {
+        timeColumn.scrollLeft = 0;
+      }
+    }, { passive: false });
+
+    console.log("✅ Scroll restrictions enforced - Headers: horizontal only, Time: vertical only");
   }
 
   setupMobileScrollHints() {
