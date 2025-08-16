@@ -70,13 +70,21 @@ class BookingSystem {
   }
 
   // Helper function to get the actual booking date for a time slot
-  getBookingDate(selectedDate, timeString) {
-    const baseDate = new Date(selectedDate);
+  calculateActualDate(selectedCalendarDate, timeString) {
+    const baseDate = new Date(selectedCalendarDate);
+    
+    // If the time slot is a cross-midnight slot (12:00 AM - 5:30 AM), 
+    // it belongs to the next day
     if (this.isCrossMidnightSlot(timeString)) {
-      // Add one day for cross-midnight slots
       baseDate.setDate(baseDate.getDate() + 1);
     }
+    
     return baseDate.toISOString().split("T")[0];
+  }
+
+  getBookingDate(selectedDate, timeString) {
+    // Keep this method for backward compatibility
+    return this.calculateActualDate(selectedDate, timeString);
   }
 
   init() {
@@ -284,9 +292,14 @@ class BookingSystem {
   }
 
   setupEventListeners() {
-    // Sport and court selection
+    // Sport and court selection with better mobile support
     document.querySelectorAll(".sport-card").forEach((card) => {
       card.addEventListener("click", (e) => this.selectSport(e));
+      // Add touch event for better mobile support
+      card.addEventListener("touchend", (e) => {
+        e.preventDefault();
+        this.selectSport(e);
+      });
     });
 
     // Date change
@@ -356,10 +369,15 @@ class BookingSystem {
     sportCard.classList.add("selected");
     this.bookingData.sport = sport;
 
-    // Setup court selection
+    // Setup court selection with mobile touch support
     const courtOptions = sportCard.querySelectorAll(".court-option");
     courtOptions.forEach((option) => {
       option.addEventListener("click", (e) => this.selectCourt(e));
+      // Add touch event for better mobile support
+      option.addEventListener("touchend", (e) => {
+        e.preventDefault();
+        this.selectCourt(e);
+      });
     });
 
     this.validateStep1();
@@ -575,90 +593,21 @@ class BookingSystem {
   renderTimeSlots(container, bookedSlots) {
     container.innerHTML = "";
 
-    // Add instructions
-    const instructionDiv = document.createElement("div");
-    instructionDiv.className = "time-slot-instruction";
-    
-    let instructionsHTML = `
-          <p><strong>Instructions:</strong></p>
-          <ul>
-              <li>Each slot is 30 minutes</li>
-              <li>Minimum booking: 1 hour (2 consecutive slots)</li>
-              <li>Select consecutive slots for your desired duration</li>
-              <li>Click on time slots to select/deselect</li>
-          </ul>
-      `;
+    let nextDayHeaderAdded = false;
 
-    // Add pricing information if available
-    if (this.pricingInfo && this.timingInfo) {
-      const currentSport = this.bookingData.sport;
-      const sportPricing = this.pricingInfo[currentSport];
-      
-      if (sportPricing) {
-        instructionsHTML += `
-          <div class="pricing-info" style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #28a745;">
-            <p><strong>Pricing (Per Hour):</strong></p>
-            <div class="pricing-details">
-              <div class="price-row">
-                <span class="price-label">Base Rate:</span>
-                <span class="price-value">₨${sportPricing.base_price_per_hour?.toLocaleString() || 'N/A'}</span>
-              </div>
-              ${sportPricing.off_peak_price_per_hour ? `
-                <div class="price-row">
-                  <span class="price-label">Off-Peak (${this.timingInfo.off_peak_hours}):</span>
-                  <span class="price-value">₨${sportPricing.off_peak_price_per_hour.toLocaleString()}</span>
-                </div>
-              ` : ''}
-              ${sportPricing.peak_price_per_hour ? `
-                <div class="price-row">
-                  <span class="price-label">Peak (${this.timingInfo.peak_hours}):</span>
-                  <span class="price-value">₨${sportPricing.peak_price_per_hour.toLocaleString()}</span>
-                </div>
-              ` : ''}
-              ${sportPricing.weekend_price_per_hour ? `
-                <div class="price-row">
-                  <span class="price-label">Weekend (${this.timingInfo.weekend}):</span>
-                  <span class="price-value">₨${sportPricing.weekend_price_per_hour.toLocaleString()}</span>
-                </div>
-              ` : ''}
-            </div>
-          </div>
-        `;
-      }
-    }
-    
-    instructionDiv.innerHTML = instructionsHTML;
-    container.appendChild(instructionDiv);
-
-    // Create slots grid
-    const slotsGrid = document.createElement("div");
-    slotsGrid.className = "slots-grid-container";
-
-    // Current day slots
-    const currentDayDiv = document.createElement("div");
-    currentDayDiv.innerHTML = `<h4>Today - ${this.formatDate(
-      this.bookingData.date
-    )}</h4>`;
-    currentDayDiv.className = "day-section";
-
-    const currentDayGrid = document.createElement("div");
-    currentDayGrid.className = "slots-grid";
-
-    // Next day slots
-    const nextDay = new Date(this.bookingData.date);
-    nextDay.setDate(nextDay.getDate() + 1);
-
-    const nextDayDiv = document.createElement("div");
-    nextDayDiv.innerHTML = `<h4>Next Day - ${this.formatDate(
-      nextDay.toISOString().split("T")[0]
-    )}</h4>`;
-    nextDayDiv.className = "day-section";
-
-    const nextDayGrid = document.createElement("div");
-    nextDayGrid.className = "slots-grid";
-
-    // Create time slot elements
+    // Create time slot elements with next day header where needed
     this.timeSlots.forEach((time, index) => {
+      // Add "Next Day" header before first midnight slot
+      if (this.isCrossMidnightSlot(time) && !nextDayHeaderAdded) {
+        const nextDayHeader = document.createElement("div");
+        nextDayHeader.className = "next-day-header";
+        const nextDate = new Date(this.bookingData.date);
+        nextDate.setDate(nextDate.getDate() + 1);
+        nextDayHeader.textContent = `Next Day - ${this.formatDate(nextDate.toISOString().split("T")[0])}`;
+        container.appendChild(nextDayHeader);
+        nextDayHeaderAdded = true;
+      }
+
       const slot = document.createElement("div");
       slot.className = "time-slot";
 
@@ -674,27 +623,10 @@ class BookingSystem {
         slot.addEventListener("click", (e) => this.selectTimeSlot(e));
       }
 
-      // Add to appropriate day grid
-      if (this.isNextDayTime(time)) {
-        nextDayGrid.appendChild(slot);
-      } else {
-        currentDayGrid.appendChild(slot);
-      }
+      container.appendChild(slot);
     });
-
-    currentDayDiv.appendChild(currentDayGrid);
-    nextDayDiv.appendChild(nextDayGrid);
-
-    slotsGrid.appendChild(currentDayDiv);
-    slotsGrid.appendChild(nextDayDiv);
-    container.appendChild(slotsGrid);
-
-    // Add selected slots display
-    const selectedDisplay = document.createElement("div");
-    selectedDisplay.className = "selected-slots-display";
-    selectedDisplay.id = "selected-slots-display";
-    container.appendChild(selectedDisplay);
   }
+
 
   async selectTimeSlot(event) {
     const slot = event.currentTarget;
@@ -773,21 +705,33 @@ class BookingSystem {
       this.bookingData.endTime = "06:00";
     }
 
-    // Handle cross-midnight booking information
-    const startDate = this.getBookingDate(
-      this.bookingData.date,
-      this.bookingData.startTime
-    );
-    const endDate = this.getBookingDate(
-      this.bookingData.date,
-      this.bookingData.endTime
-    );
-    const isCrossMidnight = startDate !== endDate;
+    // Calculate actual booking dates based on the selected date from date picker
+    const selectedCalendarDate = document.getElementById("booking-date").value;
+    
+    // Calculate the actual start and end dates for the selected time slots
+    const actualStartDate = this.calculateActualDate(selectedCalendarDate, this.bookingData.startTime);
+    const actualEndDate = this.calculateActualDate(selectedCalendarDate, this.bookingData.endTime);
+    
+    const isCrossMidnight = actualStartDate !== actualEndDate;
 
-    // Store cross-midnight booking information
+    // Store booking information
     this.bookingData.isCrossMidnight = isCrossMidnight;
-    this.bookingData.actualStartDate = startDate;
-    this.bookingData.actualEndDate = endDate;
+    this.bookingData.actualStartDate = actualStartDate;
+    this.bookingData.actualEndDate = actualEndDate;
+    
+    // The final booking date is always the start time's actual date
+    this.bookingData.finalBookingDate = actualStartDate;
+    
+    // Professional logging for production debugging
+    console.log("📅 Booking Date Calculation:", {
+      selectedCalendarDate,
+      startTime: this.bookingData.startTime,
+      endTime: this.bookingData.endTime,
+      actualStartDate,
+      actualEndDate,
+      finalBookingDate: actualStartDate,
+      isCrossMidnight
+    });
 
     // Calculate duration and amount using dynamic pricing
     this.bookingData.duration = this.bookingData.selectedSlots.length * 0.5;
@@ -800,8 +744,9 @@ class BookingSystem {
       console.log("🌙 Cross-midnight booking:", {
         startTime: this.bookingData.startTime,
         endTime: this.bookingData.endTime,
-        startDate: startDate,
-        endDate: endDate,
+        actualStartDate: this.bookingData.actualStartDate,
+        actualEndDate: this.bookingData.actualEndDate,
+        finalBookingDate: this.bookingData.finalBookingDate,
         duration: this.bookingData.duration,
       });
     }
@@ -862,12 +807,22 @@ class BookingSystem {
       elements.court.textContent = this.bookingData.courtName;
     }
     if (elements.date) {
-      elements.date.textContent = this.formatDate(this.bookingData.date);
+      // Use the final booking date which is based on the start time's actual date
+      const displayDate = this.bookingData.finalBookingDate || this.bookingData.date;
+      elements.date.textContent = this.formatDate(displayDate);
     }
     if (elements.time) {
       const startTime = this.formatTime(this.bookingData.startTime);
       const endTime = this.formatTime(this.bookingData.endTime);
-      elements.time.textContent = `${startTime} - ${endTime} (${this.bookingData.duration}h)`;
+      
+      // Show cross-midnight time with date indicators if needed
+      if (this.bookingData.isCrossMidnight) {
+        const startDateShort = this.formatDateShort(this.bookingData.actualStartDate);
+        const endDateShort = this.formatDateShort(this.bookingData.actualEndDate);
+        elements.time.textContent = `${startTime} (${startDateShort}) - ${endTime} (${endDateShort}) (${this.bookingData.duration}h)`;
+      } else {
+        elements.time.textContent = `${startTime} - ${endTime} (${this.bookingData.duration}h)`;
+      }
     }
     if (elements.amount) {
       elements.amount.textContent = `PKR ${this.bookingData.totalAmount.toLocaleString()}`;
@@ -1379,3 +1334,10 @@ function removePromoCode() {
     window.bookingSystem.removePromoCode();
   }
 }
+
+// Initialize booking system when DOM is loaded
+document.addEventListener("DOMContentLoaded", function () {
+  console.log("🚀 Initializing Booking System...");
+  window.bookingSystem = new BookingSystem();
+  console.log("✅ Booking System initialized successfully");
+});

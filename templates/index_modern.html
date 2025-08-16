@@ -44,13 +44,13 @@
             
             <ul class="nav-links">
                 <li><a href="#home" class="nav-link">Home</a></li>
-                <li><a href="#sports" class="nav-link">Sports</a></li>
+                <li><a href="#gallery" class="nav-link">Gallery</a></li>
                 <li><a href="#about" class="nav-link">About</a></li>
                 <li><a href="#location" class="nav-link">Location</a></li>
                 <li><a href="#contact" class="nav-link">Contact</a></li>
             </ul>
             
-            <button class="mobile-toggle">
+            <button class="mobile-toggle" id="mobile-toggle" onclick="toggleMobileMenu()">
                 <span></span>
                 <span></span>
                 <span></span>
@@ -62,13 +62,6 @@
     <section id="home" class="hero-modern">
         <div class="hero-container">
             <div class="hero-content">
-                <div class="hero-badge">
-                    <span class="badge-text">
-                        <i class="fas fa-star"></i>
-                        Premium Sports Experience
-                    </span>
-                </div>
-                
                 <h1 class="hero-title">
                     <span class="title-main">The NoBall Sports Club</span>
                     <span class="title-accent">Islamabad's All in one Club</span>
@@ -83,10 +76,10 @@
                         <span class="btn-text">Book Your Court</span>
                         <i class="fas fa-arrow-right"></i>
                     </a>
-                    <button class="btn-modern secondary" onclick="exploreMore()">
-                        <span class="btn-text">Explore Sports</span>
-                        <i class="fas fa-play"></i>
-                    </button>
+                    <a href="{{ url_for('booking') }}" class="btn-modern secondary">
+                        <span class="btn-text">Book Your Sport</span>
+                        <i class="fas fa-calendar-plus"></i>
+                    </a>
                 </div>
                 
                 <div class="hero-stats">
@@ -116,136 +109,6 @@
         </div>
     </section>
 
-    <!-- Sports Section -->
-    <section id="sports" class="sports-modern">
-        <div class="container-modern">
-            <div class="section-header">
-                <span class="section-badge">Our Sports</span>
-                <h2 class="section-title">Four Sports, Endless Possibilities</h2>
-                <p class="section-description">
-                    Choose from our premium sports facilities, each designed to elevate your game to the next level
-                </p>
-            </div>
-            
-            <div class="sports-grid">
-                <!-- Padel Card -->
-                <div class="sport-card modern" data-sport="padel">
-                    <div class="card-glow"></div>
-                    <div class="card-content">
-                        <div class="sport-icon-container">
-                            <div class="sport-icon padel-icon">
-                                <img src="static/images/sports_icons/padel.png" alt="Padel" style="width: 40px; height: 40px; filter: brightness(0) invert(1);">
-                            </div>
-                        </div>
-                        
-                        <h3 class="sport-title">Padel</h3>
-                        <p class="sport-description">
-                            Experience the fastest growing racquet sport with professional-grade courts and equipment.
-                        </p>
-                        
-                        <div class="sport-features">
-                            <div class="feature-tag">Purple Mondo Surface</div>
-                            <div class="feature-tag">Teracotta Surface</div>
-                        </div>
-                        
-                        <div class="card-footer">
-                            <span class="sport-price">From PKR 5,500</span>
-                            <button class="card-btn">
-                                <i class="fas fa-arrow-right"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Cricket Card -->
-                <div class="sport-card modern" data-sport="cricket">
-                    <div class="card-glow"></div>
-                    <div class="card-content">
-                        <div class="sport-icon-container">
-                            <div class="sport-icon cricket-icon">
-                                <img src="static/images/sports_icons/cricket.png" alt="Cricket" style="width: 40px; height: 40px; filter: brightness(0) invert(1);">
-                            </div>
-                        </div>
-                        
-                        <h3 class="sport-title">Cricket</h3>
-                        <p class="sport-description">
-                            Perfect your batting and bowling skills on our meticulously maintained cricket facilities.
-                        </p>
-                        
-                        <div class="sport-features">
-                            <div class="feature-tag">110x50ft Practice Court</div>
-                            <div class="feature-tag">130x60ft Multi-purpose</div>
-                        </div>
-                        
-                        <div class="card-footer">
-                            <span class="sport-price">From PKR 3,000</span>
-                            <button class="card-btn">
-                                <i class="fas fa-arrow-right"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Futsal Card -->
-                <div class="sport-card modern" data-sport="futsal">
-                    <div class="card-glow"></div>
-                    <div class="card-content">
-                        <div class="sport-icon-container">
-                            <div class="sport-icon futsal-icon">
-                                <img src="static/images/sports_icons/futsal.png" alt="Futsal" style="width: 40px; height: 40px; filter: brightness(0) invert(1);">
-                            </div>
-                        </div>
-                        
-                        <h3 class="sport-title">Futsal</h3>
-                        <p class="sport-description">
-                            FIFA-standard futsal court for intense 5v5 matches with professional lighting and surface.
-                        </p>
-                        
-                        <div class="sport-features">
-                            <div class="feature-tag">130x60ft Multi-purpose</div>
-                            <div class="feature-tag">FIFA Standard</div>
-                        </div>
-                        
-                        <div class="card-footer">
-                            <span class="sport-price">From PKR 2,500</span>
-                            <button class="card-btn">
-                                <i class="fas fa-arrow-right"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Pickleball Card -->
-                <div class="sport-card modern" data-sport="pickleball">
-                    <div class="card-glow"></div>
-                    <div class="card-content">
-                        <div class="sport-icon-container">
-                            <div class="sport-icon pickleball-icon">
-                                <img src="static/images/sports_icons/pickleball.png" alt="Pickleball" style="width: 40px; height: 40px; filter: brightness(0) invert(1);">
-                            </div>
-                        </div>
-                        
-                        <h3 class="sport-title">Pickleball</h3>
-                        <p class="sport-description">
-                            Professional pickleball court with premium nets and perfect surface for competitive play.
-                        </p>
-                        
-                        <div class="sport-features">
-                            <div class="feature-tag">Professional Setup</div>
-                            <div class="feature-tag">Premium Nets</div>
-                        </div>
-                        
-                        <div class="card-footer">
-                            <span class="sport-price">From PKR 2,500</span>
-                            <button class="card-btn">
-                                <i class="fas fa-arrow-right"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 
     <!-- Gallery Section -->
     <section id="gallery" class="gallery-modern">
@@ -625,12 +488,6 @@
     <script src="static/js/modern_scripts.js"></script>
     <script>
         // Modern animations and interactions
-        function exploreMore() {
-            document.getElementById('sports').scrollIntoView({ 
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
 
         // Gallery functionality
         let currentSlide = 0;
@@ -705,9 +562,68 @@
 
         // Auto-slide gallery
         setInterval(nextSlide, 5000);
+        
+        // Mobile menu toggle function (backup)
+        function toggleMobileMenu() {
+            const mobileToggle = document.getElementById('mobile-toggle');
+            const navLinks = document.querySelector('.nav-links');
+            const bgAnimation = document.querySelector('.bg-animation');
+            
+            if (mobileToggle && navLinks) {
+                console.log('Toggle mobile menu called');
+                mobileToggle.classList.toggle('active');
+                navLinks.classList.toggle('active');
+                document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : 'auto';
+                
+                // Hide background shapes when menu is active
+                if (bgAnimation) {
+                    bgAnimation.style.display = navLinks.classList.contains('active') ? 'none' : 'block';
+                }
+            }
+        }
 
-        // Initialize gallery when DOM is loaded
-        document.addEventListener('DOMContentLoaded', initGallery);
+        // Initialize all functionality when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize gallery
+            initGallery();
+            
+            // Mobile menu toggle
+            const mobileToggle = document.getElementById('mobile-toggle');
+            const navLinks = document.querySelector('.nav-links');
+            
+            if (mobileToggle && navLinks) {
+                const bgAnimation = document.querySelector('.bg-animation');
+                
+                mobileToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('Mobile toggle clicked'); // Debug log
+                    mobileToggle.classList.toggle('active');
+                    navLinks.classList.toggle('active');
+                    document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : 'auto';
+                    
+                    // Hide background shapes when menu is active
+                    if (bgAnimation) {
+                        bgAnimation.style.display = navLinks.classList.contains('active') ? 'none' : 'block';
+                    }
+                });
+                
+                // Close menu when clicking on nav links
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.addEventListener('click', function() {
+                        mobileToggle.classList.remove('active');
+                        navLinks.classList.remove('active');
+                        document.body.style.overflow = 'auto';
+                        
+                        // Show background shapes when menu is closed
+                        if (bgAnimation) {
+                            bgAnimation.style.display = 'block';
+                        }
+                    });
+                });
+            } else {
+                console.error('Mobile toggle or nav links not found');
+            }
+        });
     </script>
 </body>
 </html>

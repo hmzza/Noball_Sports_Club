@@ -64,11 +64,11 @@ if __name__ == "__main__":
     
     # Create/update main admin users
     create_admin_user("hamza", "admin123", "super_admin")
-    create_admin_user("hmzza7", "admin123", "super_admin") 
+    create_admin_user("hmzza7", "admin@11212", "super_admin") 
     create_admin_user("admin", "admin123", "admin")
     
     print("\n✅ All admin users created/updated successfully!")
     print("\nYou can now login with any of these credentials:")
     print("Username: hamza | Password: admin123")
-    print("Username: hmzza7 | Password: admin123") 
+    print("Username: hmzza7 | Password: admin@11212") 
     print("Username: admin | Password: admin123")

@@ -33,7 +33,7 @@
             
             <a href="{{ url_for('index') }}" class="btn-modern secondary small">
                 <i class="fas fa-arrow-left"></i>
-                <span class="btn-text">Back to Home</span>
+                <span class="btn-text">Home</span>
             </a>
         </nav>
     </header>
@@ -244,22 +244,65 @@
                 </div>
                 
                 <div class="time-slots-section">
-                    <div class="section-header">
-                        <h3>Available Time Slots</h3>
-                        <div class="time-legend">
-                            <div class="legend-item">
-                                <div class="legend-color available"></div>
-                                <span>Available</span>
+                    <h3>Available Time Slots</h3>
+                    
+                    <!-- Instructions -->
+                    <div class="booking-instructions">
+                        <h4>Instructions:</h4>
+                        <ul>
+                            <li>Each slot is 30 minutes</li>
+                            <li>Minimum booking: 1 hour (2 consecutive slots)</li>
+                            <li>Select consecutive slots for your desired duration</li>
+                            <li>Click on time slots to select/deselect</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Pricing -->
+                    <div class="pricing-info">
+                        <h4>Pricing (Per Hour):</h4>
+                        <div class="price-details">
+                            <div class="price-item">
+                                <span class="price-label">Base Rate:</span>
+                                <span class="price-value">Rs8,000</span>
                             </div>
-                            <div class="legend-item">
-                                <div class="legend-color booked"></div>
-                                <span>Booked</span>
+                            <div class="price-item">
+                                <span class="price-label">Off-Peak (2:00 PM - 5:00 PM & 2:00 AM - 6:00 AM):</span>
+                                <span class="price-value">Rs6,000</span>
                             </div>
                         </div>
                     </div>
                     
+                    <!-- Legend -->
+                    <div class="time-legend">
+                        <div class="legend-item">
+                            <div class="legend-color available"></div>
+                            <span>Available</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color booked"></div>
+                            <span>Booked</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Time Slots Grid -->
                     <div class="time-slots-grid" id="time-slots">
                         <!-- Time slots will be populated by JavaScript -->
+                    </div>
+                    
+                    <!-- Selection Details -->
+                    <div class="selection-details" id="selection-details" style="display: none;">
+                        <div class="detail-row">
+                            <span>Selected Time:</span>
+                            <span id="selected-time-display"></span>
+                        </div>
+                        <div class="detail-row">
+                            <span>Duration:</span>
+                            <span id="duration-display"></span>
+                        </div>
+                        <div class="detail-row total">
+                            <span>Total Amount:</span>
+                            <span id="total-amount-display"></span>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -63,8 +63,8 @@ class Config:
     }
     
     # Admin Configuration
-    ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'admin')
-    ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin123')
+    ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'hmzza7')
+    ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin@11212')
 
 class DevelopmentConfig(Config):
     """Development configuration"""
