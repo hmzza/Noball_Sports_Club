@@ -280,15 +280,33 @@ class BookingSystem {
     const dateInput = document.getElementById("booking-date");
     if (!dateInput) return;
 
-    const today = new Date();
+    // Get current date using a more reliable method
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const todayString = `${year}-${month}-${day}`;
+    
+    // Calculate max date (30 days from today)
     const maxDate = new Date();
-    maxDate.setDate(today.getDate() + 30);
+    maxDate.setDate(now.getDate() + 30);
+    const maxYear = maxDate.getFullYear();
+    const maxMonth = String(maxDate.getMonth() + 1).padStart(2, '0');
+    const maxDay = String(maxDate.getDate()).padStart(2, '0');
+    const maxDateString = `${maxYear}-${maxMonth}-${maxDay}`;
 
-    dateInput.min = today.toISOString().split("T")[0];
-    dateInput.max = maxDate.toISOString().split("T")[0];
-    dateInput.value = today.toISOString().split("T")[0];
+    dateInput.min = todayString;
+    dateInput.max = maxDateString;
+    dateInput.value = todayString;
 
     this.bookingData.date = dateInput.value;
+    
+    console.log("📅 Date initialized:", {
+      todayString,
+      currentDate: now.toLocaleDateString(),
+      currentTime: now.toLocaleTimeString(),
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    });
   }
 
   setupEventListeners() {
@@ -705,6 +723,12 @@ class BookingSystem {
       this.bookingData.endTime = "06:00";
     }
 
+    console.log("⏰ Updated booking time data:", {
+      startTime: this.bookingData.startTime,
+      endTime: this.bookingData.endTime,
+      selectedSlots: this.bookingData.selectedSlots.length
+    });
+
     // Calculate actual booking dates based on the selected date from date picker
     const selectedCalendarDate = document.getElementById("booking-date").value;
     
@@ -893,6 +917,11 @@ class BookingSystem {
         document.querySelector('input[name="payment-type"]:checked')?.value ||
         "advance";
 
+      // Ensure time data is properly set before validation
+      if (this.bookingData.selectedSlots && this.bookingData.selectedSlots.length > 0) {
+        await this.updateBookingTimeData();
+      }
+
       // Validate required data
       if (!this.validateBookingData()) {
         alert("Please ensure all required fields are filled out correctly.");
@@ -951,13 +980,19 @@ class BookingSystem {
       "playerPhone",
     ];
 
+    // Debug: Log all booking data
+    console.log("🔍 Validating booking data:", this.bookingData);
+
     for (const field of required) {
       const value = this.bookingData[field];
       if (!value || (Array.isArray(value) && value.length === 0)) {
-        console.error(`Missing required field: ${field}`);
+        console.error(`❌ Missing required field: ${field}, value:`, value);
+        console.error("📋 Current booking data:", JSON.stringify(this.bookingData, null, 2));
         return false;
       }
     }
+    
+    console.log("✅ All required fields validated successfully");
     return true;
   }
 
