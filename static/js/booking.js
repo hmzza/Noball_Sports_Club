@@ -429,8 +429,17 @@ class BookingSystem {
 
   validateStep2() {
     const nextBtn = document.querySelector("#step-2 .next-step");
+    const hasValidSlots = this.bookingData.selectedSlots.length >= 2;
+    
     if (nextBtn) {
-      nextBtn.disabled = this.bookingData.selectedSlots.length < 2;
+      nextBtn.disabled = !hasValidSlots;
+      
+      // Update button text to show requirement
+      if (!hasValidSlots) {
+        nextBtn.textContent = `Select ${2 - this.bookingData.selectedSlots.length} More Slot${this.bookingData.selectedSlots.length === 1 ? '' : 's'}`;
+      } else {
+        nextBtn.textContent = "Continue to Customer Details";
+      }
     }
   }
 
@@ -781,7 +790,15 @@ class BookingSystem {
     if (!display) return;
 
     if (this.bookingData.selectedSlots.length === 0) {
-      display.innerHTML = "";
+      display.innerHTML = `
+        <div class="no-slots-selected">
+          <p style="color: #666; text-align: center; padding: 1rem; background: #f9f9f9; border-radius: 8px; margin-top: 1rem;">
+            <strong>📅 No time slots selected</strong><br>
+            Click on time slots above to select your preferred booking time.<br>
+            <small>Minimum: 1 hour (2 consecutive slots)</small>
+          </p>
+        </div>
+      `;
       return;
     }
 
@@ -917,10 +934,20 @@ class BookingSystem {
         document.querySelector('input[name="payment-type"]:checked')?.value ||
         "advance";
 
-      // Ensure time data is properly set before validation
-      if (this.bookingData.selectedSlots && this.bookingData.selectedSlots.length > 0) {
-        await this.updateBookingTimeData();
+      // Check if time slots are selected first
+      if (!this.bookingData.selectedSlots || this.bookingData.selectedSlots.length === 0) {
+        alert("⚠️ Please go back to Step 2 and select your preferred time slots before confirming your booking.");
+        return;
       }
+
+      // Check minimum booking requirement (1 hour = 2 slots)
+      if (this.bookingData.selectedSlots.length < 2) {
+        alert("⚠️ Minimum booking is 1 hour (2 consecutive time slots). Please select at least 2 consecutive slots.");
+        return;
+      }
+
+      // Ensure time data is properly set before validation
+      await this.updateBookingTimeData();
 
       // Validate required data
       if (!this.validateBookingData()) {
@@ -939,12 +966,27 @@ class BookingSystem {
         return;
       }
 
-      // Create booking
+      // Create booking with correct date
       confirmBtn.textContent = "Finalizing booking...";
+      
+      // Prepare booking data with the correct final booking date
+      const bookingPayload = {
+        ...this.bookingData,
+        date: this.bookingData.finalBookingDate || this.bookingData.date
+      };
+      
+      console.log("📤 Sending booking data:", {
+        originalDate: this.bookingData.date,
+        finalBookingDate: this.bookingData.finalBookingDate,
+        actualDateSent: bookingPayload.date,
+        startTime: bookingPayload.startTime,
+        endTime: bookingPayload.endTime
+      });
+      
       const response = await fetch("/api/create-booking", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(this.bookingData),
+        body: JSON.stringify(bookingPayload),
       });
 
       const result = await response.json();
@@ -998,14 +1040,18 @@ class BookingSystem {
 
   async checkForConflicts() {
     try {
+      const conflictCheckData = {
+        court: this.bookingData.court,
+        date: this.bookingData.finalBookingDate || this.bookingData.date,
+        selectedSlots: this.bookingData.selectedSlots,
+      };
+      
+      console.log("🔍 Checking conflicts with data:", conflictCheckData);
+      
       const response = await fetch("/api/check-conflicts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          court: this.bookingData.court,
-          date: this.bookingData.date,
-          selectedSlots: this.bookingData.selectedSlots,
-        }),
+        body: JSON.stringify(conflictCheckData),
       });
 
       return await response.json();
