@@ -1,0 +1,335 @@
+/* Cross-Midnight Booking Styles */
+
+/* Date section headers */
+.date-section-header {
+    margin: 20px 0 15px 0;
+    padding: 15px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px;
+    text-align: center;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.date-section-header h3 {
+    margin: 0 0 8px 0;
+    font-size: 1.3rem;
+}
+
+.date-section-header p {
+    margin: 0;
+    font-size: 0.95rem;
+    opacity: 0.9;
+}
+
+/* Time section headers */
+.time-section-header {
+    margin: 25px 0 12px 0;
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #28a745;
+}
+
+.time-section-header.evening-slots {
+    border-left-color: #ffc107;
+    background: #fff8e1;
+}
+
+.time-section-header.next-day-slots {
+    border-left-color: #17a2b8;
+    background: #e1f5fe;
+}
+
+.time-section-header h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #495057;
+    font-weight: 600;
+}
+
+/* Time slot styling */
+.time-slot {
+    background: #ffffff;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    font-weight: 500;
+    font-size: 0.95rem;
+    color: #495057;
+    min-width: 90px;
+}
+
+/* Keep customer interface simple - no special midnight styling */
+
+.time-slot:hover {
+    border-color: #007bff;
+    background: #f8f9ff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+}
+
+/* Next day slots have different styling */
+.time-slot.next-day-slot {
+    background: #f0f8ff;
+    border-color: #b3d9ff;
+    position: relative;
+}
+
+.time-slot.next-day-slot::after {
+    content: "Next Day";
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #17a2b8;
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.time-slot.next-day-slot:hover {
+    border-color: #17a2b8;
+    background: #e1f5fe;
+}
+
+/* Selected slots */
+.time-slot.selected {
+    background: #28a745;
+    border-color: #28a745;
+    color: white;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.time-slot.next-day-slot.selected {
+    background: #17a2b8;
+    border-color: #17a2b8;
+}
+
+.time-slot.next-day-slot.selected::after {
+    background: #ffffff;
+    color: #17a2b8;
+}
+
+/* Booked slots */
+.time-slot.booked {
+    background: #dc3545;
+    border-color: #dc3545;
+    color: white;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+.time-slot.booked:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Time slots container */
+.time-slots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin: 15px 0;
+}
+
+/* Selected slots display */
+.selected-time-info {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.selected-time-info h4 {
+    margin: 0 0 15px 0;
+    color: #495057;
+    font-size: 1.1rem;
+}
+
+.selected-time-info p {
+    margin: 8px 0;
+    color: #6c757d;
+}
+
+.selected-time-info p strong {
+    color: #28a745;
+    font-size: 1.1rem;
+}
+
+/* Cross-midnight booking indicator */
+.cross-midnight-indicator {
+    background: linear-gradient(45deg, #ffc107, #fd7e14);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: center;
+    margin: 15px 0;
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+}
+
+.cross-midnight-indicator::before {
+    content: "🌙";
+    margin-right: 8px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .time-slots {
+        justify-content: stretch;
+    }
+    
+    .time-slot {
+        flex: 1 1 calc(50% - 8px);
+        min-width: auto;
+        max-width: none;
+    }
+    
+    .date-section-header,
+    .time-section-header {
+        margin-left: -10px;
+        margin-right: -10px;
+    }
+    
+    .time-slot.next-day-slot::after {
+        font-size: 0.6rem;
+        padding: 1px 4px;
+    }
+}
+
+@media (max-width: 480px) {
+    .time-slot {
+        flex: 1 1 100%;
+        margin: 4px 0;
+    }
+    
+    .date-section-header h3 {
+        font-size: 1.1rem;
+    }
+    
+    .date-section-header p {
+        font-size: 0.85rem;
+    }
+}
+
+/* Animation for cross-midnight transitions */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.time-section-header,
+.time-slot {
+    animation: fadeInUp 0.3s ease-out;
+}
+
+/* Special styling for operational hours display */
+.operational-hours {
+    background: #e8f5e8;
+    border: 1px solid #c3e6c3;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 15px 0;
+    text-align: center;
+    color: #2d5a2d;
+    font-weight: 500;
+}
+
+.operational-hours::before {
+    content: "⏰";
+    margin-right: 8px;
+}
+
+/* Admin Schedule - Midnight Booking Styling */
+.schedule-slot.midnight-booking {
+    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%) !important;
+    color: #ffffff !important;
+    border-left: 4px solid #4299e1 !important;
+    position: relative;
+}
+
+.schedule-slot.midnight-booking::before {
+    content: "🌙";
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #4299e1;
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 50%;
+    font-weight: bold;
+}
+
+.schedule-slot.midnight-booking .booking-title {
+    color: #ffffff !important;
+    font-weight: 600;
+}
+
+.schedule-slot.midnight-booking .booking-subtitle {
+    color: #cbd5e0 !important;
+    font-size: 0.8rem;
+}
+
+/* Midnight booking indicators in admin */
+.booking-card.midnight {
+    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+    color: #ffffff;
+    border-left: 4px solid #4299e1;
+}
+
+.booking-card.midnight .card-header {
+    background: rgba(66, 153, 225, 0.2);
+    color: #ffffff;
+}
+
+.booking-card.midnight .badge.midnight-indicator {
+    background: #4299e1;
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 12px;
+    margin-left: 8px;
+}
+
+/* Admin booking list midnight styling */
+.booking-row.midnight-booking {
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    border-left: 4px solid #4299e1;
+}
+
+.booking-row.midnight-booking .booking-time {
+    color: #2d3748;
+    font-weight: 600;
+}
+
+.booking-row.midnight-booking .midnight-badge {
+    background: #4299e1;
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-left: 6px;
+}
+
+.booking-row.midnight-booking .actual-date {
+    color: #718096;
+    font-size: 0.8rem;
+    font-style: italic;
+}
