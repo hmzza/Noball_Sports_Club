@@ -1331,7 +1331,6 @@
     .form-actions {
         flex-direction: column;
     }
-}
 
 @media (max-width: 480px) {
     .admin-header {
@@ -1478,4 +1477,40 @@
     .admin-comment-icon {
         right: 12px;
     }
+}
+
+/* Fit merged booking content inside one cell height */
+.time-slot.group-start .slot-content {
+  padding: 4px 6px;         /* was 8px */
+  gap: 2px;                 /* tighter vertical rhythm */
+}
+
+.time-slot.group-start .slot-title { 
+  font-size: 0.72rem; 
+  line-height: 1.05; 
+  -webkit-line-clamp: 1;    /* keep to 1 line */
+}
+
+.time-slot.group-start .slot-subtitle {
+  font-size: 0.62rem; 
+  line-height: 1; 
+  white-space: nowrap; 
+  overflow: hidden; 
+  text-overflow: ellipsis;
+}
+
+.time-slot.group-start .slot-time { 
+  font-size: 0.6rem; 
+  line-height: 1; 
+  opacity: .9;
+}
+
+/* Make sure decorative stuff never sits above text */
+.time-slot, .excel-slot { position: relative; }
+.time-slot .slot-content { position: relative; z-index: 2; }
+.time-slot::before, .time-slot::after { z-index: 1; }
+
+/* Icons stay tiny and don’t push content */
+.customer-comment-icon, .admin-comment-icon {
+  top: 2px; right: 2px; font-size: .65rem; padding: 1px;
 }

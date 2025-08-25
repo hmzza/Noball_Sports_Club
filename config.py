@@ -28,7 +28,7 @@ class Config:
             "host": os.environ.get('DB_HOST', "localhost"),
             "database": os.environ.get('DB_NAME', "noball_sports"),
             "user": os.environ.get('DB_USER', "postgres"),
-            "password": os.environ.get('DB_PASSWORD', "admin@123"),
+            "password": os.environ.get('DB_PASSWORD', "1234"),
             "port": int(os.environ.get('DB_PORT', "5432")),
             "sslmode": "prefer",
         }

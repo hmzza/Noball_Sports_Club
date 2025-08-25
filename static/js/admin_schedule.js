@@ -556,7 +556,7 @@ class AdminScheduleManager {
           </div>
         `;
         slot.style.backgroundColor = "#6c757d";
-        slot.style.color = "white";
+        // slot.style.color = "white";
         slot.style.border = "2px solid #6c757d";
         slot.addEventListener("click", () =>
           this.openSlotModal(slot, slotData)
@@ -629,8 +629,14 @@ class AdminScheduleManager {
           const statusColor = statusColors[statusClass] || "#007bff";
           slot.style.backgroundColor = statusColor;
           slot.style.color = "white";
-          slot.style.border = `3px solid ${statusColor}`;
+          // keep left/right emphasis only, avoid stealing vertical space
+          slot.style.borderLeft = `3px solid ${statusColor}`;
+          slot.style.borderRight = `3px solid ${statusColor}`;
+          // let the normal 1px top/bottom from CSS remain
+          slot.style.borderTop = "";
+          slot.style.borderBottom = "";
           slot.style.borderRadius = "8px 8px 0 0";
+
           slot.style.fontWeight = "600";
           slot.style.boxShadow = "0 2px 8px rgba(0,0,0,0.2)";
         }
