@@ -21,7 +21,7 @@ class ExpensesManager {
     }
     
     setupEventListeners() {
-        // View toggle buttons
+        // View toggle buttons (both desktop and mobile)
         document.querySelectorAll('.view-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 this.switchView(e.target.dataset.view);
@@ -34,11 +34,24 @@ class ExpensesManager {
             filterDate.value = this.currentDate;
         }
         
-        // Area filter
+        // Area filter (desktop and mobile)
         const areaFilter = document.getElementById('area-filter');
+        const areaFilterMobile = document.getElementById('area-filter-mobile');
+        
         if (areaFilter) {
             areaFilter.addEventListener('change', (e) => {
                 this.currentAreaFilter = e.target.value;
+                // Sync mobile filter
+                if (areaFilterMobile) areaFilterMobile.value = e.target.value;
+                this.loadExpenses();
+            });
+        }
+        
+        if (areaFilterMobile) {
+            areaFilterMobile.addEventListener('change', (e) => {
+                this.currentAreaFilter = e.target.value;
+                // Sync desktop filter
+                if (areaFilter) areaFilter.value = e.target.value;
                 this.loadExpenses();
             });
         }
@@ -58,22 +71,41 @@ class ExpensesManager {
     switchView(view) {
         this.currentView = view;
         
-        // Update active button
+        // Update active button for both desktop and mobile
         document.querySelectorAll('.view-btn').forEach(btn => {
             btn.classList.remove('active');
         });
-        document.querySelector(`[data-view="${view}"]`).classList.add('active');
+        
+        // Add active class to all buttons with matching view
+        document.querySelectorAll(`[data-view="${view}"]`).forEach(btn => {
+            btn.classList.add('active');
+        });
         
         // Show/hide date filter
         const dateFilter = document.getElementById('date-filter');
+        const singleDateFilter = document.getElementById('single-date-filter');
+        const dateRangeFilter = document.getElementById('date-range-filter');
         const expensesTitle = document.getElementById('expenses-title');
         
         if (view === 'daily' || view === 'monthly') {
-            dateFilter.style.display = 'block';
-            expensesTitle.textContent = view === 'daily' ? 'Daily Expenses' : 'Monthly Expenses';
+            if (dateFilter) dateFilter.style.display = 'block';
+            if (singleDateFilter) {
+                singleDateFilter.style.display = 'flex';
+                singleDateFilter.classList.add('d-flex', 'flex-column', 'flex-md-row');
+            }
+            if (dateRangeFilter) dateRangeFilter.style.display = 'none';
+            if (expensesTitle) expensesTitle.textContent = view === 'daily' ? 'Daily Expenses' : 'Monthly Expenses';
+        } else if (view === 'date-range') {
+            if (dateFilter) dateFilter.style.display = 'block';
+            if (singleDateFilter) singleDateFilter.style.display = 'none';
+            if (dateRangeFilter) {
+                dateRangeFilter.style.display = 'block';
+                dateRangeFilter.classList.add('d-flex', 'flex-column');
+            }
+            if (expensesTitle) expensesTitle.textContent = 'Date Range Expenses';
         } else {
-            dateFilter.style.display = 'none';
-            expensesTitle.textContent = 'All Expenses';
+            if (dateFilter) dateFilter.style.display = 'none';
+            if (expensesTitle) expensesTitle.textContent = 'All Expenses';
         }
         
         // Load appropriate data
@@ -100,6 +132,20 @@ class ExpensesManager {
                 url = `/admin/api/expenses/monthly`;
                 params.append('year', date.getFullYear());
                 params.append('month', date.getMonth() + 1);
+            } else if (this.currentView === 'date-range') {
+                url = `/admin/api/expenses/date-range`;
+                const startDate = document.getElementById('start-date').value;
+                const endDate = document.getElementById('end-date').value;
+                
+                if (startDate && endDate) {
+                    params.append('start_date', startDate);
+                    params.append('end_date', endDate);
+                } else {
+                    // Don't load if dates are not selected
+                    this.hideLoading();
+                    this.renderEmptyState('Please select start and end dates for the date range filter.');
+                    return;
+                }
             }
             
             // Add parameters to URL if any exist
@@ -142,6 +188,17 @@ class ExpensesManager {
         container.innerHTML = expensesHtml;
     }
     
+    renderEmptyState(message) {
+        const container = document.getElementById('expenses-container');
+        container.innerHTML = `
+            <div class="text-center py-4">
+                <i class="fas fa-calendar-times fs-1 text-muted"></i>
+                <h5 class="text-muted mt-3">No Data</h5>
+                <p class="text-muted">${message}</p>
+            </div>
+        `;
+    }
+    
     createExpenseCard(expense) {
         const categoryClass = `category-${expense.category}`;
         const amount = parseFloat(expense.amount).toLocaleString('en-US', {
@@ -157,53 +214,109 @@ class ExpensesManager {
         
         return `
             <div class="expense-card">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-start">
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1 fw-bold">${expense.title}</h6>
-                                    <p class="text-muted small mb-2">${expense.description || 'No description'}</p>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span class="category-badge ${categoryClass}">
-                                            ${this.getCategoryDisplayName(expense.category)}
-                                        </span>
-                                        <span class="area-badge area-${expense.area_category}">
-                                            ${this.getAreaDisplayName(expense.area_category)}
-                                        </span>
-                                        <small class="text-muted">
-                                            <i class="fas fa-calendar me-1"></i>
-                                            ${expenseDate}
-                                        </small>
-                                        ${expense.created_by ? 
-                                            `<small class="text-muted ms-2">
-                                                <i class="fas fa-user me-1"></i>
-                                                by ${expense.created_by}
-                                            </small>` : ''
-                                        }
-                                    </div>
+                <div class="card-body p-3">
+                    <!-- Mobile Layout -->
+                    <div class="d-block d-md-none">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1 fw-bold">${expense.title}</h6>
+                                <div class="amount-display mb-2">
+                                    PKR ${amount}
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="amount-display">
-                                PKR ${amount}
-                            </div>
+                        
+                        ${expense.description ? 
+                            `<p class="text-muted small mb-2">${expense.description}</p>` : ''
+                        }
+                        
+                        <div class="d-flex flex-wrap gap-1 mb-3">
+                            <span class="category-badge ${categoryClass}">
+                                ${this.getCategoryDisplayName(expense.category)}
+                            </span>
+                            <span class="area-badge area-${expense.area_category}">
+                                ${this.getAreaDisplayName(expense.area_category)}
+                            </span>
                             ${expense.expense_type !== 'one_time' ? 
-                                `<small class="text-muted">
+                                `<span class="badge bg-secondary">
                                     <i class="fas fa-repeat me-1"></i>
                                     ${expense.recurring_frequency || expense.expense_type}
-                                </small>` : ''
+                                </span>` : ''
                             }
                         </div>
-                        <div class="col-md-3">
-                            <div class="d-flex gap-2 justify-content-end">
-                                <button class="btn btn-sm btn-edit" onclick="expensesManager.editExpense(${expense.id})">
-                                    <i class="fas fa-edit"></i> Edit
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="expensesManager.deleteExpense(${expense.id})">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                        
+                        <div class="d-flex justify-content-between align-items-center text-muted small mb-3">
+                            <span>
+                                <i class="fas fa-calendar me-1"></i>
+                                ${expenseDate}
+                            </span>
+                            ${expense.created_by ? 
+                                `<span>
+                                    <i class="fas fa-user me-1"></i>
+                                    by ${expense.created_by}
+                                </span>` : ''
+                            }
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button class="btn btn-sm btn-edit" onclick="expensesManager.editExpense(${expense.id})">
+                                <i class="fas fa-edit me-1"></i> Edit
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="expensesManager.deleteExpense(${expense.id})">
+                                <i class="fas fa-trash me-1"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Desktop Layout -->
+                    <div class="d-none d-md-block">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1 fw-bold">${expense.title}</h6>
+                                        <p class="text-muted small mb-2">${expense.description || 'No description'}</p>
+                                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                                            <span class="category-badge ${categoryClass}">
+                                                ${this.getCategoryDisplayName(expense.category)}
+                                            </span>
+                                            <span class="area-badge area-${expense.area_category}">
+                                                ${this.getAreaDisplayName(expense.area_category)}
+                                            </span>
+                                            <small class="text-muted">
+                                                <i class="fas fa-calendar me-1"></i>
+                                                ${expenseDate}
+                                            </small>
+                                            ${expense.created_by ? 
+                                                `<small class="text-muted">
+                                                    <i class="fas fa-user me-1"></i>
+                                                    by ${expense.created_by}
+                                                </small>` : ''
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="amount-display">
+                                    PKR ${amount}
+                                </div>
+                                ${expense.expense_type !== 'one_time' ? 
+                                    `<small class="text-muted">
+                                        <i class="fas fa-repeat me-1"></i>
+                                        ${expense.recurring_frequency || expense.expense_type}
+                                    </small>` : ''
+                                }
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <button class="btn btn-sm btn-edit" onclick="expensesManager.editExpense(${expense.id})">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="expensesManager.deleteExpense(${expense.id})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -419,6 +532,18 @@ class ExpensesManager {
         this.loadExpenses();
     }
     
+    applyDateRangeFilter() {
+        // Simply reload expenses, loadExpenses will handle the date range logic
+        this.loadExpenses();
+    }
+    
+    clearDateRangeFilter() {
+        // Clear the date inputs and switch back to all view
+        document.getElementById('start-date').value = '';
+        document.getElementById('end-date').value = '';
+        this.switchView('all');
+    }
+    
     showLoading() {
         const container = document.getElementById('expenses-container');
         container.innerHTML = `
@@ -480,6 +605,14 @@ function saveExpense() {
 
 function applyDateFilter() {
     expensesManager.applyDateFilter();
+}
+
+function applyDateRangeFilter() {
+    expensesManager.applyDateRangeFilter();
+}
+
+function clearDateRangeFilter() {
+    expensesManager.clearDateRangeFilter();
 }
 
 // Initialize when DOM is loaded

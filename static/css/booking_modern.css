@@ -417,7 +417,7 @@
 }
 
 .booking-instructions li:before {
-    content: "•";
+    content: "â€¢";
     color: #10b981;
     font-weight: bold;
     position: absolute;
@@ -1515,4 +1515,12 @@
     .legend-item {
         font-size: 0.75rem;
     }
+}
+
+.prev-day-header,
+.next-day-header,
+.section-header{
+  font-weight:600;
+  margin:16px 0 8px;
+  color:#2b2f33;
 }

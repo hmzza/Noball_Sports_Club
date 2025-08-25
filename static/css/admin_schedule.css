@@ -1215,7 +1215,7 @@
     .admin-header .admin-container {
         flex-direction: column;
         gap: 1rem;
-        text-align: center;
+        text-align: left;
     }
 
     .admin-header {

@@ -120,14 +120,13 @@
     </style>
 </head>
 <body>
-    <header class="admin-header">
-        <div class="admin-container">
-            <h1 class="admin-title">Contact Submissions</h1>
-        </div>
-    </header>
+    <!-- Admin Navigation Header -->
+    {% set page_title = "Contact Submissions" %}
+    {% set icon_class = "fas fa-envelope" %}
+    {% set page_subtitle = "View and manage contact form submissions" %}
+    {% include 'admin_navbar.html' %}
 
     <div class="admin-container">
-        <a href="{{ url_for('index') }}" class="back-btn">← Back to Website</a>
         
         <div class="stats-grid">
             <div class="stat-card">

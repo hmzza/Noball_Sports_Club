@@ -969,10 +969,13 @@ class BookingSystem {
       // Create booking with correct date
       confirmBtn.textContent = "Finalizing booking...";
       
-      // Prepare booking data with the correct final booking date
+      // Prepare booking data with consistent format for save/retrieve
       const bookingPayload = {
         ...this.bookingData,
-        date: this.bookingData.finalBookingDate || this.bookingData.date
+        // Always use the actual booking date (handles cross-midnight correctly)
+        date: this.bookingData.finalBookingDate || this.bookingData.date,
+        // Ensure booking_date field is also set for admin consistency
+        booking_date: this.bookingData.finalBookingDate || this.bookingData.date
       };
       
       console.log("📤 Sending booking data:", {
@@ -1116,7 +1119,7 @@ class BookingSystem {
       };
 
       console.log("Sending admin notification email...");
-      const response = await emailjs.send(
+      await emailjs.send(
         "service_y85g6ha",
         "template_ceqhxb3",
         templateParams

@@ -702,7 +702,13 @@ class AdminExpenseView:
     def create_expense():
         """Create new expense API endpoint"""
         try:
+            from flask import g
             data = request.json
+            
+            # Add current user information
+            if hasattr(g, 'current_user') and g.current_user:
+                data['created_by'] = g.current_user.username
+            
             success, message, expense_id = ExpenseService.create_expense(data)
             
             return jsonify({
@@ -722,6 +728,7 @@ class AdminExpenseView:
     def update_expense():
         """Update expense API endpoint"""
         try:
+            from flask import g
             data = request.json
             expense_id = data.get('id')
             
@@ -730,6 +737,10 @@ class AdminExpenseView:
                     "success": False,
                     "message": "Expense ID is required"
                 })
+            
+            # Don't override created_by when updating - let the original creator remain
+            # Remove created_by from update data if it exists
+            data.pop('created_by', None)
             
             success, message = ExpenseService.update_expense(expense_id, data)
             
@@ -838,6 +849,56 @@ class AdminExpenseView:
         
         except Exception as e:
             logger.error(f"Get daily expenses API error: {e}")
+            return jsonify({
+                "success": False,
+                "message": str(e),
+                "expenses": []
+            })
+    
+    @staticmethod
+    def get_date_range_expenses():
+        """Get expenses for date range API endpoint"""
+        try:
+            from datetime import datetime
+            start_date_str = request.args.get('start_date')
+            end_date_str = request.args.get('end_date')
+            area_category = request.args.get('area_category')
+            
+            if not start_date_str or not end_date_str:
+                return jsonify({
+                    "success": False,
+                    "message": "Both start_date and end_date are required",
+                    "expenses": []
+                })
+            
+            try:
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+            except ValueError:
+                return jsonify({
+                    "success": False,
+                    "message": "Invalid date format. Use YYYY-MM-DD",
+                    "expenses": []
+                })
+            
+            if start_date > end_date:
+                return jsonify({
+                    "success": False,
+                    "message": "Start date must be before or equal to end date",
+                    "expenses": []
+                })
+            
+            expenses = ExpenseService.get_expenses_by_date_range(start_date, end_date, area_category)
+            
+            return jsonify({
+                "success": True,
+                "expenses": expenses,
+                "start_date": start_date.isoformat(),
+                "end_date": end_date.isoformat()
+            })
+        
+        except Exception as e:
+            logger.error(f"Get date range expenses API error: {e}")
             return jsonify({
                 "success": False,
                 "message": str(e),

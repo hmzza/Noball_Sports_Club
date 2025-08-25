@@ -578,6 +578,13 @@ def api_daily_expenses():
     """Get daily expenses"""
     return AdminExpenseView.get_daily_expenses()
 
+@admin_bp.route("/api/expenses/date-range")
+@require_auth
+@require_permission('manage_bookings')
+def api_date_range_expenses():
+    """Get expenses by date range"""
+    return AdminExpenseView.get_date_range_expenses()
+
 # Excel Export Routes
 @admin_bp.route("/export/bookings")
 @require_auth

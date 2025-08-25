@@ -411,15 +411,25 @@ class AdminService:
                     created_obj = created_at
                 formatted_booking["createdDateTime"] = created_obj.strftime("%b %d, %Y %I:%M %p")
             
-            # Add JavaScript-expected field aliases
+            # Add JavaScript-expected field aliases for consistent format
             formatted_booking["date"] = formatted_booking.get("booking_date", "")
+            # Ensure startTime and endTime are consistently formatted
             if start_time:
                 # Convert time to simple format (HH:MM)
                 if isinstance(start_time, str):
                     # If it's already a string like "16:00:00", convert to "16:00"
                     formatted_booking["time"] = start_time[:5] if len(start_time) >= 5 else start_time
+                    formatted_booking["startTime"] = start_time[:5] if len(start_time) >= 5 else start_time
                 else:
                     formatted_booking["time"] = start_time.strftime("%H:%M")
+                    formatted_booking["startTime"] = start_time.strftime("%H:%M")
+            
+            if end_time:
+                # Convert end time to simple format (HH:MM)
+                if isinstance(end_time, str):
+                    formatted_booking["endTime"] = end_time[:5] if len(end_time) >= 5 else end_time
+                else:
+                    formatted_booking["endTime"] = end_time.strftime("%H:%M")
             
             return formatted_booking
         
@@ -491,10 +501,20 @@ class AdminService:
             else:
                 formatted_booking["selectedSlots"] = []
             
-            # Create formatted time display
-            if formatted_booking.get("date") and formatted_booking.get("startTime") and formatted_booking.get("endTime"):
+            # Create formatted time display using consistent field names
+            booking_date = formatted_booking.get("date") or formatted_booking.get("booking_date")
+            start_time = formatted_booking.get("startTime") or formatted_booking.get("start_time")
+            end_time = formatted_booking.get("endTime") or formatted_booking.get("end_time")
+            
+            if booking_date and start_time and end_time:
+                # Ensure time format consistency
+                if isinstance(start_time, str) and len(start_time) > 5:
+                    start_time = start_time[:5]
+                if isinstance(end_time, str) and len(end_time) > 5:
+                    end_time = end_time[:5]
+                    
                 formatted_booking["formatted_time"] = AdminService._format_booking_time_display(
-                    formatted_booking["date"], formatted_booking["startTime"], formatted_booking["endTime"]
+                    booking_date, start_time, end_time
                 )
             
             return formatted_booking
