@@ -88,16 +88,16 @@ class AdminScheduleManager {
     this.init();
   }
 
-  // ===== Time slots (single-day sessions) =====
+  // ===== Time slots (workday 14:00 -> 06:00 next day) =====
   generateTimeSlots() {
     const slots = [];
-    // Early morning: 00:00..05:30
-    for (let hour = 0; hour < 6; hour++) {
+    // Afternoon/Evening: 14:00..23:30
+    for (let hour = 14; hour < 24; hour++) {
       slots.push(`${String(hour).padStart(2, "0")}:00`);
       slots.push(`${String(hour).padStart(2, "0")}:30`);
     }
-    // Evening: 14:00..23:30
-    for (let hour = 14; hour < 24; hour++) {
+    // Next-day early morning: 00:00..05:30
+    for (let hour = 0; hour < 6; hour++) {
       slots.push(`${String(hour).padStart(2, "0")}:00`);
       slots.push(`${String(hour).padStart(2, "0")}:30`);
     }
@@ -111,6 +111,10 @@ class AdminScheduleManager {
   isEveningSlot(time) {
     const h = parseInt(time.split(":")[0], 10);
     return h >= 14 && h <= 23;
+  }
+  // Mark slots after midnight for next-day labeling
+  isNextDaySlot(time) {
+    return this.isMorningSlot(time);
   }
   // Segment helper (for selection rule)
   getTimeSegment(time /* 'HH:mm' */) {
@@ -149,9 +153,9 @@ class AdminScheduleManager {
   }
 
   setupEventListeners() {
-    // Date navigation
-    this.addEventListener("prev-week", "click", () => this.navigateDate(-7));
-    this.addEventListener("next-week", "click", () => this.navigateDate(7));
+    // Date navigation (move by 1 day)
+    this.addEventListener("prev-week", "click", () => this.navigateDate(-1));
+    this.addEventListener("next-week", "click", () => this.navigateDate(1));
     this.addEventListener("schedule-date", "change", (e) =>
       this.handleDateChange(e)
     );
@@ -394,16 +398,18 @@ class AdminScheduleManager {
     });
 
     // Rows
-    let previousSection = null; // 'morning' or 'evening'
+    let nextDayHeaderAdded = false;
     this.timeSlots.forEach((time, timeIndex) => {
-      const section = this.isEveningSlot(time) ? "evening" : "morning";
-
-      // Insert session separator when switching to evening
-      if (previousSection !== section && section === "evening") {
+      // Insert a "Next Day" header once when moving into 00:00..05:30
+      if (this.isNextDaySlot(time) && !nextDayHeaderAdded) {
         const sep = document.createElement("div");
         sep.className = "time-header day-separator";
-        sep.innerHTML = `Evening Session`;
+        const next = new Date(this.currentDate);
+        next.setDate(this.currentDate.getDate() + 1);
+        const nextStr = localDateKey(next);
+        sep.innerHTML = `Next Day - ${this.formatDate(nextStr)}`;
         grid.appendChild(sep);
+        nextDayHeaderAdded = true;
       }
 
       const timeLabel = document.createElement("div");
@@ -416,7 +422,6 @@ class AdminScheduleManager {
         grid.appendChild(slot);
       });
 
-      previousSection = section;
     });
   }
 
@@ -492,8 +497,8 @@ class AdminScheduleManager {
       Object.keys(byId).forEach((bookingId) => {
         const slots = byId[bookingId];
 
-        // Sort by minute-of-day (00:00..05:30 before evening, natural order)
-        slots.sort((a, b) => minutesOfDay(a.time) - minutesOfDay(b.time));
+        // Sort by visual workday order (14:00..23:30, then 00:00..05:30)
+        slots.sort((a, b) => this.timeSlots.indexOf(a.time) - this.timeSlots.indexOf(b.time));
 
         if (slots.length > 1) {
           const first = slots[0];
@@ -847,12 +852,21 @@ class AdminScheduleManager {
         "modal-court",
         this.getCourtName(this.selectedSlot.court)
       );
-      this.setElementText(
-        "modal-datetime",
-        `${this.formatDate(this.selectedSlot.date)} at ${this.formatTime(
-          this.selectedSlot.time
-        )}`
-      );
+      {
+        const baseDate = this.selectedSlot.date;
+        const timeStr = this.selectedSlot.time;
+        // Show next calendar day for 00:00..05:30 slots
+        let displayDate = baseDate;
+        if (this.isNextDaySlot(timeStr)) {
+          const d = parseLocalDate(baseDate);
+          d.setDate(d.getDate() + 1);
+          displayDate = localDateKey(d);
+        }
+        this.setElementText(
+          "modal-datetime",
+          `${this.formatDate(displayDate)} at ${this.formatTime(timeStr)}`
+        );
+      }
 
       // Status
       const statusEl = document.getElementById("modal-status");
@@ -1744,6 +1758,10 @@ class AdminScheduleManager {
 
     // Enforce same segment (both before 5:30 AM OR both after 2:00 PM)
     const endSegment = this.getTimeSegment(time);
+    // Allow crossing midnight (day → night) by normalizing the segment
+    if (this.selectionSegment === "day" && endSegment === "night") {
+      this.selectionSegment = endSegment;
+    }
     if (
       !this.selectionSegment ||
       this.selectionSegment === "gap" ||
@@ -1795,6 +1813,18 @@ class AdminScheduleManager {
       return false;
     }
 
+    // Disallow wrap-around selection back to afternoon session
+    if (this.startSlot && this.endSlot) {
+      const si = this.timeSlots.indexOf(this.startSlot.time);
+      const ei = this.timeSlots.indexOf(this.endSlot.time);
+      if (si !== -1 && ei !== -1 && ei < si) {
+        this.showErrorToast(
+          "Invalid range. Please select a continuous range within the work day order (2:00 PM → 6:00 AM)."
+        );
+        return false;
+      }
+    }
+
     // All slots must be within the same time segment as the start slot
     const startSeg =
       this.selectionSegment ||
@@ -1803,7 +1833,7 @@ class AdminScheduleManager {
       this.showErrorToast("Invalid slot selection.");
       return false;
     }
-    const mixedSegment = slots.some((t) => this.getTimeSegment(t) !== startSeg);
+    const mixedSegment = false; // allow crossing midnight within workday timeline
     if (mixedSegment) {
       this.showErrorToast(
         "You can’t select across the closed period (5:30 AM → 2:00 PM). Keep all selected slots either before 5:30 AM or after 2:00 PM."
@@ -1924,10 +1954,27 @@ class AdminScheduleManager {
     col.innerHTML = "";
 
     let prevSection = null;
+    let nextDayHeaderAdded = false;
     this.timeSlots.forEach((time) => {
       // "day sections" are already partitioned by our times (00:00-05:30 and 14:00-23:30)
       const isNight = parseInt(time.slice(0, 2)) < 6; // 00-05
       const section = isNight ? "night" : "day";
+
+      // Insert a Next Day header when moving into 00:00..05:30 block
+      if (this.isNextDaySlot(time) && !nextDayHeaderAdded) {
+        const sep = document.createElement("div");
+        sep.className = "excel-time-header day-separator";
+        const next = new Date(this.currentDate);
+        next.setDate(this.currentDate.getDate() + 1);
+        const nextStr = localDateKey(next);
+        sep.innerHTML = `<strong>Next Day - ${this.formatDate(nextStr)}</strong>`;
+        sep.style.cssText = `
+          background:#f8f9fa;color:#1b5e20;font-weight:bold;font-size:.75rem;
+          padding:.5rem;border-radius:6px;border-left:3px solid #1b5e20;text-align:center;margin:.5rem 0;
+        `;
+        col.appendChild(sep);
+        nextDayHeaderAdded = true;
+      }
 
       if (prevSection !== section && section === "day") {
         const sep = document.createElement("div");
@@ -1957,12 +2004,13 @@ class AdminScheduleManager {
     const courts = this.getAllCourts();
     const dateStr = localDateKey(this.currentDate);
     let prevSection = null;
+    let nextDayHeaderAdded = false;
 
     this.timeSlots.forEach((time, idx) => {
       const isNight = parseInt(time.slice(0, 2)) < 6;
       const section = isNight ? "night" : "day";
 
-      if (prevSection !== section && section === "day") {
+      if (this.isNextDaySlot(time) && !nextDayHeaderAdded) {
         const rowSep = document.createElement("div");
         rowSep.className = "excel-slot-row day-separator";
         rowSep.style.height = "50px";
@@ -1976,6 +2024,7 @@ class AdminScheduleManager {
           rowSep.appendChild(c);
         });
         grid.appendChild(rowSep);
+        nextDayHeaderAdded = true;
       }
 
       const row = document.createElement("div");

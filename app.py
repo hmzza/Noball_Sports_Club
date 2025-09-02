@@ -5,8 +5,15 @@ NoBall Sports Club Management System
 
 import os
 import logging
-from flask import Flask, render_template, request, jsonify, session
-from functools import wraps
+from datetime import datetime, timedelta, timezone
+
+from flask import Flask, render_template, request, jsonify
+
+# Timezone support (use backport on Python < 3.9)
+try:
+    from zoneinfo import ZoneInfo
+except ImportError:  # pragma: no cover
+    from backports.zoneinfo import ZoneInfo  # pip install backports.zoneinfo
 
 # Import modular components
 from config import config
@@ -18,6 +25,31 @@ from admin import admin_bp
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# --------- TZ + window helpers (cross-midnight safe) ---------
+ARENA_TZ = ZoneInfo("Asia/Karachi")
+WORKDAY_END_MIN = 5 * 60 + 30  # 05:30
+
+def parse_local_ymd(ymd: str) -> datetime:
+    """Local midnight for a YYYY-MM-DD string."""
+    y, m, d = map(int, ymd.split("-"))
+    return datetime(y, m, d, 0, 0, 0, tzinfo=ARENA_TZ)
+
+def combine_local(display_ymd: str, hhmm: str) -> datetime:
+    """
+    Map (selected workday date, HH:mm) → actual local datetime.
+    00:00–05:30 belong to the *next* calendar date, but they are still part of the workday.
+    """
+    h, mm = map(int, hhmm.split(":"))
+    base = parse_local_ymd(display_ymd)
+    if (h * 60 + mm) < WORKDAY_END_MIN:
+        base = base + timedelta(days=1)
+    return base.replace(hour=h, minute=mm)
+
+def to_storage(dt_local: datetime) -> datetime:
+    """Convert local datetime to UTC (storage canonical)."""
+    return dt_local.astimezone(timezone.utc)
+# ------------------------------------------------------------
 
 
 def create_app(config_name=None):
@@ -75,11 +107,15 @@ def register_api_routes(app):
 
     @app.route("/api/booked-slots", methods=["POST"])
     def get_booked_slots():
-        """Get booked time slots for a specific court and date"""
+        """
+        Get booked time slots for a specific court and WORKDAY date.
+        The service should return a list of "HH:mm" strings (including 00:00–05:30 that
+        belong to this workday).
+        """
         try:
-            data = request.json
+            data = request.get_json(force=True) or {}
             court = data.get("court")
-            date = data.get("date")
+            date = data.get("date")  # workday (selected calendar date)
 
             if not court or not date:
                 return jsonify({"error": "Missing court or date"}), 400
@@ -93,11 +129,14 @@ def register_api_routes(app):
 
     @app.route("/api/check-conflicts", methods=["POST"])
     def check_conflicts():
-        """Check for conflicts before final booking confirmation"""
+        """
+        Check for conflicts before final booking confirmation (legacy date+slots).
+        Uses WORKDAY date (the selected date) and the list of HH:mm slots.
+        """
         try:
-            data = request.json
+            data = request.get_json(force=True) or {}
             court = data.get("court")
-            date = data.get("date")
+            date = data.get("date")  # workday
             selected_slots = data.get("selectedSlots", [])
 
             if not all([court, date, selected_slots]):
@@ -113,11 +152,7 @@ def register_api_routes(app):
             return jsonify(
                 {
                     "hasConflict": not available,
-                    "message": (
-                        "Slots no longer available"
-                        if not available
-                        else "Slots available"
-                    ),
+                    "message": ("Slots no longer available" if not available else "Slots available"),
                     "conflicts": conflicts,
                 }
             )
@@ -125,58 +160,120 @@ def register_api_routes(app):
         except Exception as e:
             logger.error(f"API error - check_conflicts: {e}")
             return (
-                jsonify(
-                    {"hasConflict": True, "message": "Error checking availability"}
-                ),
+                jsonify({"hasConflict": True, "message": "Error checking availability"}),
                 500,
             )
 
     @app.route("/api/create-booking", methods=["POST"])
     def create_booking():
-        """Create a new booking with conflict prevention"""
+        """
+        Create a new booking with conflict prevention (cross-midnight safe + legacy adapter).
+        Canonical booking/workday date is ALWAYS the SELECTED date on the frontend.
+        """
         try:
-            booking_data = request.json
+            data = request.get_json(force=True) or {}
 
-            # Final conflict check
-            court = booking_data.get("court")
-            date = booking_data.get("date")
-            selected_slots = booking_data.get("selectedSlots", [])
+            court = data.get("court")
+            workday = data.get("date") or data.get("booking_date")  # selected date (workday)
+            selected = data.get("selectedSlots", [])  # [{time:'HH:mm', index:int}, ...] OR ["HH:mm", ...]
 
-            available, conflicts = BookingService.check_slot_availability(
-                court, date, selected_slots
-            )
+            # Basic validations
+            if not court or not workday or not selected:
+                return jsonify({"success": False, "message": "Missing court/date/slots"}), 400
 
-            if not available:
-                return (
-                    jsonify(
-                        {
-                            "success": False,
-                            "message": "One or more selected time slots are no longer available",
-                            "conflicts": conflicts,
-                        }
-                    ),
-                    409,
+            # Normalize selected slots to list of HH:mm strings
+            times = [(s["time"] if isinstance(s, dict) else s) for s in selected]
+            if not all(isinstance(t, str) and ":" in t for t in times):
+                return jsonify({"success": False, "message": "Invalid time slots format"}), 400
+
+            # Build concrete datetimes (local) for robustness / email / UTC storage if needed
+            start_dts_local = sorted(combine_local(workday, t) for t in times)
+            start_local = start_dts_local[0]
+            end_local = start_dts_local[-1] + timedelta(minutes=30)
+
+            start_utc = to_storage(start_local)
+            end_utc = to_storage(end_local)
+            slot_starts_utc = [to_storage(dt) for dt in start_dts_local]
+
+            # Duration (hours) for legacy code/notifications
+            duration_hours = round(len(times) * 0.5, 2)
+            slots_count = len(times)
+
+            # ---- Conflict check: try new signature, fallback to legacy ----
+            try:
+                available, conflicts = BookingService.check_slot_availability(
+                    court=court,
+                    start_at_utc=start_utc,
+                    end_at_utc=end_utc,
+                    slot_starts_utc=slot_starts_utc,
+                )
+            except TypeError:
+                # Legacy API (court, date, selected_slots)
+                # Ensure it's list of dicts with "time"
+                legacy_slots = selected if (selected and isinstance(selected[0], dict) and "time" in selected[0]) \
+                    else [{"time": t} for t in times]
+                available, conflicts = BookingService.check_slot_availability(
+                    court, workday, legacy_slots
                 )
 
-            # Create booking
-            booking_id = BookingService.create_booking(booking_data)
+            if not available:
+                return jsonify({
+                    "success": False,
+                    "message": "One or more selected time slots are no longer available",
+                    "conflicts": conflicts,
+                }), 409
 
-            return jsonify(
-                {
-                    "success": True,
-                    "bookingId": booking_id,
-                    "message": "Booking created successfully",
-                }
-            )
+            # ---- Create booking payload (include canonical + legacy fields) ----
+            payload = {
+                "court": court,
+                "sport": data.get("sport"),
+                "courtName": data.get("courtName"),
+                "playerName": data.get("playerName"),
+                "playerPhone": data.get("playerPhone"),
+                "playerEmail": data.get("playerEmail"),
+                "playerCount": data.get("playerCount", "2"),
+                "specialRequests": data.get("specialRequests", ""),
+                "paymentType": data.get("paymentType", "advance"),
+                "totalAmount": data.get("totalAmount", 0),
+                "promoCode": data.get("promoCode", ""),
+
+                # Canonical timestamps (UTC)
+                "start_at_utc": start_utc.isoformat(),
+                "end_at_utc": end_utc.isoformat(),
+
+                # Display helpers
+                "display_date": workday,                # workday (selected date)
+                "start_hhmm": data.get("startTime"),
+                "end_hhmm": data.get("endTime"),
+                "selected_slots": selected,
+
+                # Legacy compatibility (existing service code expects these)
+                "startTime": data.get("startTime"),
+                "endTime": data.get("endTime"),
+                "selectedSlots": selected,
+                "duration": data.get("duration", duration_hours),  # ensure present
+                "slots_count": slots_count,
+
+                # Common DB fields used elsewhere
+                "booking_date": workday,  # WORKDAY anchor
+                "date": workday,
+                "start_time": data.get("startTime"),
+                "end_time": data.get("endTime"),
+            }
+
+            booking_id = BookingService.create_booking(payload)
+
+            return jsonify({
+                "success": True,
+                "bookingId": booking_id,
+                "message": "Booking created successfully",
+            })
 
         except ValueError as e:
             return jsonify({"success": False, "message": str(e)}), 400
         except Exception as e:
-            logger.error(f"API error - create_booking: {e}")
-            return (
-                jsonify({"success": False, "message": "Failed to create booking"}),
-                500,
-            )
+            logger.exception("API error - create_booking")
+            return jsonify({"success": False, "message": "Failed to create booking"}), 500
 
     @app.route("/submit-contact", methods=["POST"])
     def submit_contact():
@@ -190,26 +287,12 @@ def register_api_routes(app):
                 "message": request.form.get("message"),
             }
 
-            # Validate required fields
-            if not all(
-                [
-                    contact_data["name"],
-                    contact_data["email"],
-                    contact_data["phone"],
-                    contact_data["message"],
-                ]
-            ):
-                return (
-                    jsonify({"success": False, "error": "Missing required fields"}),
-                    400,
-                )
+            if not all([contact_data["name"], contact_data["email"], contact_data["phone"], contact_data["message"]]):
+                return jsonify({"success": False, "error": "Missing required fields"}), 400
 
             success = ContactService.submit_contact(contact_data)
-
             if success:
-                return jsonify(
-                    {"success": True, "message": "Contact form submitted successfully"}
-                )
+                return jsonify({"success": True, "message": "Contact form submitted successfully"})
             else:
                 raise Exception("Failed to save contact")
 
@@ -229,31 +312,19 @@ def register_api_routes(app):
                 ORDER BY created_at DESC 
                 LIMIT 10
             """
-
             bookings = DatabaseManager.execute_query(query)
 
             bookings_list = []
             if bookings:
                 for booking in bookings:
                     booking_dict = dict(booking)
-                    # Convert date/time objects to strings
                     if booking_dict.get("booking_date"):
-                        booking_dict["booking_date"] = booking_dict[
-                            "booking_date"
-                        ].strftime("%Y-%m-%d")
+                        booking_dict["booking_date"] = booking_dict["booking_date"].strftime("%Y-%m-%d")
                     if booking_dict.get("created_at"):
-                        booking_dict["created_at"] = booking_dict[
-                            "created_at"
-                        ].isoformat()
+                        booking_dict["created_at"] = booking_dict["created_at"].isoformat()
                     bookings_list.append(booking_dict)
 
-            return jsonify(
-                {
-                    "success": True,
-                    "bookings": bookings_list,
-                    "count": len(bookings_list),
-                }
-            )
+            return jsonify({"success": True, "bookings": bookings_list, "count": len(bookings_list)})
 
         except Exception as e:
             logger.error(f"Debug bookings error: {e}")
@@ -263,27 +334,25 @@ def register_api_routes(app):
     def test_db_customer():
         """Test database connection for customer side"""
         try:
-            # Test basic query
-            total_query = "SELECT COUNT(*) as count FROM bookings"
-            total_result = DatabaseManager.execute_query(total_query, fetch_one=True)
+            total_result = DatabaseManager.execute_query(
+                "SELECT COUNT(*) as count FROM bookings", fetch_one=True
+            )
             total_bookings = total_result["count"] if total_result else 0
 
-            # Test today's bookings
-            today_query = """
-                SELECT COUNT(*) as count FROM bookings 
-                WHERE booking_date = CURRENT_DATE
-            """
-            today_result = DatabaseManager.execute_query(today_query, fetch_one=True)
+            today_result = DatabaseManager.execute_query(
+                "SELECT COUNT(*) as count FROM bookings WHERE booking_date = CURRENT_DATE",
+                fetch_one=True,
+            )
             today_bookings = today_result["count"] if today_result else 0
 
-            # Test pending vs confirmed
-            status_query = """
+            status_results = DatabaseManager.execute_query(
+                """
                 SELECT status, COUNT(*) as count
                 FROM bookings 
                 WHERE booking_date >= CURRENT_DATE
                 GROUP BY status
-            """
-            status_results = DatabaseManager.execute_query(status_query)
+                """
+            )
             status_counts = {}
             if status_results:
                 for row in status_results:
@@ -322,23 +391,10 @@ def register_api_routes(app):
             reason = data.get("reason", "No reason provided")
 
             if not all([court, date, time_slot]):
-                return (
-                    jsonify(
-                        {
-                            "success": False,
-                            "message": "Missing required fields: court, date, time_slot",
-                        }
-                    ),
-                    400,
-                )
+                return jsonify({"success": False, "message": "Missing required fields: court, date, time_slot"}), 400
 
-            success, message = BlockedSlotService.block_slot(
-                court, date, time_slot, reason
-            )
-
-            return jsonify({"success": success, "message": message}), (
-                200 if success else 400
-            )
+            success, message = BlockedSlotService.block_slot(court, date, time_slot, reason)
+            return jsonify({"success": success, "message": message}), (200 if success else 400)
 
         except Exception as e:
             logger.error(f"API error - block_slot: {e}")
@@ -356,21 +412,10 @@ def register_api_routes(app):
             time_slot = data.get("time_slot")
 
             if not all([court, date, time_slot]):
-                return (
-                    jsonify(
-                        {
-                            "success": False,
-                            "message": "Missing required fields: court, date, time_slot",
-                        }
-                    ),
-                    400,
-                )
+                return jsonify({"success": False, "message": "Missing required fields: court, date, time_slot"}), 400
 
             success, message = BlockedSlotService.unblock_slot(court, date, time_slot)
-
-            return jsonify({"success": success, "message": message}), (
-                200 if success else 400
-            )
+            return jsonify({"success": success, "message": message}), (200 if success else 400)
 
         except Exception as e:
             logger.error(f"API error - unblock_slot: {e}")
@@ -378,43 +423,23 @@ def register_api_routes(app):
 
     @app.route("/api/calculate-price", methods=["POST"])
     def calculate_price():
-        """Calculate booking price for customer"""
+        """Calculate booking price for customer (workday-based)"""
         try:
             data = request.json
             court_id = data.get("court_id")
-            booking_date = data.get("booking_date")
+            booking_date = data.get("booking_date")  # workday
             selected_slots = data.get("selected_slots", [])
 
             if not all([court_id, booking_date, selected_slots]):
-                return (
-                    jsonify(
-                        {
-                            "success": False,
-                            "message": "Missing required fields: court_id, booking_date, selected_slots",
-                        }
-                    ),
-                    400,
-                )
+                return jsonify({"success": False, "message": "Missing required fields: court_id, booking_date, selected_slots"}), 400
 
-            total_price = BookingService.calculate_booking_price(
-                court_id, booking_date, selected_slots
-            )
+            total_price = BookingService.calculate_booking_price(court_id, booking_date, selected_slots)
 
-            return jsonify(
-                {
-                    "success": True,
-                    "total_price": total_price,
-                    "currency": "PKR",
-                    "slots_count": len(selected_slots),
-                }
-            )
+            return jsonify({"success": True, "total_price": total_price, "currency": "PKR", "slots_count": len(selected_slots)})
 
         except Exception as e:
             logger.error(f"API error - calculate_price: {e}")
-            return (
-                jsonify({"success": False, "message": "Failed to calculate price"}),
-                500,
-            )
+            return jsonify({"success": False, "message": "Failed to calculate price"}), 500
 
     @app.route("/api/apply-promo-code", methods=["POST"])
     def apply_promo_code():
@@ -431,62 +456,27 @@ def register_api_routes(app):
             promo_code = data.get("promo_code", "").strip().upper()
             sport = data.get("sport")
 
-            # Better validation for booking_amount
+            # Validate booking_amount
             booking_amount_raw = data.get("booking_amount")
             if booking_amount_raw is None:
-                return (
-                    jsonify(
-                        {"success": False, "message": "Booking amount is required"}
-                    ),
-                    400,
-                )
+                return jsonify({"success": False, "message": "Booking amount is required"}), 400
 
             try:
                 booking_amount = int(booking_amount_raw)
             except (ValueError, TypeError):
-                return (
-                    jsonify(
-                        {
-                            "success": False,
-                            "message": f"Invalid booking amount: {booking_amount_raw}",
-                        }
-                    ),
-                    400,
-                )
-
-            logger.info(
-                f"Applying promo code: {promo_code}, amount: {booking_amount}, sport: {sport}"
-            )
+                return jsonify({"success": False, "message": f"Invalid booking amount: {booking_amount_raw}"}), 400
 
             if not promo_code:
-                return (
-                    jsonify({"success": False, "message": "Promo code is required"}),
-                    400,
-                )
-
+                return jsonify({"success": False, "message": "Promo code is required"}), 400
             if booking_amount <= 0:
-                return (
-                    jsonify(
-                        {
-                            "success": False,
-                            "message": f"Booking amount must be greater than 0, got: {booking_amount}",
-                        }
-                    ),
-                    400,
-                )
+                return jsonify({"success": False, "message": f"Booking amount must be greater than 0, got: {booking_amount}"}), 400
 
-            # Apply promo code
-            success, message, discount_amount, final_amount = (
-                PromoService.apply_promo_code(promo_code, booking_amount, sport)
+            success, message, discount_amount, final_amount = PromoService.apply_promo_code(
+                promo_code, booking_amount, sport
             )
 
             if success:
-                # Create discount description
-                if discount_amount > 0:
-                    discount_text = f"You saved ₨{discount_amount:,}!"
-                else:
-                    discount_text = "Promo code applied!"
-
+                discount_text = f"You saved ₨{discount_amount:,}!" if discount_amount > 0 else "Promo code applied!"
                 return jsonify(
                     {
                         "success": True,
@@ -502,10 +492,7 @@ def register_api_routes(app):
 
         except Exception as e:
             logger.error(f"API error - apply_promo_code: {e}")
-            return (
-                jsonify({"success": False, "message": "Error applying promo code"}),
-                500,
-            )
+            return jsonify({"success": False, "message": "Error applying promo code"}), 500
 
     @app.route("/api/pricing-info", methods=["GET"])
     def get_pricing_info():
@@ -533,33 +520,18 @@ def register_api_routes(app):
                     "court_id": pricing.court_id,
                     "court_name": pricing.court_name,
                     "base_price_per_hour": pricing.base_price * 2,
-                    "peak_price_per_hour": (
-                        (pricing.peak_price * 2) if pricing.peak_price else None
-                    ),
-                    "off_peak_price_per_hour": (
-                        (pricing.off_peak_price * 2) if pricing.off_peak_price else None
-                    ),
-                    "weekend_price_per_hour": (
-                        (pricing.weekend_price * 2) if pricing.weekend_price else None
-                    ),
+                    "peak_price_per_hour": ((pricing.peak_price * 2) if pricing.peak_price else None),
+                    "off_peak_price_per_hour": ((pricing.off_peak_price * 2) if pricing.off_peak_price else None),
+                    "weekend_price_per_hour": ((pricing.weekend_price * 2) if pricing.weekend_price else None),
                 }
 
                 formatted_pricing[sport]["courts"].append(court_info)
 
-                # Set sport-level pricing (use first court's pricing as representative)
                 if formatted_pricing[sport]["base_price_per_hour"] is None:
-                    formatted_pricing[sport]["base_price_per_hour"] = court_info[
-                        "base_price_per_hour"
-                    ]
-                    formatted_pricing[sport]["peak_price_per_hour"] = court_info[
-                        "peak_price_per_hour"
-                    ]
-                    formatted_pricing[sport]["off_peak_price_per_hour"] = court_info[
-                        "off_peak_price_per_hour"
-                    ]
-                    formatted_pricing[sport]["weekend_price_per_hour"] = court_info[
-                        "weekend_price_per_hour"
-                    ]
+                    formatted_pricing[sport]["base_price_per_hour"] = court_info["base_price_per_hour"]
+                    formatted_pricing[sport]["peak_price_per_hour"] = court_info["peak_price_per_hour"]
+                    formatted_pricing[sport]["off_peak_price_per_hour"] = court_info["off_peak_price_per_hour"]
+                    formatted_pricing[sport]["weekend_price_per_hour"] = court_info["weekend_price_per_hour"]
 
             return jsonify(
                 {
@@ -575,10 +547,7 @@ def register_api_routes(app):
 
         except Exception as e:
             logger.error(f"API error - get_pricing_info: {e}")
-            return (
-                jsonify({"success": False, "message": "Failed to get pricing info"}),
-                500,
-            )
+            return jsonify({"success": False, "message": "Failed to get pricing info"}), 500
 
 
 def register_error_handlers(app):
