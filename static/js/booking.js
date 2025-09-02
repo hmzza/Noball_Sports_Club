@@ -530,8 +530,12 @@ class BookingSystem {
       const endDateDisplay   = this.formatDateShort(this.bookingData.actualEndDate);
       timeDisplayText = `${startTime} (${startDateDisplay}) - ${endTime} (${endDateDisplay})`;
     } else {
-      const workday = this.bookingData.finalBookingDate || this.bookingData.date;
-      const dayText = this.formatDateShort(workday);
+      // If selection starts in the next-day segment (00:00–05:30), show the actual next-day date
+      const startIsNextDay = this.isNextDayTime(this.bookingData.startTime);
+      const displayDate = startIsNextDay
+        ? this.bookingData.actualStartDate
+        : (this.bookingData.finalBookingDate || this.bookingData.date);
+      const dayText = this.formatDateShort(displayDate);
       timeDisplayText = `${startTime} - ${endTime} (${dayText})`;
     }
 
@@ -557,7 +561,10 @@ class BookingSystem {
     if (elements.court) elements.court.textContent = this.bookingData.courtName;
 
     if (elements.date) {
-      const displayDate = this.bookingData.finalBookingDate || this.bookingData.date;
+      const startIsNextDay = this.isNextDayTime(this.bookingData.startTime);
+      const displayDate = startIsNextDay
+        ? this.bookingData.actualStartDate
+        : (this.bookingData.finalBookingDate || this.bookingData.date);
       elements.date.textContent = this.formatDate(displayDate);
     }
 
@@ -569,7 +576,11 @@ class BookingSystem {
         const endDateShort   = this.formatDateShort(this.bookingData.actualEndDate);
         elements.time.textContent = `${startTime} (${startDateShort}) - ${endTime} (${endDateShort}) (${this.bookingData.duration}h)`;
       } else {
-        const dayText = this.formatDateShort(this.bookingData.finalBookingDate || this.bookingData.date);
+        const startIsNextDay = this.isNextDayTime(this.bookingData.startTime);
+        const displayDate = startIsNextDay
+          ? this.bookingData.actualStartDate
+          : (this.bookingData.finalBookingDate || this.bookingData.date);
+        const dayText = this.formatDateShort(displayDate);
         elements.time.textContent = `${startTime} - ${endTime} (${dayText}, ${this.bookingData.duration}h)`;
       }
     }
