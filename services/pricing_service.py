@@ -262,13 +262,18 @@ class PricingService:
                 return True
             
             # Initialize default pricing based on current config
+            # Prices below are per 30-minute slot (used by pricing engine).
+            # They correspond to per-hour "From" prices as:
+            #  padel-1: 3000 → 6000/hr, padel-2: 2750 → 5500/hr
+            #  cricket-1: 1500 → 3000/hr, cricket-2: 1750 → 3500/hr
+            #  futsal-1: 1250 → 2500/hr, pickleball-1: 1500 → 3000/hr
             default_courts = [
-                {'id': 'padel-1', 'name': 'Court 1: Purple Mondo', 'sport': 'padel', 'price': 5500},
-                {'id': 'padel-2', 'name': 'Court 2: Teracotta Court', 'sport': 'padel', 'price': 5500},
-                {'id': 'cricket-1', 'name': 'Court 1: 110x50ft', 'sport': 'cricket', 'price': 3000},
-                {'id': 'cricket-2', 'name': 'Court 2: 130x60ft Multi', 'sport': 'cricket', 'price': 3000},
-                {'id': 'futsal-1', 'name': 'Court 1: 130x60ft Multi', 'sport': 'futsal', 'price': 2500},
-                {'id': 'pickleball-1', 'name': 'Court 1: Professional Setup', 'sport': 'pickleball', 'price': 2500}
+                {'id': 'padel-1', 'name': 'Court 1: Purple Mondo', 'sport': 'padel', 'price': 3000},
+                {'id': 'padel-2', 'name': 'Court 2: Teracotta Court', 'sport': 'padel', 'price': 2750},
+                {'id': 'cricket-1', 'name': 'Court 1: 110x50ft', 'sport': 'cricket', 'price': 1500},
+                {'id': 'cricket-2', 'name': 'Court 2: 130x60ft Multi', 'sport': 'cricket', 'price': 1750},
+                {'id': 'futsal-1', 'name': 'Court 1: 130x60ft Multi', 'sport': 'futsal', 'price': 1250},
+                {'id': 'pickleball-1', 'name': 'Court 1: Professional Setup', 'sport': 'pickleball', 'price': 1500}
             ]
             
             for court in default_courts:

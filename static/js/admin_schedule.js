@@ -135,6 +135,9 @@ class AdminScheduleManager {
       this.loadScheduleData();
       this.setupBookingControls();
     }, 200);
+
+    // Prefer unified mobile grid for smooth scrolling
+    this.useUnifiedMobile = window.matchMedia('(max-width: 768px)').matches;
   }
 
   initializeSchedule() {
@@ -362,10 +365,14 @@ class AdminScheduleManager {
     try {
       if (!this.scheduleData || typeof this.scheduleData !== "object")
         this.scheduleData = {};
-      this.renderExcelHeaders();
-      this.renderExcelTimeColumn();
-      this.renderExcelSlots();
-      this.setupScrollSync();
+      if (window.matchMedia('(max-width: 768px)').matches) {
+        this.renderUnifiedMobile();
+      } else {
+        this.renderExcelHeaders();
+        this.renderExcelTimeColumn();
+        this.renderExcelSlots();
+        this.setupScrollSync();
+      }
       console.log("✅ Excel view rendered");
     } catch (error) {
       console.error("❌ Excel view error:", error);
@@ -1967,25 +1974,12 @@ class AdminScheduleManager {
         const next = new Date(this.currentDate);
         next.setDate(this.currentDate.getDate() + 1);
         const nextStr = localDateKey(next);
-        sep.innerHTML = `<strong>Next Day - ${this.formatDate(nextStr)}</strong>`;
-        sep.style.cssText = `
-          background:#f8f9fa;color:#1b5e20;font-weight:bold;font-size:.75rem;
-          padding:.5rem;border-radius:6px;border-left:3px solid #1b5e20;text-align:center;margin:.5rem 0;
-        `;
+        sep.textContent = `Next Day - ${this.formatDate(nextStr)}`;
         col.appendChild(sep);
         nextDayHeaderAdded = true;
       }
 
-      if (prevSection !== section && section === "day") {
-        const sep = document.createElement("div");
-        sep.className = "excel-time-header day-separator";
-        sep.innerHTML = `<strong>Afternoon–Night</strong>`;
-        sep.style.cssText = `
-          background:#f8f9fa;color:#1b5e20;font-weight:bold;font-size:.75rem;
-          padding:.5rem;border-radius:6px;border-left:3px solid #1b5e20;text-align:center;margin:.5rem 0;
-        `;
-        col.appendChild(sep);
-      }
+      // Remove extra section header here to keep rows perfectly aligned with slots grid
 
       const h = document.createElement("div");
       h.className = "excel-time-header";
@@ -2013,12 +2007,10 @@ class AdminScheduleManager {
       if (this.isNextDaySlot(time) && !nextDayHeaderAdded) {
         const rowSep = document.createElement("div");
         rowSep.className = "excel-slot-row day-separator";
-        rowSep.style.height = "50px";
-        rowSep.style.background = "#e9ecef";
         courts.forEach(() => {
           const c = document.createElement("div");
           c.className = "excel-slot";
-          c.style.background = "#e9ecef";
+          c.style.background = "#eef3ee";
           c.style.border = "none";
           c.style.cursor = "default";
           rowSep.appendChild(c);
@@ -2036,6 +2028,64 @@ class AdminScheduleManager {
 
       grid.appendChild(row);
       prevSection = section;
+    });
+  }
+
+  // ===== Unified Mobile Grid (single scroll container) =====
+  renderUnifiedMobile() {
+    const container = document.getElementById('unified-excel');
+    const headerRow = document.getElementById('unified-court-headers');
+    const body = document.getElementById('unified-rows');
+    if (!container || !headerRow || !body) return;
+
+    // Ensure unified container is visible and legacy is hidden
+    const legacy = document.getElementById('legacy-excel');
+    if (legacy) legacy.style.display = 'none';
+    container.style.display = 'block';
+
+    // Build headers (courts)
+    headerRow.innerHTML = '';
+    this.getAllCourts().forEach(ct => {
+      const h = document.createElement('div');
+      h.className = 'u-slot header';
+      h.style.background = '#f8f9fa';
+      h.style.fontWeight = '700';
+      h.innerHTML = `<div style="font-size:.7rem;color:#495057">${ct.sport.toUpperCase()}</div><div style="font-size:.65rem;opacity:.8">${ct.name}</div>`;
+      h.style.position = 'relative';
+      headerRow.appendChild(h);
+    });
+
+    // Build rows
+    body.innerHTML = '';
+    const courts = this.getAllCourts();
+    let nextDayAdded = false;
+    this.timeSlots.forEach((time) => {
+      if (this.isNextDaySlot(time) && !nextDayAdded) {
+        const sep = document.createElement('div');
+        sep.className = 'unified-row separator';
+        const next = new Date(this.currentDate); next.setDate(this.currentDate.getDate() + 1);
+        const nextStr = localDateKey(next);
+        const tc = document.createElement('div'); tc.className = 'time-cell'; tc.textContent = `Next Day - ${this.formatDate(nextStr)}`;
+        sep.appendChild(tc);
+        courts.forEach(() => { const c = document.createElement('div'); c.className = 'u-slot'; sep.appendChild(c); });
+        body.appendChild(sep);
+        nextDayAdded = true;
+      }
+
+      const row = document.createElement('div');
+      row.className = 'unified-row';
+      const tcell = document.createElement('div');
+      tcell.className = 'time-cell';
+      tcell.textContent = this.formatTime(time);
+      row.appendChild(tcell);
+      courts.forEach(ct => {
+        // Reuse the rich slot builder so statuses/bookings/blocked states render correctly
+        const built = this.createExcelSlot(localDateKey(this.currentDate), time, ct.id, this.timeSlots.indexOf(time));
+        // Adapt class for unified layout while keeping status classes
+        built.className = built.className.replace('excel-slot', 'u-slot');
+        row.appendChild(built);
+      });
+      body.appendChild(row);
     });
   }
 

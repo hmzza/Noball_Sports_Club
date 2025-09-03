@@ -72,6 +72,13 @@ def create_app(config_name=None):
             f"Database initialization failed: {e}. App will start without database."
         )
 
+    # Ensure default pricing exists (seed once if empty)
+    try:
+        from services.pricing_service import PricingService
+        PricingService.initialize_default_pricing()
+    except Exception as e:
+        logger.warning(f"Pricing initialization skipped: {e}")
+
     # Create super admin account if it doesn't exist
     try:
         AuthService.create_super_admin()

@@ -107,19 +107,21 @@
             
             <!-- Mobile Excel-like Grid -->
             <div class="schedule-excel mobile-schedule" id="schedule-excel">
-                <div class="excel-container">
+                <!-- Unified mobile container for sticky time column and smooth scroll -->
+                <div class="unified-excel" id="unified-excel" aria-label="Schedule Grid" role="table">
+                    <div class="unified-header" id="unified-header" role="row">
+                        <div class="time-cell header" role="columnheader">Time</div>
+                        <div class="header-row" id="unified-court-headers" role="row"></div>
+                    </div>
+                    <div class="unified-body" id="unified-rows" role="rowgroup"></div>
+                </div>
+                <!-- Legacy layout kept as fallback (desktop uses it) -->
+                <div class="excel-container legacy-excel" id="legacy-excel" style="display:none;">
                     <div class="excel-corner">Time</div>
-                    <div class="excel-court-headers" id="excel-court-headers">
-                        <!-- Court headers will be populated by JavaScript -->
-                    </div>
-                    <div class="excel-time-column" id="excel-time-column">
-                        <!-- Time headers will be populated by JavaScript -->
-                    </div>
+                    <div class="excel-court-headers" id="excel-court-headers"></div>
+                    <div class="excel-time-column" id="excel-time-column"></div>
                     <div class="excel-slots-container" id="excel-slots-container">
-                        <div class="excel-slots-grid" id="excel-slots-grid">
-                            <!-- Scrollable slots area -->
-                        </div>
-                        <!-- Mobile scroll hint -->
+                        <div class="excel-slots-grid" id="excel-slots-grid"></div>
                         <div class="mobile-scroll-hint" id="mobile-scroll-hint">
                             <i class="fas fa-hand-pointer"></i> Swipe to scroll
                         </div>

@@ -44,7 +44,7 @@
         <div class="progress-tracker">
             <div class="progress-step active" data-step="1">
                 <div class="step-icon">
-                    <i class="fas fa-sports"></i>
+                    <i class="fas fa-futbol"></i>
                 </div>
                 <span class="step-label">Select Sport & Court</span>
             </div>
@@ -85,8 +85,8 @@
                         </div>
                         <div class="sport-info">
                             <h3 class="sport-name">Padel</h3>
-                            <p class="sport-desc">Professional-grade courts with premium surfaces</p>
-                            <div class="sport-price">From PKR 5,500</div>
+                            <p class="sport-desc">High-performance courts with pro surface and lighting</p>
+                            <div class="sport-price">From PKR 6,000</div>
                         </div>
                         <div class="selection-indicator">
                             <i class="fas fa-check"></i>
@@ -124,7 +124,7 @@
                         </div>
                         <div class="sport-info">
                             <h3 class="sport-name">Cricket</h3>
-                            <p class="sport-desc">Practice courts with professional equipment</p>
+                            <p class="sport-desc">Practice lanes with quality turf and training gear</p>
                             <div class="sport-price">From PKR 3,000</div>
                         </div>
                         <div class="selection-indicator">
@@ -163,7 +163,7 @@
                         </div>
                         <div class="sport-info">
                             <h3 class="sport-name">Futsal</h3>
-                            <p class="sport-desc">FIFA-standard court for 5v5 games</p>
+                            <p class="sport-desc">Floodlit futsal court suitable for 5v5 matches</p>
                             <div class="sport-price">From PKR 2,500</div>
                         </div>
                         <div class="selection-indicator">
@@ -193,8 +193,8 @@
                         </div>
                         <div class="sport-info">
                             <h3 class="sport-name">Pickleball</h3>
-                            <p class="sport-desc">Professional court with premium nets</p>
-                            <div class="sport-price">From PKR 2,500</div>
+                            <p class="sport-desc">Professional court with premium nets and markings</p>
+                            <div class="sport-price">From PKR 3,000</div>
                         </div>
                         <div class="selection-indicator">
                             <i class="fas fa-check"></i>
@@ -258,18 +258,27 @@
                     </div>
                     
                     <!-- Pricing -->
-                    <div class="pricing-info">
+                    <div class="pricing-info" id="dynamic-pricing">
                         <h4>Pricing (Per Hour):</h4>
-                        <div class="price-details">
-                            <div class="price-item">
+                        <div class="price-details" id="price-details">
+                            <div class="price-item" id="price-row-base">
                                 <span class="price-label">Base Rate:</span>
-                                <span class="price-value">Rs8,000</span>
+                                <span class="price-value" id="price-base-value">PKR —</span>
                             </div>
-                            <div class="price-item">
+                            <div class="price-item" id="price-row-peak" style="display:none;">
+                                <span class="price-label">Peak Hours (5:00 PM - 2:00 AM):</span>
+                                <span class="price-value" id="price-peak-value">PKR —</span>
+                            </div>
+                            <div class="price-item" id="price-row-offpeak" style="display:none;">
                                 <span class="price-label">Off-Peak (2:00 PM - 5:00 PM & 2:00 AM - 6:00 AM):</span>
-                                <span class="price-value">Rs6,000</span>
+                                <span class="price-value" id="price-offpeak-value">PKR —</span>
+                            </div>
+                            <div class="price-item" id="price-row-weekend" style="display:none;">
+                                <span class="price-label">Weekend (Sat & Sun):</span>
+                                <span class="price-value" id="price-weekend-value">PKR —</span>
                             </div>
                         </div>
+                        <small id="price-note" style="display:block;color:#6c757d;margin-top:6px;">Shown rates reflect the selected court (or sport defaults).</small>
                     </div>
                     
                     <!-- Legend -->

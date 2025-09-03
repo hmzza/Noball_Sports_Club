@@ -105,13 +105,69 @@ class BookingSystem {
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const result = await response.json();
       if (result.success) {
-        this.pricingInfo = result.pricing;
+        this.pricingInfo = result.pricing; // structured by sport with per-hour values
         this.timingInfo = result.timing_info;
         this.addPricingStyles();
+        this.populatePricingUI();
+        this.updateStep2PricingDisplay();
       }
     } catch (error) {
       console.error("❌ Error loading pricing info:", error);
     }
+  }
+
+  // Update visible prices on sport cards and step-2 panel
+  populatePricingUI() {
+    if (!this.pricingInfo) return;
+    // Update sport cards “From PKR …”
+    document.querySelectorAll('.sport-card').forEach(card => {
+      const sport = card.getAttribute('data-sport');
+      const priceEl = card.querySelector('.sport-price');
+      if (!sport || !priceEl) return;
+      const sportData = this.pricingInfo[sport];
+      if (!sportData) return;
+      const base = sportData.base_price_per_hour || 0;
+      if (base > 0) priceEl.textContent = `From PKR ${Number(base).toLocaleString()}`;
+    });
+  }
+
+  updateStep2PricingDisplay() {
+    if (!this.pricingInfo) return;
+    // Determine selected sport/court
+    const sport = this.bookingData.sport || document.querySelector('.sport-card.selected')?.getAttribute('data-sport');
+    let base, peak, off, weekend;
+    if (sport && this.pricingInfo[sport]) {
+      const courtId = this.bookingData.court || document.querySelector('.court-option.selected')?.getAttribute('data-court');
+      const sportData = this.pricingInfo[sport];
+      if (courtId) {
+        const court = (sportData.courts || []).find(c => c.court_id === courtId);
+        if (court) {
+          base = court.base_price_per_hour; peak = court.peak_price_per_hour; off = court.off_peak_price_per_hour; weekend = court.weekend_price_per_hour;
+        }
+      }
+      // fallback to sport defaults if specific court not found
+      base = base ?? sportData.base_price_per_hour;
+      peak = peak ?? sportData.peak_price_per_hour;
+      off = off ?? sportData.off_peak_price_per_hour;
+      weekend = weekend ?? sportData.weekend_price_per_hour;
+    }
+
+    const setRow = (rowId, valueId, value) => {
+      const row = document.getElementById(rowId);
+      const val = document.getElementById(valueId);
+      if (!row || !val) return;
+      if (value && Number(value) > 0) {
+        row.style.display = 'flex';
+        val.textContent = `PKR ${Number(value).toLocaleString()}`;
+      } else {
+        row.style.display = 'none';
+      }
+    };
+
+    setRow('price-row-base', 'price-base-value', base || 0);
+    setRow('price-row-peak', 'price-peak-value', peak);
+    setRow('price-row-offpeak', 'price-offpeak-value', off);
+    setRow('price-row-weekend', 'price-weekend-value', weekend);
   }
 
   addPricingStyles() {
@@ -238,6 +294,7 @@ class BookingSystem {
     });
 
     this.validateStep1();
+    this.updateStep2PricingDisplay();
   }
 
   selectCourt(event) {
@@ -253,6 +310,7 @@ class BookingSystem {
     this.bookingData.courtName = courtName;
 
     this.validateStep1();
+    this.updateStep2PricingDisplay();
   }
 
   validateStep1() {

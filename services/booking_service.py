@@ -261,13 +261,14 @@ class BookingService:
     def _get_fallback_price(court_id: str, slot_count: int) -> int:
         """Fallback pricing method using hardcoded values"""
         # Use existing hardcoded prices as fallback
+        # Prices per 30-minute slot (match PricingService defaults)
         fallback_prices = {
-            'padel-1': 5500,
-            'padel-2': 5500, 
-            'cricket-1': 3000,
-            'cricket-2': 3000,
-            'futsal-1': 2500,
-            'pickleball-1': 2500
+            'padel-1': 3000,
+            'padel-2': 2750,
+            'cricket-1': 1500,
+            'cricket-2': 1750,
+            'futsal-1': 1250,
+            'pickleball-1': 1500
         }
         
         base_price = fallback_prices.get(court_id, 3000)
