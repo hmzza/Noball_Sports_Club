@@ -10,6 +10,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .input-error { border-color: #dc3545 !important; box-shadow: 0 0 0 2px rgba(220,53,69,.1) !important; }
+        .field-error { font-size: 0.85rem; }
+    </style>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body class="booking-modern">
@@ -19,6 +23,11 @@
         <div class="floating-shape shape-2"></div>
         <div class="floating-shape shape-3"></div>
     </div>
+
+    <!-- Floating WhatsApp Button -->
+    <a href="https://wa.me/{{ whatsapp_number }}" target="_blank" class="floating-whatsapp" aria-label="Chat on WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
 
     <!-- Modern Header -->
     <header class="modern-header">
@@ -366,25 +375,28 @@
                     <div class="form-group">
                         <label class="input-label">Full Name *</label>
                         <div class="input-wrapper">
-                            <input type="text" id="player-name" class="modern-input" required>
+                            <input type="text" id="player-name" class="modern-input" required placeholder="Your full name">
                             <i class="fas fa-user"></i>
                         </div>
+                        <small class="field-error" id="error-player-name" style="display:none;color:#dc3545;margin-top:6px;">Please enter your full name.</small>
                     </div>
                     
                     <div class="form-group">
                         <label class="input-label">Phone Number *</label>
                         <div class="input-wrapper">
-                            <input type="tel" id="player-phone" class="modern-input" required>
+                            <input type="tel" id="player-phone" class="modern-input" required inputmode="tel" pattern="^(03\\d{9}|\\+923\\d{9})$" placeholder="03XXXXXXXXX or +923XXXXXXXXX">
                             <i class="fas fa-phone"></i>
                         </div>
+                        <small class="field-error" id="error-player-phone" style="display:none;color:#dc3545;margin-top:6px;">Please enter a valid Pakistani mobile number.</small>
                     </div>
                     
                     <div class="form-group">
                         <label class="input-label">Email Address *</label>
                         <div class="input-wrapper">
-                            <input type="email" id="player-email" class="modern-input" required>
+                            <input type="email" id="player-email" class="modern-input" required placeholder="name@example.com">
                             <i class="fas fa-envelope"></i>
                         </div>
+                        <small class="field-error" id="error-player-email" style="display:none;color:#dc3545;margin-top:6px;">Please enter a valid email address.</small>
                     </div>
                     
                     <div class="form-group">
@@ -545,10 +557,16 @@
                         <div class="whatsapp-card">
                             <h4>📸 After Payment</h4>
                             <p>Send payment screenshot to our WhatsApp for instant confirmation</p>
-                            <a href="https://wa.me/923XXXXXXXXX" class="whatsapp-btn" target="_blank">
+                            <a id="whatsapp-link" href="https://wa.me/{{ whatsapp_number }}" class="whatsapp-btn" target="_blank">
                                 <i class="fab fa-whatsapp"></i>
                                 <span>Send to WhatsApp</span>
                             </a>
+                            <div style="margin-top:10px">
+                                <button type="button" id="share-summary-btn" class="btn-modern secondary">
+                                    <i class="fas fa-share-alt"></i>
+                                    <span class="btn-text">Share Booking Summary (Image)</span>
+                                </button>
+                            </div>
                             <div class="verification-note">
                                 <i class="fas fa-clock"></i>
                                 <span>Booking confirmed within 30 minutes</span>
@@ -610,7 +628,7 @@
                 </div>
                 
                 <div class="confirmation-actions">
-                    <a href="https://wa.me/923XXXXXXXXX" class="btn-modern primary" target="_blank">
+                    <a id="whatsapp-link-confirm" href="https://wa.me/{{ whatsapp_number }}" class="btn-modern primary" target="_blank">
                         <i class="fab fa-whatsapp"></i>
                         <span class="btn-text">Send Payment Screenshot</span>
                     </a>
@@ -623,6 +641,10 @@
     </div>
 
     <!-- Scripts -->
+    <script>
+        window.WHATSAPP_NUMBER = '{{ whatsapp_number }}';
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script src="static/js/modern_scripts.js"></script>
     <script src="static/js/booking.js"></script>
 </body>

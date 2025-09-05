@@ -414,7 +414,7 @@ class ModernNoBall {
         scrollToTopBtn.className = 'scroll-to-top';
         scrollToTopBtn.style.cssText = `
             position: fixed;
-            bottom: 2rem;
+            bottom: 6.5rem; /* lifted to avoid WhatsApp bubble overlap */
             right: 2rem;
             width: 50px;
             height: 50px;

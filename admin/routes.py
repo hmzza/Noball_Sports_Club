@@ -10,6 +10,7 @@ from services.activity_service import ActivityService
 from services.admin_service import AdminService
 from .views import AdminDashboardView, AdminBookingView, AdminScheduleView, AdminBookingControlView, AdminPricingView, AdminAPIView, AdminExpenseView
 from services.contact_service import ContactService
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -309,6 +310,48 @@ def cleanup_logs():
     except Exception as e:
         logger.error(f"Error cleaning up logs: {e}")
         return jsonify({"error": "Failed to cleanup logs"}), 500
+
+# Dangerous operations (Super Admin Only)
+@admin_bp.route("/cleanup-bookings", methods=["POST"])
+@require_auth
+@super_admin_only
+def cleanup_bookings():
+    """Delete old bookings (super admin only). Requires confirmation text."""
+    try:
+        data = request.get_json(force=True) or {}
+        confirm_text = (data.get('confirmText') or '').strip().upper()
+        before_date = data.get('beforeDate')  # optional YYYY-MM-DD
+
+        if confirm_text != 'DELETE':
+            return jsonify({"success": False, "message": "Confirmation text mismatch. Type DELETE to proceed."}), 400
+
+        # validate date format if provided
+        if before_date:
+            try:
+                datetime.strptime(before_date, '%Y-%m-%d')
+            except ValueError:
+                return jsonify({"success": False, "message": "Invalid date format. Use YYYY-MM-DD."}), 400
+
+        from services.admin_service import AdminService
+        deleted_count = AdminService.delete_old_bookings(before_date)
+
+        # Log activity
+        try:
+            desc = before_date or 'CURRENT_DATE'
+            ActivityService.log_activity(
+                action='cleanup',
+                entity_type='booking',
+                entity_id='bulk',
+                entity_name='Old Bookings',
+                details=f'Deleted {deleted_count} bookings older than {desc}'
+            )
+        except Exception:
+            pass
+
+        return jsonify({"success": True, "deleted_count": deleted_count})
+    except Exception as e:
+        logger.error(f"Error cleaning up bookings: {e}")
+        return jsonify({"success": False, "message": "Failed to cleanup bookings"}), 500
 
 # Action Routes
 @admin_bp.route("/confirm-booking/<booking_id>")
@@ -680,3 +723,107 @@ def export_bookings():
     except Exception as e:
         logger.error(f"Error exporting bookings: {e}")
         return jsonify({"error": "Failed to export bookings"}), 500
+
+@admin_bp.route("/export/expenses")
+@require_auth
+@require_permission('view_expenses')
+def export_expenses():
+    """Export expenses to Excel with optional filters"""
+    try:
+        from openpyxl import Workbook
+        from openpyxl.styles import Font, PatternFill, Alignment
+        from flask import make_response
+        from io import BytesIO
+        from datetime import datetime
+
+        # Read optional filters
+        area = request.args.get('area')  # a, b, both, all/None
+        view = request.args.get('view', 'all')  # all, daily, monthly, range
+        date_str = request.args.get('date')  # for daily/monthly
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
+
+        # Fetch expenses according to filters
+        from services.expense_service import ExpenseService
+        expenses = []
+
+        if view == 'daily' and date_str:
+            expenses = ExpenseService.get_daily_expenses(date_str, area)
+        elif view == 'monthly' and date_str:
+            try:
+                y, m = map(int, date_str.split('-')[0:2])
+                expenses = ExpenseService.get_monthly_expenses(y, m, area)
+            except Exception:
+                expenses = ExpenseService.get_all_expenses(area_category=area, limit=10000, offset=0)
+        elif view == 'range' and start_date and end_date:
+            expenses = ExpenseService.get_expenses_by_date_range(start_date, end_date, area)
+        else:
+            expenses = ExpenseService.get_all_expenses(area_category=area, limit=10000, offset=0)
+
+        # Create workbook
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Expenses"
+
+        # Header style
+        header_font = Font(bold=True, color="FFFFFF")
+        header_fill = PatternFill(start_color="2E7D32", end_color="2E7D32", fill_type="solid")
+        header_alignment = Alignment(horizontal="center", vertical="center")
+
+        # Headers
+        headers = [
+            "ID", "Title", "Description", "Amount (PKR)", "Category", "Area",
+            "Expense Date", "Type", "Frequency", "Created By", "Created At", "Updated At"
+        ]
+        for col, header in enumerate(headers, 1):
+            cell = ws.cell(row=1, column=col, value=header)
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.alignment = header_alignment
+
+        # Data rows
+        for row_idx, exp in enumerate(expenses, 2):
+            # Ensure dict access (services returns list of dicts)
+            e = exp
+            ws.cell(row=row_idx, column=1, value=e.get('id'))
+            ws.cell(row=row_idx, column=2, value=e.get('title'))
+            ws.cell(row=row_idx, column=3, value=e.get('description'))
+            ws.cell(row=row_idx, column=4, value=float(e.get('amount', 0)))
+            ws.cell(row=row_idx, column=5, value=e.get('category'))
+            ws.cell(row=row_idx, column=6, value=e.get('area_category'))
+            ws.cell(row=row_idx, column=7, value=str(e.get('expense_date') or ''))
+            ws.cell(row=row_idx, column=8, value=e.get('expense_type'))
+            ws.cell(row=row_idx, column=9, value=e.get('recurring_frequency'))
+            ws.cell(row=row_idx, column=10, value=e.get('created_by'))
+            ws.cell(row=row_idx, column=11, value=str(e.get('created_at') or ''))
+            ws.cell(row=row_idx, column=12, value=str(e.get('updated_at') or ''))
+
+        # Auto-adjust column widths
+        for column in ws.columns:
+            max_length = 0
+            column_letter = column[0].column_letter
+            for cell in column:
+                if cell.value is not None:
+                    max_length = max(max_length, len(str(cell.value)))
+            ws.column_dimensions[column_letter].width = min(max_length + 2, 60)
+
+        # Save to BytesIO
+        output = BytesIO()
+        wb.save(output)
+        output.seek(0)
+
+        # Create response
+        response = make_response(output.read())
+        response.headers['Content-Type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        response.headers['Content-Disposition'] = f'attachment; filename=noball_expenses_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+
+        # Log export
+        try:
+            ActivityService.log_activity('export', 'expenses', 'all', 'Expenses', f'Exported {len(expenses)} expenses')
+        except Exception:
+            pass
+
+        return response
+    except Exception as e:
+        logger.error(f"Error exporting expenses: {e}")
+        return jsonify({"error": "Failed to export expenses"}), 500

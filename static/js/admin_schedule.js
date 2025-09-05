@@ -134,6 +134,7 @@ class AdminScheduleManager {
     setTimeout(() => {
       this.loadScheduleData();
       this.setupBookingControls();
+      this.setupEditModalListeners();
     }, 200);
 
     // Prefer unified mobile grid for smooth scrolling
@@ -1063,11 +1064,35 @@ class AdminScheduleManager {
     }
   }
 
+  // Open inline edit modal on schedule page instead of redirecting
   editBookingFromModal() {
     if (!this.selectedSlot?.data?.bookingId)
       return this.showErrorToast("No booking selected");
-    this.closeSlotModal();
-    window.location.href = `/admin/booking-control?booking=${this.selectedSlot.data.bookingId}`;
+    try {
+      const overlay = document.getElementById('schedule-edit-modal-overlay');
+      const form = document.getElementById('sched-edit-booking-form');
+      if (!overlay || !form) return this.showErrorToast('Edit modal not available');
+
+      // Populate fields
+      const data = this.selectedSlot.data || {};
+      document.getElementById('sched-edit-booking-id').value = data.bookingId;
+      document.getElementById('sched-edit-player-name').value = data.playerName || '';
+      document.getElementById('sched-edit-player-phone').value = data.playerPhone || '';
+      document.getElementById('sched-edit-player-email').value = data.playerEmail || '';
+      document.getElementById('sched-edit-player-count').value = (data.playerCount || '2');
+      // Map schedule status -> DB status
+      const statusMap = { 'booked-pending': 'pending_payment', 'booked-confirmed': 'confirmed', 'booked-cancelled': 'cancelled' };
+      const dbStatus = statusMap[data.status] || 'pending_payment';
+      document.getElementById('sched-edit-status').value = dbStatus;
+      document.getElementById('sched-edit-total-amount').value = (data.amount != null ? data.amount : '');
+      document.getElementById('sched-edit-admin-comments').value = data.adminComments || '';
+
+      overlay.classList.remove('hidden');
+      overlay.style.display = 'flex';
+    } catch (e) {
+      console.error('❌ editBookingFromModal error:', e);
+      this.showErrorToast('Failed to open edit modal');
+    }
   }
 
   async saveSlotComment() {
@@ -1207,6 +1232,64 @@ class AdminScheduleManager {
 
   handleModalOverlayClick(event) {
     if (event.target === event.currentTarget) this.closeSlotModal();
+  }
+
+  // ===== Inline Edit (Schedule) =====
+  setupEditModalListeners() {
+    this.addEventListener('sched-close-edit-modal', 'click', () => this.closeScheduleEditModal());
+    this.addEventListener('sched-cancel-edit', 'click', () => this.closeScheduleEditModal());
+    const form = document.getElementById('sched-edit-booking-form');
+    if (form) {
+      form.addEventListener('submit', (e) => this.handleScheduleEditSubmit(e));
+    }
+  }
+
+  closeScheduleEditModal() {
+    const overlay = document.getElementById('schedule-edit-modal-overlay');
+    if (overlay) {
+      overlay.style.display = 'none';
+      overlay.classList.add('hidden');
+    }
+  }
+
+  async handleScheduleEditSubmit(e) {
+    e.preventDefault();
+    try {
+      const bookingId = document.getElementById('sched-edit-booking-id').value;
+      if (!bookingId) return this.showErrorToast('Missing booking ID');
+
+      const payload = {
+        bookingId,
+        playerName: document.getElementById('sched-edit-player-name').value.trim(),
+        playerPhone: document.getElementById('sched-edit-player-phone').value.trim(),
+        playerEmail: document.getElementById('sched-edit-player-email').value.trim(),
+        playerCount: document.getElementById('sched-edit-player-count').value,
+        status: document.getElementById('sched-edit-status').value,
+        totalAmount: parseInt(document.getElementById('sched-edit-total-amount').value || '0', 10),
+        adminComments: document.getElementById('sched-edit-admin-comments').value.trim(),
+      };
+
+      if (!payload.playerName || !payload.playerPhone) {
+        return this.showErrorToast('Player name and phone are required');
+      }
+
+      this.showLoadingToast('Updating booking...');
+      const res = await fetch('/admin/api/update-booking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const result = await res.json();
+      if (!result.success) throw new Error(result.message || 'Failed to update booking');
+
+      this.showSuccessToast('Booking updated successfully');
+      this.closeScheduleEditModal();
+      this.closeSlotModal();
+      await this.loadScheduleData();
+    } catch (err) {
+      console.error('❌ handleScheduleEditSubmit error:', err);
+      this.showErrorToast('Failed to update booking: ' + err.message);
+    }
   }
 
   // ===== QUICK BOOKING =====

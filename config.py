@@ -67,6 +67,10 @@ class Config:
     ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "hmzza7")
     ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin@11212")
 
+    # Contact / WhatsApp configuration
+    # Set to digits without + (e.g., 923161439569)
+    WHATSAPP_NUMBER = os.environ.get("WHATSAPP_NUMBER", "923293180180")
+
 
 class DevelopmentConfig(Config):
     """Development configuration"""

@@ -49,6 +49,15 @@ class BookingSystem {
     this.init();
   }
 
+  // EmailJS config (reuse your existing admin service)
+  getEmailJsServiceId() {
+    return 'service_y85g6ha'; // set to your EmailJS service ID
+  }
+  getEmailJsCustomerTemplateId() {
+    // EmailJS customer-facing template provided by you
+    return 'template_79dq4rl';
+  }
+
   generateTimeSlots() {
     const slots = [];
     // Workday operates from 2pm (14:00) to 6am (06:00) next day
@@ -266,9 +275,9 @@ class BookingSystem {
     const playerName = document.getElementById("player-name");
     const playerPhone = document.getElementById("player-phone");
     const playerEmail = document.getElementById("player-email");
-    if (playerName) playerName.addEventListener("input", () => this.validateStep3());
-    if (playerPhone) playerPhone.addEventListener("input", () => this.validateStep3());
-    if (playerEmail) playerEmail.addEventListener("input", () => this.validateStep3());
+    if (playerName) playerName.addEventListener("input", () => this.validateStep3(true));
+    if (playerPhone) playerPhone.addEventListener("input", () => this.validateStep3(true));
+    if (playerEmail) playerEmail.addEventListener("input", () => this.validateStep3(true));
 
     document.querySelectorAll('input[name="payment-type"]').forEach((radio) => {
       radio.addEventListener("change", () => this.updatePaymentAmounts());
@@ -328,18 +337,60 @@ class BookingSystem {
       : `Select ${Math.max(0, 2 - this.bookingData.selectedSlots.length)} More Slot${this.bookingData.selectedSlots.length === 1 ? '' : 's'}`;
   }
 
-  validateStep3() {
-    const name = document.getElementById("player-name")?.value.trim() || "";
-    const phone = document.getElementById("player-phone")?.value.trim() || "";
-    const email = document.getElementById("player-email")?.value.trim() || "";
+  validateStep3(showMessages = false) {
+    const nameEl = document.getElementById("player-name");
+    const phoneEl = document.getElementById("player-phone");
+    const emailEl = document.getElementById("player-email");
+    const name = nameEl?.value.trim() || "";
+    const phone = phoneEl?.value.trim() || "";
+    const email = emailEl?.value.trim() || "";
     const nextBtn = document.querySelector("#step-3 .next-step");
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (nextBtn) nextBtn.disabled = !(name && phone && email && emailRegex.test(email));
+    const phoneRegex = /^(03\d{9}|\+923\d{9})$/;
+
+    const errors = {
+      name: !name || name.length < 2,
+      phone: !phoneRegex.test(phone),
+      email: !emailRegex.test(email),
+    };
+
+    if (showMessages) {
+      this.setFieldError("player-name", "error-player-name", errors.name, "Please enter your full name.");
+      this.setFieldError("player-phone", "error-player-phone", errors.phone, "Please enter a valid Pakistani mobile number.");
+      this.setFieldError("player-email", "error-player-email", errors.email, "Please enter a valid email address.");
+    }
+
+    const valid = !errors.name && !errors.phone && !errors.email;
+    if (nextBtn) nextBtn.disabled = !valid;
+    return valid;
+  }
+
+  setFieldError(inputId, errorId, hasError, message) {
+    const input = document.getElementById(inputId);
+    const errorEl = document.getElementById(errorId);
+    if (!input || !errorEl) return;
+    if (hasError) {
+      input.classList.add("input-error");
+      errorEl.textContent = message || errorEl.textContent;
+      errorEl.style.display = "block";
+    } else {
+      input.classList.remove("input-error");
+      errorEl.style.display = "none";
+    }
   }
 
   nextStep() {
     if (this.currentStep >= 4) return;
+    if (this.currentStep === 3) {
+      // Force validation with visible messages
+      const ok = this.validateStep3(true);
+      if (!ok) {
+        const nextBtn = document.querySelector('#step-3 .next-step');
+        if (nextBtn) nextBtn.disabled = true;
+        return;
+      }
+    }
     this.saveStepData();
     const cur = document.getElementById(`step-${this.currentStep}`);
     if (cur) cur.classList.remove("active");
@@ -373,13 +424,56 @@ class BookingSystem {
         break;
       case 3:
         this.updateBookingSummary();
+        this.validateStep3(true);
         break;
       case 4:
         this.updateFinalSummary();
         this.updatePaymentAmounts();
         this.addPricingStyles();
+        this.updateWhatsAppLinks();
+        this.setupShareSummary();
         break;
     }
+  }
+
+  setupShareSummary() {
+    const btn = document.getElementById('share-summary-btn');
+    if (!btn) return;
+    btn.onclick = async () => {
+      try {
+        const card = document.querySelector('.final-summary-card');
+        if (!card || typeof html2canvas === 'undefined') {
+          alert('Sorry, this device does not support sharing images here.');
+          return;
+        }
+        // Render to canvas (2x for clarity)
+        const canvas = await html2canvas(card, { backgroundColor: '#f9fafb', scale: window.devicePixelRatio || 2 });
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 0.95));
+        const file = new File([blob], `noball_booking_${Date.now()}.png`, { type: 'image/png' });
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: 'NoBall Booking Summary',
+            text: 'Booking summary attached.'
+          });
+        } else {
+          // Fallback: download the image and guide the user
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = file.name;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          alert('Summary image downloaded. Please attach it in WhatsApp after opening the chat.');
+        }
+      } catch (e) {
+        console.error('❌ Share summary error:', e);
+        alert('Failed to create summary image. Please take a screenshot instead.');
+      }
+    };
   }
 
   updateProgressBar() {
@@ -699,7 +793,8 @@ class BookingSystem {
       await this.updateBookingTimeData();
 
       if (!this.validateBookingData()) {
-        alert("Please ensure all required fields are filled out correctly.");
+        this.validateStep3(true);
+        alert("Please ensure your name, phone (03XXXXXXXXX or +923XXXXXXXXX) and email are valid.");
         return;
       }
 
@@ -730,6 +825,7 @@ class BookingSystem {
       if (result.success) {
         this.showBookingConfirmation(result.bookingId);
         await this.sendAdminNotification(result.bookingId);
+        await this.sendCustomerNotification(result.bookingId);
       } else {
         throw new Error(result.message || "Booking failed");
       }
@@ -753,7 +849,22 @@ class BookingSystem {
         return false;
       }
     }
-    return true;
+    // Extra client validation for phone/email
+    const phoneValid = /^(03\d{9}|\+923\d{9})$/.test(this.bookingData.playerPhone || "");
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.bookingData.playerEmail || "");
+    return phoneValid && emailValid;
+  }
+
+  // Update WhatsApp links with configured number and prefilled message
+  updateWhatsAppLinks() {
+    const number = (window.WHATSAPP_NUMBER || '').replace(/[^\d]/g, '');
+    if (!number) return;
+    const message = `Hello Noball Sports Club,%0A%0AI have a booking:%0A- Sport: ${this.bookingData.sport}%0A- Court: ${this.bookingData.courtName}%0A- Date/Time: ${this.formatBookingDateTime()}%0A- Name: ${this.bookingData.playerName}%0A- Phone: ${this.bookingData.playerPhone}%0A- Amount: PKR ${this.bookingData.totalAmount.toLocaleString()}%0A%0AI will send the payment screenshot now.`;
+    const href = `https://wa.me/${number}?text=${message}`;
+    const a1 = document.getElementById('whatsapp-link');
+    const a2 = document.getElementById('whatsapp-link-confirm');
+    if (a1) a1.href = href;
+    if (a2) a2.href = href;
   }
 
   async checkForConflicts() {
@@ -784,6 +895,7 @@ class BookingSystem {
     if (confirmation) confirmation.style.display = "block";
     if (bookingIdEl) bookingIdEl.textContent = bookingId;
     if (confirmation) confirmation.scrollIntoView({ behavior: "smooth" });
+    this.updateWhatsAppLinks();
   }
 
   async sendAdminNotification(bookingId) {
@@ -813,6 +925,44 @@ class BookingSystem {
       return true;
     } catch (error) {
       console.error("Failed to send admin notification:", error);
+      return false;
+    }
+  }
+
+  async sendCustomerNotification(bookingId) {
+    try {
+      if (typeof emailjs === "undefined") return false;
+
+      const toEmail = this.bookingData.playerEmail?.trim();
+      if (!toEmail) return false;
+
+      const templateParams = {
+        // recipient
+        to_email: toEmail,
+
+        // booking basics
+        booking_id: bookingId,
+        sport: this.bookingData.sport.charAt(0).toUpperCase() + this.bookingData.sport.slice(1),
+        court_name: this.bookingData.courtName,
+        booking_datetime: this.formatBookingDateTime(),
+        duration: this.bookingData.duration.toString(),
+        total_amount: this.bookingData.totalAmount.toLocaleString(),
+        payment_type: this.bookingData.paymentType === "advance" ? "50% Advance Payment" : "Full Payment",
+
+        // customer info
+        customer_name: this.bookingData.playerName,
+        customer_phone: this.bookingData.playerPhone,
+        customer_email: toEmail,
+
+        // footer or note
+        note: "Thank you for booking with The NoBall Sports Club!",
+      };
+
+      // Send via EmailJS service (same as admin), but using a customer-facing template
+      await emailjs.send(this.getEmailJsServiceId(), this.getEmailJsCustomerTemplateId(), templateParams);
+      return true;
+    } catch (error) {
+      console.error("Failed to send customer email:", error);
       return false;
     }
   }

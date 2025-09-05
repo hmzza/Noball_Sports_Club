@@ -255,23 +255,27 @@ class AdminService:
             update_fields = []
             update_values = []
             
+            # Only allow updating specific fields from the edit modal
             field_mapping = {
-                "sport": "sport",
-                "court": "court",
-                "courtName": "court_name",
-                "date": "booking_date",
-                "startTime": "start_time",
-                "endTime": "end_time",
-                "duration": "duration",
                 "playerName": "player_name",
                 "playerPhone": "player_phone",
                 "playerEmail": "player_email",
                 "playerCount": "player_count",
-                "specialRequests": "special_requests",
                 "adminComments": "admin_comments",
                 "totalAmount": "total_amount",
                 "status": "status",
             }
+
+            # Validate and normalize inputs
+            from models import BookingStatus
+            if "status" in booking_data:
+                if booking_data["status"] not in BookingStatus.get_all_statuses():
+                    raise ValueError("Invalid status value")
+            if "totalAmount" in booking_data:
+                try:
+                    booking_data["totalAmount"] = int(booking_data["totalAmount"])
+                except (ValueError, TypeError):
+                    raise ValueError("Invalid total amount")
             
             for frontend_field, db_field in field_mapping.items():
                 if frontend_field in booking_data:
@@ -315,7 +319,7 @@ class AdminService:
         """Perform action on booking (confirm, cancel, decline)"""
         try:
             # Get booking details for logging
-            booking_query = "SELECT player_name FROM bookings WHERE id = %s"
+            booking_query = "SELECT id, player_name, player_email, sport, court_name, court, booking_date, start_time, end_time, total_amount FROM bookings WHERE id = %s"
             booking_result = DatabaseManager.execute_query(booking_query, (booking_id,), fetch_one=True)
             customer_name = booking_result['player_name'] if booking_result else 'Unknown'
             
@@ -345,6 +349,25 @@ class AdminService:
             if result is not None:
                 # Log the activity
                 from services.activity_service import ActivityService
+                # Email customer on confirmation/cancellation if SMTP configured
+                try:
+                    from services.email_service import EmailService
+                    if booking_result and action in ("confirm", "cancel"):
+                        EmailService.send_booking_status(
+                            to_email=booking_result.get('player_email'),
+                            booking={
+                                'id': booking_result.get('id'),
+                                'sport': booking_result.get('sport'),
+                                'court_name': booking_result.get('court_name') or booking_result.get('court'),
+                                'booking_date': booking_result.get('booking_date'),
+                                'start_time': str(booking_result.get('start_time')),
+                                'end_time': str(booking_result.get('end_time')),
+                                'total_amount': booking_result.get('total_amount') or 0,
+                            },
+                            status='confirmed' if action == 'confirm' else 'cancelled'
+                        )
+                except Exception:
+                    pass
                 if action == "confirm":
                     ActivityService.log_booking_confirmed(booking_id, customer_name)
                 elif action in ["cancel", "decline"]:
@@ -652,3 +675,33 @@ class AdminService:
             return []
     
     # Booking ID generation moved to BookingUtils
+
+    @staticmethod
+    def delete_old_bookings(before_date: str = None) -> int:
+        """Delete bookings older than a cutoff date.
+
+        - If before_date (YYYY-MM-DD) is provided, delete bookings with booking_date < before_date.
+        - Otherwise, delete bookings with booking_date < CURRENT_DATE (all past days).
+
+        Returns number of deleted rows.
+        """
+        try:
+            if before_date:
+                query = """
+                    DELETE FROM bookings
+                    WHERE booking_date < %s
+                """
+                params = (before_date,)
+            else:
+                query = """
+                    DELETE FROM bookings
+                    WHERE booking_date < CURRENT_DATE
+                """
+                params = None
+
+            deleted = DatabaseManager.execute_query(query, params, fetch_all=False)
+            # DatabaseManager returns rowcount or None
+            return int(deleted or 0)
+        except Exception as e:
+            logger.error(f"Error deleting old bookings: {e}")
+            return 0

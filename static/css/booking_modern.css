@@ -717,6 +717,8 @@
 /* Payment Section */
 .payment-container {
     display: grid;
+    grid-template-columns: 1fr; /* single column centered layout */
+    align-items: start;
     gap: var(--space-8);
 }
 
@@ -724,6 +726,7 @@
     background: var(--gray-50);
     border-radius: var(--radius-xl);
     padding: var(--space-6);
+    position: static; /* remove sticky to avoid overlap */
 }
 
 .final-summary-card h3 {
@@ -735,15 +738,12 @@
 
 .summary-details {
     display: grid;
-    gap: var(--space-3);
+    grid-template-columns: 1fr 1fr;
+    row-gap: var(--space-3);
+    column-gap: var(--space-6);
 }
 
-.detail-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--space-2) 0;
-}
+.detail-row { display: contents; }
 
 .detail-row.total {
     border-top: 1px solid var(--gray-300);
@@ -751,15 +751,19 @@
     margin-top: var(--space-2);
     font-weight: 600;
     font-size: 1.125rem;
+    grid-column: 1 / span 2;
 }
 
 .detail-label {
     color: var(--gray-600);
+    grid-column: 1;
 }
 
 .detail-value {
     color: var(--gray-900);
     font-weight: 500;
+    grid-column: 2;
+    text-align: right;
 }
 
 /* Promo Code */
@@ -776,7 +780,8 @@
 }
 
 .promo-input-group {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr auto;
     gap: var(--space-3);
     margin-bottom: var(--space-3);
 }
@@ -924,6 +929,7 @@
 /* WhatsApp Section */
 .whatsapp-section {
     text-align: center;
+    grid-column: 1;
 }
 
 .whatsapp-card {
@@ -1192,6 +1198,12 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
+    .payment-container { grid-template-columns: 1fr; }
+    .final-summary-card { position: static; }
+    .summary-details { grid-template-columns: 1fr; }
+    .detail-value { text-align: left; }
+    .detail-row.total { grid-column: auto; }
+    .promo-input-group { grid-template-columns: 1fr; }
     .booking-container {
         padding: var(--space-4);
     }

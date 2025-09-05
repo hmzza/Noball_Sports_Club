@@ -328,6 +328,10 @@
                         <option value="both">Both Areas</option>
                     </select>
                 </div>
+                <button id="export-expenses-btn" class="btn btn-outline-primary me-2">
+                    <i class="fas fa-download me-2"></i>
+                    Export to Excel
+                </button>
                 <button class="btn btn-success" onclick="showAddExpenseModal()">
                     <i class="fas fa-plus me-2"></i>
                     Add New Expense
@@ -359,6 +363,10 @@
                 <button class="btn btn-success add-btn-mobile" onclick="showAddExpenseModal()">
                     <i class="fas fa-plus me-2"></i>
                     Add New Expense
+                </button>
+                <button id="export-expenses-btn-mobile" class="btn btn-outline-primary add-btn-mobile">
+                    <i class="fas fa-download me-2"></i>
+                    Export to Excel
                 </button>
             </div>
         </div>
@@ -648,5 +656,40 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/admin_expenses.js') }}"></script>
+    <script>
+        // Hook export buttons to generate download URL based on current filters
+        document.addEventListener('DOMContentLoaded', function() {
+            function buildExportUrl() {
+                const params = new URLSearchParams();
+                // Area filter
+                const area = (window.expensesManager?.currentAreaFilter) || 'all';
+                if (area && area !== 'all') params.set('area', area);
+                // View and dates
+                const view = (window.expensesManager?.currentView) || 'all';
+                params.set('view', view);
+                if (view === 'daily' || view === 'monthly') {
+                    const d = document.getElementById('filter-date')?.value;
+                    if (d) params.set('date', d);
+                } else if (view === 'date-range') {
+                    const s = document.getElementById('start-date')?.value;
+                    const e = document.getElementById('end-date')?.value;
+                    if (s) params.set('start_date', s);
+                    if (e) params.set('end_date', e);
+                }
+                return `/admin/export/expenses?${params.toString()}`;
+            }
+            function triggerExport() {
+                const url = buildExportUrl();
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = '';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
+            document.getElementById('export-expenses-btn')?.addEventListener('click', triggerExport);
+            document.getElementById('export-expenses-btn-mobile')?.addEventListener('click', triggerExport);
+        });
+    </script>
 </body>
 </html>

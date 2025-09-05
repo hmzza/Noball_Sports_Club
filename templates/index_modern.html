@@ -183,6 +183,36 @@
         </div>
     </section>
 
+    <!-- Floating WhatsApp Button -->
+    <a href="https://wa.me/{{ whatsapp_number }}" target="_blank" class="floating-whatsapp" aria-label="Chat on WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <style>
+        .floating-whatsapp {
+            position: fixed;
+            right: 18px;
+            bottom: 18px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #25D366;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            z-index: 9999;
+            text-decoration: none;
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+        .floating-whatsapp:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(0,0,0,0.25); }
+        .floating-whatsapp i { font-size: 28px; }
+        @media (max-width: 480px) {
+            .floating-whatsapp { right: 14px; bottom: 14px; width: 52px; height: 52px; }
+        }
+    </style>
+
     <!-- Image Modal -->
     <div class="image-modal" id="image-modal">
         <div class="modal-backdrop" onclick="closeImageModal()"></div>
@@ -402,7 +432,7 @@
                             </div>
                             <div class="method-content">
                                 <span class="method-label">Call Us</span>
-                                <span class="method-value">+92 3XX-XXXXXXX</span>
+                                <span class="method-value"><a href="tel:+923293180180" style="color:inherit;text-decoration:none;">+92 329 3180180</a></span>
                             </div>
                         </div>
                         
@@ -412,7 +442,7 @@
                             </div>
                             <div class="method-content">
                                 <span class="method-label">WhatsApp</span>
-                                <span class="method-value">+92 3XX-XXXXXXX</span>
+                                <span class="method-value"><a href="https://wa.me/{{ whatsapp_number }}" target="_blank" style="color:inherit;text-decoration:none;">+92 329 3180180</a></span>
                             </div>
                         </div>
                         
@@ -422,7 +452,7 @@
                             </div>
                             <div class="method-content">
                                 <span class="method-label">Email</span>
-                                <span class="method-value">info@noball.pk</span>
+                                <span class="method-value"><a href="mailto:noballarena@gmail.com" style="color:inherit;text-decoration:none;">noballarena@gmail.com</a></span>
                             </div>
                         </div>
                     </div>
@@ -473,8 +503,8 @@
                     
                     <div class="link-group">
                         <h4>Contact</h4>
-                        <a href="tel:+923XXXXXXXXX">+92 3XX-XXXXXXX</a>
-                        <a href="mailto:info@noball.pk">info@noball.pk</a>
+                        <a href="tel:+923293180180">+92 329 3180180</a>
+                        <a href="mailto:noballarena@gmail.com">noballarena@gmail.com</a>
                         <a href="#location">Location</a>
                     </div>
                 </div>

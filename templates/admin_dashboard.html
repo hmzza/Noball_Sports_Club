@@ -301,6 +301,40 @@
             </div>
         </div>
 
+        {% if g.current_user and g.current_user.role == 'super_admin' %}
+        <!-- Danger Zone: Super Admin Only -->
+        <div class="danger-zone" style="margin-top: 2rem; border: 1px solid #8b0000; background: #2b1a1a; color: #ffdede; padding: 1.25rem; border-radius: 12px;">
+            <h2 style="margin-top: 0; color: #ffb3b3; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-skull-crossbones"></i> Danger Zone
+            </h2>
+            <p style="margin: 0 0 0.75rem 0; color: #ffdede;">Permanently remove all past bookings. This action cannot be undone.</p>
+            <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
+                <label for="dz-before-date" style="color: #ffcccc;">Delete bookings older than date (optional):</label>
+                <input id="dz-before-date" type="date" style="background:#3a2323; color:#ffecec; border:1px solid #a33; border-radius:8px; padding:6px 10px;">
+                <button id="dz-open-modal" class="action-btn" style="background:#8b0000; border:1px solid #ff6666; color:white;">
+                    <i class="fas fa-trash"></i> Clean Old Bookings
+                </button>
+            </div>
+            <small style="display:block; margin-top:8px; color:#ffb3b3;">Default: deletes all bookings before today if no date is provided.</small>
+        </div>
+
+        <!-- Confirmation Modal -->
+        <div id="dz-modal" style="display:none; position:fixed; inset:0; background: rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center;">
+            <div style="background:#1f1f1f; color:#fff; padding:20px; border-radius:12px; width:min(520px, 92vw); box-shadow:0 10px 30px rgba(0,0,0,0.4);">
+                <h3 style="margin-top:0; display:flex; align-items:center; gap:8px; color:#ffb3b3;"><i class="fas fa-exclamation-triangle"></i> Confirm Deletion</h3>
+                <p>This will permanently delete old bookings. Type <strong>DELETE</strong> to confirm.</p>
+                <input id="dz-confirm-input" type="text" placeholder="Type DELETE to confirm" style="width:100%; padding:10px; border-radius:8px; border:1px solid #555; background:#2a2a2a; color:#fff;">
+                <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:14px;">
+                    <button id="dz-cancel" class="action-btn" style="background:#444; border:1px solid #777;">Cancel</button>
+                    <button id="dz-confirm" class="action-btn" style="background:#8b0000; border:1px solid #ff6666; color:white;" disabled>
+                        <i class="fas fa-trash"></i> Delete Old Bookings
+                    </button>
+                </div>
+                <small id="dz-message" style="display:block; margin-top:8px; color:#ffb3b3;"></small>
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Last refresh indicator - FIXED: No moment.js dependency -->
         <div class="refresh-indicator">
             <small id="last-refresh-time">Dashboard loaded successfully</small>
@@ -415,7 +449,58 @@
                 });
             }
 
-            // Reports button now links directly to reports page
+        // Reports button now links directly to reports page
+            
+            // Danger Zone interactions (super admin only)
+            const dzOpen = document.getElementById('dz-open-modal');
+            const dzModal = document.getElementById('dz-modal');
+            const dzCancel = document.getElementById('dz-cancel');
+            const dzConfirm = document.getElementById('dz-confirm');
+            const dzInput = document.getElementById('dz-confirm-input');
+            const dzBeforeDate = document.getElementById('dz-before-date');
+            const dzMsg = document.getElementById('dz-message');
+
+            if (dzOpen && dzModal) {
+                dzOpen.addEventListener('click', () => {
+                    dzMsg.textContent = '';
+                    dzInput.value = '';
+                    dzConfirm.disabled = true;
+                    dzModal.style.display = 'flex';
+                    dzInput.focus();
+                });
+            }
+            dzCancel?.addEventListener('click', () => { dzModal.style.display = 'none'; });
+            dzModal?.addEventListener('click', (e) => { if (e.target === dzModal) dzModal.style.display = 'none'; });
+            dzInput?.addEventListener('input', () => {
+                dzConfirm.disabled = dzInput.value.trim().toUpperCase() !== 'DELETE';
+            });
+            dzConfirm?.addEventListener('click', async () => {
+                dzConfirm.disabled = true;
+                dzMsg.style.color = '#ffb3b3';
+                dzMsg.textContent = 'Processing deletion...';
+                try {
+                    const body = { confirmText: dzInput.value.trim(), beforeDate: dzBeforeDate?.value || null };
+                    const res = await fetch('{{ url_for('admin_panel.cleanup_bookings') }}', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(body)
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        dzMsg.style.color = '#9be79b';
+                        dzMsg.textContent = `Deleted ${data.deleted_count || 0} old bookings.`;
+                        setTimeout(() => { dzModal.style.display = 'none'; window.location.reload(); }, 800);
+                    } else {
+                        dzMsg.style.color = '#ffb3b3';
+                        dzMsg.textContent = data.message || 'Deletion failed';
+                        dzConfirm.disabled = false;
+                    }
+                } catch (err) {
+                    dzMsg.style.color = '#ffb3b3';
+                    dzMsg.textContent = 'Unexpected error during cleanup';
+                    dzConfirm.disabled = false;
+                }
+            });
         });
     </script>
 </body>

@@ -21,6 +21,8 @@ from database import DatabaseManager
 from services import BookingService, ContactService
 from services.auth_service import AuthService, SessionManager
 from admin import admin_bp
+from config import Config
+from services.email_service import EmailService
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -101,12 +103,13 @@ def register_main_routes(app):
     @app.route("/")
     def index():
         """Main page route"""
-        return render_template("index_modern.html")
+        from config import Config
+        return render_template("index_modern.html", whatsapp_number=Config.WHATSAPP_NUMBER)
 
     @app.route("/booking")
     def booking():
         """Booking page route"""
-        return render_template("booking_modern.html")
+        return render_template("booking_modern.html", whatsapp_number=Config.WHATSAPP_NUMBER)
 
 
 def register_api_routes(app):
@@ -187,6 +190,23 @@ def register_api_routes(app):
             # Basic validations
             if not court or not workday or not selected:
                 return jsonify({"success": False, "message": "Missing court/date/slots"}), 400
+
+            # Customer field validations
+            player_name = (data.get("playerName") or "").strip()
+            player_phone = (data.get("playerPhone") or "").strip()
+            player_email = (data.get("playerEmail") or "").strip()
+
+            if not player_name or len(player_name) < 2:
+                return jsonify({"success": False, "message": "Please enter your full name"}), 400
+
+            import re
+            phone_pattern = re.compile(r"^(03\d{9}|\+923\d{9})$")
+            if not phone_pattern.match(player_phone):
+                return jsonify({"success": False, "message": "Please enter a valid Pakistani mobile number (03XXXXXXXXX or +923XXXXXXXXX)"}), 400
+
+            email_pattern = re.compile(r"^[^\s@]+@[^\s@]+\.[^\s@]+$")
+            if not email_pattern.match(player_email):
+                return jsonify({"success": False, "message": "Please enter a valid email address"}), 400
 
             # Normalize selected slots to list of HH:mm strings
             times = [(s["time"] if isinstance(s, dict) else s) for s in selected]
@@ -269,6 +289,23 @@ def register_api_routes(app):
             }
 
             booking_id = BookingService.create_booking(payload)
+
+            # Fire-and-forget: email customer (SMTP must be configured)
+            try:
+                display_dt = f"{payload.get('display_date')} {payload.get('start_hhmm')} - {payload.get('end_hhmm')}"
+                EmailService.send_booking_created(
+                    to_email=payload.get('playerEmail') or data.get('playerEmail'),
+                    booking={
+                        "bookingId": booking_id,
+                        "sport": payload.get('sport'),
+                        "courtName": payload.get('courtName') or payload.get('court'),
+                        "display_datetime": display_dt,
+                        "paymentType": payload.get('paymentType'),
+                        "totalAmount": payload.get('totalAmount', 0),
+                    },
+                )
+            except Exception:
+                pass
 
             return jsonify({
                 "success": True,

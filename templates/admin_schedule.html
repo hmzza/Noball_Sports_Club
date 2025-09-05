@@ -375,6 +375,80 @@
         </div>
     </div>
 
+    <!-- Edit Booking Modal (Schedule Page) -->
+    <div class="modal-overlay" id="schedule-edit-modal-overlay" style="display:none;">
+        <div class="modal" id="schedule-edit-modal">
+            <div class="modal-header">
+                <h3>Edit Booking</h3>
+                <button class="close-btn" id="sched-close-edit-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="sched-edit-booking-form">
+                    <input type="hidden" id="sched-edit-booking-id">
+
+                    <div class="form-section">
+                        <h4>Player Information</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="sched-edit-player-name">Player Name</label>
+                                <input type="text" id="sched-edit-player-name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="sched-edit-player-phone">Phone Number</label>
+                                <input type="tel" id="sched-edit-player-phone" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="sched-edit-player-email">Email Address</label>
+                                <input type="email" id="sched-edit-player-email">
+                            </div>
+                            <div class="form-group">
+                                <label for="sched-edit-player-count">Number of Players</label>
+                                <select id="sched-edit-player-count">
+                                    <option value="2">2 Players</option>
+                                    <option value="3">3 Players</option>
+                                    <option value="4">4 Players</option>
+                                    <option value="5">5 Players</option>
+                                    <option value="6">6 Players</option>
+                                    <option value="more">More than 6</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4>Booking Details</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="sched-edit-status">Status</label>
+                                <select id="sched-edit-status">
+                                    <option value="pending_payment">Pending Payment</option>
+                                    <option value="confirmed">Confirmed</option>
+                                    <option value="cancelled">Cancelled</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="sched-edit-total-amount">Total Amount (PKR)</label>
+                                <input type="number" id="sched-edit-total-amount" min="0">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="sched-edit-admin-comments" style="color:#28a745;"><i class="fas fa-user-tie"></i> Admin Notes</label>
+                            <textarea id="sched-edit-admin-comments" rows="3" placeholder="Add admin notes about this booking..." style="border:2px solid #28a745;"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-cancel" id="sched-cancel-edit">Cancel</button>
+                        <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Update Booking</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="{{ url_for('static', filename='js/admin_schedule.js') }}"></script>
 </body>
 </html>

@@ -851,19 +851,12 @@ class AdminBookingControl {
     try {
       const bookingData = {
         bookingId: this.getElementValue("edit-booking-id"),
-        sport: this.getElementValue("edit-sport"),
-        court: this.getElementValue("edit-court"),
-        courtName: this.getCourtName(this.getElementValue("edit-court")),
-        date: this.getElementValue("edit-date"),
-        startTime: this.getElementValue("edit-start-time"),
-        duration: parseFloat(this.getElementValue("edit-duration")),
         playerName: this.getElementValue("edit-player-name"),
         playerPhone: this.getElementValue("edit-player-phone"),
         playerEmail: this.getElementValue("edit-player-email"),
         playerCount: this.getElementValue("edit-player-count"),
         status: this.getElementValue("edit-status"),
         totalAmount: parseInt(this.getElementValue("edit-total-amount")),
-        specialRequests: this.getElementValue("edit-special-requests"),
         adminComments: this.getElementValue("edit-admin-comments"),
       };
 
