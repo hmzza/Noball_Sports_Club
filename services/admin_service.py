@@ -164,6 +164,73 @@ class AdminService:
         except Exception as e:
             logger.error(f"Error searching bookings: {e}")
             return []
+
+    @staticmethod
+    def get_booking_history(filters: Dict) -> List[Dict]:
+        """Get bookings with created-by info and optional filters.
+
+        filters keys: q, sport, status, start_date, end_date
+        """
+        try:
+            base_fields = (
+                "b.id, b.sport, b.court, b.court_name, b.booking_date, b.start_time, b.end_time, "
+                "b.duration, b.selected_slots, b.player_name, b.player_phone, b.player_email, "
+                "b.player_count, b.special_requests, b.payment_type, b.total_amount, b.status, "
+                "b.payment_verified, b.created_at, b.confirmed_at, b.cancelled_at, "
+                "b.promo_code, b.discount_amount, b.original_amount, b.admin_comments, "
+                "(SELECT username FROM activity_logs al WHERE al.entity_type='booking' AND al.entity_id=b.id AND al.action IN ('booking_created','created') ORDER BY al.created_at ASC LIMIT 1) AS created_by_username"
+            )
+
+            query = f"SELECT {base_fields} FROM bookings b WHERE 1=1"
+            params: List = []
+
+            # Apply filters
+            q = (filters or {}).get('q')
+            if q:
+                query += " AND (b.id ILIKE %s OR b.player_name ILIKE %s OR b.player_phone ILIKE %s OR b.player_email ILIKE %s OR b.court_name ILIKE %s OR b.sport ILIKE %s)"
+                wildcard = f"%{q}%"
+                params.extend([wildcard, wildcard, wildcard, wildcard, wildcard, wildcard])
+
+            sport = (filters or {}).get('sport')
+            if sport:
+                query += " AND b.sport = %s"
+                params.append(sport)
+
+            status = (filters or {}).get('status')
+            if status:
+                query += " AND b.status = %s"
+                params.append(status)
+
+            start_date = (filters or {}).get('start_date')
+            end_date = (filters or {}).get('end_date')
+            if start_date and end_date:
+                query += " AND b.booking_date BETWEEN %s AND %s"
+                params.extend([start_date, end_date])
+            elif start_date:
+                query += " AND b.booking_date = %s"
+                params.append(start_date)
+
+            query += " ORDER BY b.created_at DESC"
+
+            rows = DatabaseManager.execute_query(query, tuple(params) if params else None) or []
+
+            results: List[Dict] = []
+            for row in rows:
+                b = AdminService._format_booking_for_display(dict(row))
+                creator = (row.get('created_by_username') if isinstance(row, dict) else row['created_by_username'])
+                if not creator or creator == 'system':
+                    # Assume self-service user booking
+                    b['createdBy'] = f"User ({b.get('player_name') or b.get('playerName') or 'self'})"
+                    b['createdByType'] = 'user'
+                else:
+                    b['createdBy'] = f"Admin ({creator})"
+                    b['createdByType'] = 'admin'
+                results.append(b)
+
+            return results
+        except Exception as e:
+            logger.error(f"Error getting booking history: {e}")
+            return []
     
     @staticmethod
     def create_admin_booking(booking_data: Dict) -> str:

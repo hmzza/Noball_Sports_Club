@@ -26,6 +26,21 @@
     color: var(--dark-text) !important;
 }
 
+/* Override: Danger Zone needs light text on dark background */
+.danger-zone,
+.danger-zone * {
+    color: #ffffff !important;
+}
+.danger-zone p,
+.danger-zone small,
+.danger-zone label {
+    color: #ffe0e0 !important;
+}
+.danger-zone h2,
+.danger-zone h2 i {
+    color: #ffffff !important;
+}
+
 /* Header text should be white */
 .admin-header .admin-container h1,
 .admin-header .admin-container * {

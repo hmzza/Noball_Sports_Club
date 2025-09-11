@@ -181,16 +181,25 @@ class AuthService:
         return permission in user_permissions
     
     @staticmethod
-    def create_super_admin() -> Optional[AdminUser]:
-        """Create the initial super admin account"""
+    def create_super_admin_from_env() -> Optional[AdminUser]:
+        """Create the initial super admin account from env vars.
+
+        Requires ADMIN_USERNAME and ADMIN_PASSWORD to be set.
+        """
         try:
-            existing_super_admin = AuthService.get_user_by_username('hmzza7')
-            if existing_super_admin:
-                return existing_super_admin
-                
+            import os
+            username = os.environ.get('ADMIN_USERNAME')
+            password = os.environ.get('ADMIN_PASSWORD')
+            if not username or not password:
+                return None
+
+            existing = AuthService.get_user_by_username(username)
+            if existing:
+                return existing
+
             return AuthService.create_user(
-                username='hmzza7',
-                password='admin@11212',
+                username=username,
+                password=password,
                 role=AdminRole.SUPER_ADMIN
             )
         except Exception as e:

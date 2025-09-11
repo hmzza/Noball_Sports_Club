@@ -122,6 +122,23 @@
                 </div>
             </div>
 
+            <!-- History View -->
+            <div class="management-card reports-card" data-url="{{ url_for('admin_panel.admin_history') }}">
+                <div class="card-icon">
+                    <i class="fas fa-history"></i>
+                </div>
+                <div class="card-content">
+                    <h3>History</h3>
+                    <p>All bookings with filters and search</p>
+                    <div class="card-stats">
+                        <span class="reports-info">Comprehensive list</span>
+                    </div>
+                </div>
+                <div class="card-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+
             <div class="management-card pricing-card" data-url="{{ url_for('admin_panel.admin_pricing') }}">
                 <div class="card-icon">
                     <i class="fas fa-dollar-sign"></i>
@@ -307,7 +324,7 @@
             <h2 style="margin-top: 0; color: #ffb3b3; display: flex; align-items: center; gap: 8px;">
                 <i class="fas fa-skull-crossbones"></i> Danger Zone
             </h2>
-            <p style="margin: 0 0 0.75rem 0; color: #ffdede;">Permanently remove all past bookings. This action cannot be undone.</p>
+            <p style="margin: 0 0 0.75rem 0; color: #ffffff; font-weight: 600;">Permanently remove all past bookings. This action cannot be undone.</p>
             <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
                 <label for="dz-before-date" style="color: #ffcccc;">Delete bookings older than date (optional):</label>
                 <input id="dz-before-date" type="date" style="background:#3a2323; color:#ffecec; border:1px solid #a33; border-radius:8px; padding:6px 10px;">

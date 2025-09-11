@@ -140,6 +140,44 @@ class AdminBookingControlView:
         """Render reports and analytics page"""
         return render_template("admin_reports.html")
 
+class AdminHistoryView:
+    """Admin history (all bookings) view with filters"""
+
+    @staticmethod
+    def render_history():
+        from flask import request
+        try:
+            # Read filters from query params
+            q = request.args.get('q', '').strip() or None
+            sport = request.args.get('sport') or None
+            status = request.args.get('status') or None
+            start_date = request.args.get('start_date') or None
+            end_date = request.args.get('end_date') or None
+
+            filters = {
+                'q': q,
+                'sport': sport if sport and sport != 'all' else None,
+                'status': status if status and status != 'all' else None,
+                'start_date': start_date,
+                'end_date': end_date or start_date,
+            }
+
+            bookings = AdminService.get_booking_history(filters)
+
+            # For sport dropdown options
+            from config import Config
+            sport_options = list(Config.COURT_CONFIG.keys())
+
+            return render_template(
+                "admin_history.html",
+                bookings=bookings,
+                sport_options=sport_options,
+                filters=filters
+            )
+        except Exception as e:
+            logger.error(f"Admin history error: {e}")
+            return render_template("admin_history.html", bookings=[], error=str(e))
+
 class AdminAPIView:
     """Admin API view controller for AJAX endpoints"""
     

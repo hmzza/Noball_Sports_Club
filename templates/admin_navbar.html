@@ -59,6 +59,11 @@
                         <span>Bookings</span>
                     </a>
 
+                    <a href="{{ url_for('admin_panel.admin_history') }}" class="nav-link {{ 'active' if request.endpoint == 'admin_panel.admin_history' else '' }}">
+                        <i class="fas fa-history"></i>
+                        <span>History</span>
+                    </a>
+
                     <a href="{{ url_for('admin_panel.admin_schedule') }}" class="nav-link {{ 'active' if request.endpoint == 'admin_panel.admin_schedule' else '' }}">
                         <i class="fas fa-calendar-alt"></i>
                         <span>Schedule</span>

@@ -98,6 +98,14 @@ def admin_booking_control():
     """Modern booking control center"""
     return AdminBookingControlView.render_booking_control()
 
+@admin_bp.route("/history")
+@require_auth
+@require_permission('view_bookings')
+def admin_history():
+    """Comprehensive booking history with filters and search"""
+    from .views import AdminHistoryView
+    return AdminHistoryView.render_history()
+
 @admin_bp.route("/pricing")
 @require_auth
 @require_permission('view_pricing')

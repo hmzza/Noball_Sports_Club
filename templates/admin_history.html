@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking History - Admin Panel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_history.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    {% set page_title = "Booking History" %}
+    {% set icon_class = "fas fa-history" %}
+    {% set page_subtitle = "All bookings with filters and search" %}
+    {% include 'admin_navbar.html' %}
+
+    <div class="admin-container">
+        {% if error %}
+        <div class="error-message">
+            <strong>Error:</strong> {{ error }}
+        </div>
+        {% endif %}
+
+        <!-- Filters -->
+        <form method="get" class="filters-card">
+            <div class="filters-title"><i class="fas fa-filter"></i> Filters</div>
+            <div class="filters-grid">
+                <div class="input-wrap">
+                    <i class="fas fa-search"></i>
+                    <input type="text" name="q" value="{{ (filters.q if filters else '') or '' }}" placeholder="Search id, name, phone...">
+                </div>
+                <div class="input-wrap">
+                    <i class="fas fa-calendar-alt"></i>
+                    <input type="date" name="start_date" value="{{ (filters.start_date if filters else '') or '' }}">
+                </div>
+                <div class="input-wrap">
+                    <i class="fas fa-calendar-alt"></i>
+                    <input type="date" name="end_date" value="{{ (filters.end_date if filters else '') or '' }}">
+                </div>
+                <div class="select-wrap">
+                    <i class="fas fa-futbol"></i>
+                    <select name="sport">
+                        <option value="all">All Sports</option>
+                        {% for s in sport_options %}
+                            <option value="{{ s }}" {% if filters and filters.sport == s %}selected{% endif %}>{{ s|title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="select-wrap">
+                    <i class="fas fa-flag"></i>
+                    <select name="status">
+                        {% set statuses = ['all','pending_payment','confirmed','cancelled'] %}
+                        {% for st in statuses %}
+                            <option value="{{ st }}" {% if filters and filters.status == st %}selected{% endif %}>{{ 'All Statuses' if st=='all' else st.replace('_',' ')|title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filters-actions">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Apply</button>
+                    <a href="{{ url_for('admin_panel.admin_history') }}" class="btn btn-secondary"><i class="fas fa-times"></i> Reset</a>
+                </div>
+            </div>
+        </form>
+
+        <!-- Results -->
+        <div class="history-card">
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Booking ID</th>
+                        <th>Created By</th>
+                        <th>Created At</th>
+                        <th>Player</th>
+                        <th>Sport & Court</th>
+                        <th>Date & Time</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if bookings and bookings|length > 0 %}
+                        {% for b in bookings %}
+                        <tr>
+                            <td><strong>{{ b.id }}</strong></td>
+                            <td>
+                                {% if b.createdByType == 'admin' %}
+                                    <span class="tag tag-admin"><i class="fas fa-user-shield"></i> {{ b.createdBy }}</span>
+                                {% else %}
+                                    <span class="tag tag-user"><i class="fas fa-user"></i> {{ b.createdBy }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ b.createdDateTime or '-' }}</td>
+                            <td>
+                                <div style="font-weight:600;">{{ b.player_name or b.playerName }}</div>
+                                <div style="color:#666;font-size:0.9rem;">{{ b.player_phone or b.playerPhone }}</div>
+                            </td>
+                            <td>
+                                <div><strong>{{ b.sport|title }}</strong></div>
+                                <div style="color:#666;font-size:0.9rem;">{{ b.court_name or b.courtName }}</div>
+                            </td>
+                            <td class="time-cell">{{ b.formatted_time|safe }}</td>
+                            <td class="amount">PKR {{ "{:,}".format(b.total_amount or b.get('total_amount', 0)) }}</td>
+                            <td>
+                                {% set st = (b.status or 'unknown') %}
+                                <span class="status-badge {{ 'status-' + st }}">{{ st.replace('_',' ')|title }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="8" class="empty">No bookings found for given filters.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="history-actions">
+            <a href="{{ url_for('admin_panel.admin_dashboard') }}" class="btn btn-secondary"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="{{ url_for('admin_panel.admin_bookings') }}" class="btn btn-primary"><i class="fas fa-calendar-check"></i> Booking Management</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -81,12 +81,14 @@ def create_app(config_name=None):
     except Exception as e:
         logger.warning(f"Pricing initialization skipped: {e}")
 
-    # Create super admin account if it doesn't exist
+    # Optionally bootstrap a super admin if explicitly enabled
     try:
-        AuthService.create_super_admin()
-        logger.info("Super admin account checked/created successfully")
+        if os.environ.get("BOOTSTRAP_SUPER_ADMIN") == "1":
+            from services.auth_service import AuthService as _AS
+            _AS.create_super_admin_from_env()
+            logger.info("Super admin bootstrap attempted from environment variables")
     except Exception as e:
-        logger.warning(f"Failed to create super admin: {e}. Will skip for now.")
+        logger.warning(f"Super admin bootstrap skipped: {e}")
 
     # Register routes
     register_main_routes(app)
@@ -110,6 +112,16 @@ def register_main_routes(app):
     def booking():
         """Booking page route"""
         return render_template("booking_modern.html", whatsapp_number=Config.WHATSAPP_NUMBER)
+
+    @app.route("/healthz")
+    def healthz():
+        """Simple health check endpoint: returns app and DB status"""
+        db_ok = False
+        try:
+            db_ok = DatabaseManager.test_connection()
+        except Exception:
+            db_ok = False
+        return jsonify({"ok": True, "db": db_ok}), (200 if db_ok else 503)
 
 
 def register_api_routes(app):
@@ -492,7 +504,6 @@ def register_api_routes(app):
             from services.promo_service import PromoService
 
             data = request.json
-            logger.info(f"Promo code request data: {data}")
 
             if not data:
                 return jsonify({"success": False, "message": "No data provided"}), 400
@@ -617,6 +628,7 @@ app = create_app()
 if __name__ == "__main__":
     if app:
         logger.info("Starting NoBall Sports Club application...")
-        app.run(debug=True, host="0.0.0.0", port=5010)
+        import os as _os
+        app.run(debug=_os.environ.get("FLASK_DEBUG") == "1", host="0.0.0.0", port=int(_os.environ.get("PORT", "5010")))
     else:
         logger.error("Failed to create application. Please check your configuration.")
