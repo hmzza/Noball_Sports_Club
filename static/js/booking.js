@@ -30,11 +30,23 @@ class BookingSystem {
       finalBookingDate: ""     // ALWAYS the selected calendar date (workday)
     };
 
+    this.rageRoomContact = {
+      phone: "03161439569",
+      whatsapp: "923161439569"
+    };
+
+    this.minSlotsBySport = {
+      axe_throw: 1,
+      archery: 1,
+    };
+
     this.sportPricing = {
       cricket: 3000,
       futsal: 2500,
       padel: 5500,
       pickleball: 2500,
+      axe_throw: 4000,
+      archery: 3500,
     };
 
     this.pricingInfo = null;
@@ -91,6 +103,11 @@ class BookingSystem {
     return this.calculateActualDate(selectedDate, timeString);
   }
 
+  getMinSlotsForSport(sport) {
+    if (!sport) return 2;
+    return this.minSlotsBySport[sport] || 2;
+  }
+
   init() {
     this.initializeDateSelector();
     this.setupEventListeners();
@@ -134,8 +151,9 @@ class BookingSystem {
       const priceEl = card.querySelector('.sport-price');
       if (!sport || !priceEl) return;
       const sportData = this.pricingInfo[sport];
-      if (!sportData) return;
-      const base = sportData.base_price_per_hour || 0;
+      const fallback = this.sportPricing[sport];
+      if (!sportData && !fallback) return;
+      const base = (sportData && sportData.base_price_per_hour) || fallback || 0;
       if (base > 0) priceEl.textContent = `From PKR ${Number(base).toLocaleString()}`;
     });
   }
@@ -144,6 +162,9 @@ class BookingSystem {
     if (!this.pricingInfo) return;
     // Determine selected sport/court
     const sport = this.bookingData.sport || document.querySelector('.sport-card.selected')?.getAttribute('data-sport');
+    if (sport === "rage_room") {
+      return;
+    }
     let base, peak, off, weekend;
     if (sport && this.pricingInfo[sport]) {
       const courtId = this.bookingData.court || document.querySelector('.court-option.selected')?.getAttribute('data-court');
@@ -159,6 +180,8 @@ class BookingSystem {
       peak = peak ?? sportData.peak_price_per_hour;
       off = off ?? sportData.off_peak_price_per_hour;
       weekend = weekend ?? sportData.weekend_price_per_hour;
+    } else if (sport && this.sportPricing[sport]) {
+      base = this.sportPricing[sport];
     }
 
     const setRow = (rowId, valueId, value) => {
@@ -240,6 +263,10 @@ class BookingSystem {
       card.addEventListener("touchend", (e) => { e.preventDefault(); this.selectSport(e); });
     });
 
+    document.querySelectorAll(".rage-room-actions a").forEach((link) => {
+      link.addEventListener("click", (e) => e.stopPropagation());
+    });
+
     const dateInput = document.getElementById("booking-date");
     if (dateInput) {
       dateInput.addEventListener("change", (e) => {
@@ -287,11 +314,35 @@ class BookingSystem {
     if (confirmBtn) {
       confirmBtn.addEventListener("click", () => this.confirmBooking());
     }
+
+    const rageRoomClose = document.getElementById("rage-room-modal-close");
+    if (rageRoomClose) {
+      rageRoomClose.addEventListener("click", () => this.hideRageRoomModal());
+    }
+
+    const rageRoomModal = document.getElementById("rage-room-modal");
+    if (rageRoomModal) {
+      rageRoomModal.addEventListener("click", (e) => {
+        if (e.target === rageRoomModal) this.hideRageRoomModal();
+      });
+    }
   }
 
   selectSport(event) {
     const sportCard = event.currentTarget;
     const sport = sportCard.dataset.sport;
+
+    // Phone-only experience: show contact modal and stop the normal flow
+    if (sport === "rage_room") {
+      document.querySelectorAll(".sport-card").forEach((card) => card.classList.remove("selected"));
+      sportCard.classList.add("selected");
+      document.querySelectorAll(".court-option").forEach((o) => o.classList.remove("selected"));
+      this.bookingData.sport = "";
+      this.bookingData.court = "";
+      this.showRageRoomModal();
+      this.validateStep1();
+      return;
+    }
 
     document.querySelectorAll(".sport-card").forEach((card) => card.classList.remove("selected"));
     sportCard.classList.add("selected");
@@ -329,12 +380,13 @@ class BookingSystem {
 
   validateStep2() {
     const nextBtn = document.querySelector("#step-2 .next-step");
-    const hasValid = this.bookingData.selectedSlots.length >= 2;
+    const minSlots = this.getMinSlotsForSport(this.bookingData.sport);
+    const hasValid = this.bookingData.selectedSlots.length >= minSlots;
     if (!nextBtn) return;
     nextBtn.disabled = !hasValid;
     nextBtn.textContent = hasValid
       ? "Continue to Customer Details"
-      : `Select ${Math.max(0, 2 - this.bookingData.selectedSlots.length)} More Slot${this.bookingData.selectedSlots.length === 1 ? '' : 's'}`;
+      : `Select ${Math.max(0, minSlots - this.bookingData.selectedSlots.length)} More Slot${this.bookingData.selectedSlots.length === 1 ? '' : 's'}`;
   }
 
   validateStep3(showMessages = false) {
@@ -378,6 +430,16 @@ class BookingSystem {
       input.classList.remove("input-error");
       errorEl.style.display = "none";
     }
+  }
+
+  showRageRoomModal() {
+    const modal = document.getElementById("rage-room-modal");
+    if (modal) modal.style.display = "flex";
+  }
+
+  hideRageRoomModal() {
+    const modal = document.getElementById("rage-room-modal");
+    if (modal) modal.style.display = "none";
   }
 
   nextStep() {
@@ -659,13 +721,15 @@ class BookingSystem {
     const display = document.getElementById("selected-slots-display");
     if (!display) return;
 
+    const minSlots = this.getMinSlotsForSport(this.bookingData.sport);
+
     if (this.bookingData.selectedSlots.length === 0) {
       display.innerHTML = `
         <div class="no-slots-selected">
           <p style="color:#666;text-align:center;padding:1rem;background:#f9f9f9;border-radius:8px;margin-top:1rem;">
             <strong>📅 No time slots selected</strong><br>
             Click on time slots above to select your preferred booking time.<br>
-            <small>Minimum: 1 hour (2 consecutive slots)</small>
+            <small>Minimum: ${minSlots * 0.5} hour${minSlots * 0.5 === 1 ? "" : "s"} (${minSlots} consecutive slot${minSlots === 1 ? "" : "s"})${['axe_throw','archery'].includes(this.bookingData.sport) ? " for this sport" : ""}</small>
           </p>
         </div>`;
       return;
@@ -780,13 +844,15 @@ class BookingSystem {
     try {
       this.saveStepData();
       this.bookingData.paymentType = document.querySelector('input[name="payment-type"]:checked')?.value || "advance";
+      const minSlots = this.getMinSlotsForSport(this.bookingData.sport);
 
       if (!this.bookingData.selectedSlots || this.bookingData.selectedSlots.length === 0) {
         alert("⚠️ Please go back to Step 2 and select your preferred time slots before confirming your booking.");
         return;
       }
-      if (this.bookingData.selectedSlots.length < 2) {
-        alert("⚠️ Minimum booking is 1 hour (2 consecutive time slots). Please select at least 2 consecutive slots.");
+      if (this.bookingData.selectedSlots.length < minSlots) {
+        const minHours = minSlots * 0.5;
+        alert(`⚠️ Minimum booking for this sport is ${minHours} hour${minHours === 1 ? "" : "s"} (${minSlots} consecutive slot${minSlots === 1 ? "" : "s"}). Please select at least ${minSlots} slot${minSlots === 1 ? "" : "s"}.`);
         return;
       }
 

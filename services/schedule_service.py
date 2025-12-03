@@ -19,6 +19,10 @@ class ScheduleService:
         """Get comprehensive schedule data for date range"""
         try:
             logger.info(f"Fetching schedule: {start_date} to {end_date}, sport: {sport_filter}")
+
+            # Rage Room is phone-only with 15-minute slots; keep it off the 30-minute grid
+            if sport_filter == "rage_room":
+                return {}
             
             schedule = {}
             

@@ -53,6 +53,17 @@ class Config:
         ],
         "futsal": [{"id": "futsal-1", "name": "Court 1: 130x60ft Multi"}],
         "pickleball": [{"id": "pickleball-1", "name": "Court 1: Professional"}],
+        "axe_throw": [{"id": "axe-1", "name": "Lane 1: Axe Throw"}],
+        "archery": [{"id": "archery-1", "name": "Lane 1: Archery Range"}],
+        # Phone-only experience (15-minute sessions)
+        "rage_room": [
+            {
+                "id": "rage-room-1",
+                "name": "Rage Room",
+                "slot_minutes": 15,
+                "booking_mode": "phone_only",
+            }
+        ],
     }
 
     # Multi-purpose court mapping
@@ -61,7 +72,15 @@ class Config:
     # Default per-hour pricing used as a last-resort fallback in some UI helpers.
     # Concrete pricing should come from court_pricing table; these values ensure
     # sensible defaults across environments.
-    SPORT_PRICING = {"cricket": 3000, "futsal": 2500, "padel": 6000, "pickleball": 3000}
+    SPORT_PRICING = {
+        "cricket": 3000,
+        "futsal": 2500,
+        "padel": 6000,
+        "pickleball": 3000,
+        "axe_throw": 4000,
+        "archery": 3500,
+        "rage_room": 0,  # phone-only; priced per conversation
+    }
 
     # Admin Configuration
     # Admin bootstrap (used only for initial setup if enabled explicitly)

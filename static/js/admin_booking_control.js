@@ -18,6 +18,8 @@ class AdminBookingControl {
       ],
       futsal: [{ id: "futsal-1", name: "Court 1: 130x60ft Multi" }],
       pickleball: [{ id: "pickleball-1", name: "Court 1: Professional" }],
+      axe_throw: [{ id: "axe-1", name: "Lane 1: Axe Throw" }],
+      archery: [{ id: "archery-1", name: "Lane 1: Archery Range" }],
     };
 
     this.sportPricing = {
@@ -25,6 +27,8 @@ class AdminBookingControl {
       futsal: 2500,
       padel: 5500,
       pickleball: 2500,
+      axe_throw: 4000,
+      archery: 3500,
     };
 
     this.init();

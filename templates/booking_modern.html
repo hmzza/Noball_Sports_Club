@@ -13,6 +13,16 @@
     <style>
         .input-error { border-color: #dc3545 !important; box-shadow: 0 0 0 2px rgba(220,53,69,.1) !important; }
         .field-error { font-size: 0.85rem; }
+        .rage-room-bg { background: linear-gradient(135deg, #ff5f6d 0%, #ffc371 100%); display:flex; align-items:center; justify-content:center; }
+        .sport-card.rage-room .court-options { display: none; }
+        .sport-card.rage-room .sport-card-modern { border: 2px dashed #ff8a65; }
+        .rage-room-callout { padding: 0.75rem 1rem 1rem; background: #fff3e0; border-radius: 0 0 14px 14px; border: 1px solid #ffe0b2; border-top: none; }
+        .rage-room-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .rage-room-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 1rem; }
+        .rage-room-modal .modal-card { background: #ffffff; border-radius: 16px; padding: 1.5rem; max-width: 480px; width: 100%; box-shadow: 0 12px 32px rgba(0,0,0,0.2); position: relative; text-align: center; }
+        .rage-room-modal .close-btn { position: absolute; right: 12px; top: 12px; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #333; }
+        .rage-room-modal .modal-icon { width: 64px; height: 64px; border-radius: 14px; background: linear-gradient(135deg, #ff5f6d 0%, #ffc371 100%); display: inline-flex; align-items: center; justify-content: center; color: #fff; font-size: 28px; margin-bottom: 0.75rem; }
+        .rage-room-modal .modal-actions { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
     </style>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
@@ -222,6 +232,95 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="sport-card" data-sport="axe_throw">
+                    <div class="sport-card-modern">
+                        <div class="sport-visual">
+                            <div class="sport-icon-bg cricket-bg">
+                                <i class="fas fa-hammer" style="font-size: 36px; color: white;"></i>
+                            </div>
+                        </div>
+                        <div class="sport-info">
+                            <h3 class="sport-name">Axe Throw</h3>
+                            <p class="sport-desc">Throwing lane with safety-guided setup</p>
+                            <div class="sport-price">From PKR 4,000</div>
+                        </div>
+                        <div class="selection-indicator">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="court-options">
+                        <div class="court-option" data-court="axe-1" data-court-name="Lane 1: Axe Throw">
+                            <div class="court-preview">
+                                <div class="court-visual cricket"></div>
+                            </div>
+                            <div class="court-details">
+                                <span class="court-name">Lane 1</span>
+                                <span class="court-surface">Axe Throw</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sport-card" data-sport="archery">
+                    <div class="sport-card-modern">
+                        <div class="sport-visual">
+                            <div class="sport-icon-bg futsal-bg">
+                                <i class="fas fa-bullseye" style="font-size: 36px; color: white;"></i>
+                            </div>
+                        </div>
+                        <div class="sport-info">
+                            <h3 class="sport-name">Archery</h3>
+                            <p class="sport-desc">Archery range with targets and gear</p>
+                            <div class="sport-price">From PKR 3,500</div>
+                        </div>
+                        <div class="selection-indicator">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="court-options">
+                        <div class="court-option" data-court="archery-1" data-court-name="Lane 1: Archery Range">
+                            <div class="court-preview">
+                                <div class="court-visual futsal"></div>
+                            </div>
+                            <div class="court-details">
+                                <span class="court-name">Lane 1</span>
+                                <span class="court-surface">Archery</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sport-card rage-room" data-sport="rage_room">
+                    <div class="sport-card-modern">
+                        <div class="sport-visual">
+                            <div class="sport-icon-bg rage-room-bg">
+                                <i class="fas fa-fire-alt" style="font-size: 36px; color: white;"></i>
+                            </div>
+                        </div>
+                        <div class="sport-info">
+                            <h3 class="sport-name">Rage Room</h3>
+                            <p class="sport-desc">15-minute smash sessions — phone-only booking</p>
+                            <div class="sport-price">Call / WhatsApp to book</div>
+                        </div>
+                        <div class="selection-indicator">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                    </div>
+                    <div class="rage-room-callout">
+                        <p class="mb-2">Tap to view contact options</p>
+                        <div class="rage-room-actions">
+                            <a class="btn-modern primary small" href="tel:+923161439569">
+                                <i class="fas fa-phone"></i> Call 0316 143 9569
+                            </a>
+                            <a class="btn-modern secondary small" href="https://wa.me/923161439569?text=Hi%21%20I%27d%20like%20to%20book%20the%20Rage%20Room%20%2815-minute%20sessions%29.%20Please%20share%20available%20times%20and%20pricing." target="_blank">
+                                <i class="fab fa-whatsapp"></i> WhatsApp
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
             
             <div class="step-actions">
@@ -260,7 +359,7 @@
                         <h4>Instructions:</h4>
                         <ul>
                             <li>Each slot is 30 minutes</li>
-                            <li>Minimum booking: 1 hour (2 consecutive slots)</li>
+                            <li>Most sports: 1 hour minimum (2 consecutive slots). Axe Throw & Archery allow 30 minutes (1 slot).</li>
                             <li>Select consecutive slots for your desired duration</li>
                             <li>Click on time slots to select/deselect</li>
                         </ul>
@@ -636,6 +735,30 @@
                         <span class="btn-text">Back to Home</span>
                     </a>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rage Room Contact Modal -->
+    <div class="rage-room-modal" id="rage-room-modal">
+        <div class="modal-card">
+            <button class="close-btn" id="rage-room-modal-close" aria-label="Close">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-icon">
+                <i class="fas fa-fire-alt"></i>
+            </div>
+            <h3 style="margin-bottom: 0.35rem;">Rage Room is phone-only</h3>
+            <p style="color:#555; margin-bottom: 0.75rem;">15-minute smash sessions are booked directly with our team.</p>
+            <div class="modal-actions">
+                <a class="btn-modern primary large" href="tel:+923161439569">
+                    <i class="fas fa-phone"></i>
+                    <span class="btn-text">Call 0316 143 9569</span>
+                </a>
+                <a class="btn-modern secondary large" href="https://wa.me/923161439569?text=Hi%21%20I%27d%20like%20to%20book%20the%20Rage%20Room%20%2815-minute%20sessions%29.%20Please%20share%20available%20times%20and%20pricing." target="_blank">
+                    <i class="fab fa-whatsapp"></i>
+                    <span class="btn-text">WhatsApp Now</span>
+                </a>
             </div>
         </div>
     </div>

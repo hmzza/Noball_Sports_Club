@@ -25,7 +25,9 @@ class PricingManager {
             'cricket-1': { name: 'Court 1: 110x50ft', sport: 'cricket' },
             'cricket-2': { name: 'Court 2: 130x60ft Multi', sport: 'cricket' },
             'futsal-1': { name: 'Court 1: 130x60ft Multi', sport: 'futsal' },
-            'pickleball-1': { name: 'Court 1: Professional Setup', sport: 'pickleball' }
+            'pickleball-1': { name: 'Court 1: Professional Setup', sport: 'pickleball' },
+            'axe-1': { name: 'Lane 1: Axe Throw', sport: 'axe_throw' },
+            'archery-1': { name: 'Lane 1: Archery Range', sport: 'archery' }
         };
 
         const courtInfo = courtMappings[courtId];

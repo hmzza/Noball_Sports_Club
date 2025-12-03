@@ -16,13 +16,17 @@ class ModernAdminBookingControl extends BaseComponent {
                     { id: "cricket-2", name: "Court 2: 130x60ft Multi" }
                 ],
                 futsal: [{ id: "futsal-1", name: "Court 1: 130x60ft Multi" }],
-                pickleball: [{ id: "pickleball-1", name: "Court 1: Professional" }]
+                pickleball: [{ id: "pickleball-1", name: "Court 1: Professional" }],
+                axe_throw: [{ id: "axe-1", name: "Lane 1: Axe Throw" }],
+                archery: [{ id: "archery-1", name: "Lane 1: Archery Range" }]
             },
             sportPricing: {
                 cricket: 3000,
                 futsal: 2500,
                 padel: 5500,
-                pickleball: 2500
+                pickleball: 2500,
+                axe_throw: 4000,
+                archery: 3500
             }
         });
         

@@ -242,6 +242,56 @@
     border-color: #adb5bd;
 }
 
+/* Rage Room (phone-only) notice */
+.rage-room-notice {
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.05);
+    max-width: 720px;
+    margin: 1rem auto;
+}
+.rage-room-notice .notice-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #ff5f6d 0%, #ffc371 100%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 24px;
+    margin-bottom: 0.75rem;
+}
+.rage-room-notice .notice-actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+.rage-room-notice .notice-actions a {
+    padding: 0.85rem 1.15rem;
+    border-radius: 10px;
+    font-weight: 700;
+    text-decoration: none;
+    color: #fff;
+    background: linear-gradient(135deg, #16a34a, #15803d);
+    box-shadow: 0 8px 16px rgba(21,128,61,0.25);
+}
+.rage-room-notice .notice-actions a:nth-child(2) {
+    background: linear-gradient(135deg, #25d366, #128c7e);
+    box-shadow: 0 8px 16px rgba(18,140,126,0.2);
+}
+.rage-room-notice .notice-footnote {
+    display: block;
+    margin-top: 0.75rem;
+    color: #a16207;
+    font-size: 0.9rem;
+}
+
 /* Schedule Container */
 .schedule-container {
     background: white;

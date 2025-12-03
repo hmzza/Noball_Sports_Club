@@ -258,6 +258,57 @@ class DatabaseManager:
                     EXCEPTION
                         WHEN duplicate_column THEN RAISE NOTICE 'column admin_comments already exists in bookings.';
                     END;
+                    -- Ensure expenses table has all required columns (for older deployments)
+                    BEGIN
+                        ALTER TABLE expenses ADD COLUMN title VARCHAR(255);
+                    EXCEPTION
+                        WHEN duplicate_column THEN RAISE NOTICE 'column title already exists in expenses.';
+                    END;
+                    BEGIN
+                        ALTER TABLE expenses ADD COLUMN description TEXT;
+                    EXCEPTION
+                        WHEN duplicate_column THEN RAISE NOTICE 'column description already exists in expenses.';
+                    END;
+                    BEGIN
+                        ALTER TABLE expenses ADD COLUMN amount DECIMAL(10,2);
+                    EXCEPTION
+                        WHEN duplicate_column THEN RAISE NOTICE 'column amount already exists in expenses.';
+                    END;
+                    BEGIN
+                        ALTER TABLE expenses ADD COLUMN category VARCHAR(50);
+                    EXCEPTION
+                        WHEN duplicate_column THEN RAISE NOTICE 'column category already exists in expenses.';
+                    END;
+                    BEGIN
+                        ALTER TABLE expenses ADD COLUMN expense_date DATE;
+                    EXCEPTION
+                        WHEN duplicate_column THEN RAISE NOTICE 'column expense_date already exists in expenses.';
+                    END;
+                    BEGIN
+                        ALTER TABLE expenses ADD COLUMN expense_type VARCHAR(20) DEFAULT 'one_time';
+                    EXCEPTION
+                        WHEN duplicate_column THEN RAISE NOTICE 'column expense_type already exists in expenses.';
+                    END;
+                    BEGIN
+                        ALTER TABLE expenses ADD COLUMN recurring_frequency VARCHAR(20);
+                    EXCEPTION
+                        WHEN duplicate_column THEN RAISE NOTICE 'column recurring_frequency already exists in expenses.';
+                    END;
+                    BEGIN
+                        ALTER TABLE expenses ADD COLUMN created_by VARCHAR(100) DEFAULT 'admin';
+                    EXCEPTION
+                        WHEN duplicate_column THEN RAISE NOTICE 'column created_by already exists in expenses.';
+                    END;
+                    BEGIN
+                        ALTER TABLE expenses ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+                    EXCEPTION
+                        WHEN duplicate_column THEN RAISE NOTICE 'column created_at already exists in expenses.';
+                    END;
+                    BEGIN
+                        ALTER TABLE expenses ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+                    EXCEPTION
+                        WHEN duplicate_column THEN RAISE NOTICE 'column updated_at already exists in expenses.';
+                    END;
                     BEGIN
                         ALTER TABLE expenses ADD COLUMN area_category VARCHAR(10) DEFAULT 'both';
                     EXCEPTION

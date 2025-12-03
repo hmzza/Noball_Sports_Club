@@ -72,6 +72,12 @@ class AdminScheduleManager {
           pricing: 2500,
         },
       ],
+      axe_throw: [
+        { id: "axe-1", name: "Lane 1: Axe Throw", pricing: 4000 },
+      ],
+      archery: [
+        { id: "archery-1", name: "Lane 1: Archery Range", pricing: 3500 },
+      ],
     };
 
     // Multi-purpose mapping
@@ -270,6 +276,14 @@ class AdminScheduleManager {
   async loadScheduleData() {
     this.showLoading(true);
     try {
+      const sportFilter = document.getElementById("sport-filter")?.value || "";
+      if (sportFilter === "rage_room") {
+        this.scheduleData = {};
+        this.renderRageRoomNotice();
+        this.showLoading(false);
+        return;
+      }
+
       const startDate =
         this.currentView === "week"
           ? this.getWeekStartDate(this.currentDate)
@@ -332,6 +346,40 @@ class AdminScheduleManager {
     const isMobile = window.innerWidth <= 768;
     if (isMobile) this.renderExcelView();
     else this.renderDesktopView();
+  }
+
+  renderRageRoomNotice() {
+    const grid = document.getElementById("schedule-grid");
+    if (grid) {
+      grid.innerHTML = `
+        <div class="rage-room-notice">
+          <div class="notice-icon"><i class="fas fa-fire-alt"></i></div>
+          <h3>Rage Room is phone-only</h3>
+          <p>Sessions are booked in 15-minute blocks directly via call or WhatsApp.</p>
+          <div class="notice-actions">
+            <a class="btn-modern primary" href="tel:+923161439569"><i class="fas fa-phone"></i> Call 0316 143 9569</a>
+            <a class="btn-modern secondary" href="https://wa.me/923161439569?text=Hi%21%20I%27d%20like%20to%20book%20the%20Rage%20Room%20%2815-minute%20sessions%29.%20Please%20share%20available%20times%20and%20pricing." target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+          </div>
+          <small class="notice-footnote">Rage Room is excluded from the 30-minute slot grid to keep timings accurate.</small>
+        </div>
+      `;
+    }
+
+    const excel = document.getElementById("schedule-excel");
+    if (excel) {
+      excel.innerHTML = `
+        <div class="rage-room-notice">
+          <div class="notice-icon"><i class="fas fa-fire-alt"></i></div>
+          <h3>Rage Room is phone-only</h3>
+          <p>15-minute sessions are booked directly via call or WhatsApp.</p>
+          <div class="notice-actions">
+            <a class="btn-modern primary" href="tel:+923161439569"><i class="fas fa-phone"></i> Call 0316 143 9569</a>
+            <a class="btn-modern secondary" href="https://wa.me/923161439569?text=Hi%21%20I%27d%20like%20to%20book%20the%20Rage%20Room%20%2815-minute%20sessions%29.%20Please%20share%20available%20times%20and%20pricing." target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+          </div>
+          <small class="notice-footnote">Rage Room is excluded from the 30-minute slot grid to keep timings accurate.</small>
+        </div>
+      `;
+    }
   }
 
   renderDesktopView() {

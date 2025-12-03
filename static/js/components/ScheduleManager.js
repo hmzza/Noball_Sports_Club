@@ -20,6 +20,12 @@ class ScheduleManager extends BaseComponent {
                 ],
                 pickleball: [
                     { id: "pickleball-1", name: "Court 1: Professional", pricing: 2500 }
+                ],
+                axe_throw: [
+                    { id: "axe-1", name: "Lane 1: Axe Throw", pricing: 4000 }
+                ],
+                archery: [
+                    { id: "archery-1", name: "Lane 1: Archery Range", pricing: 3500 }
                 ]
             },
             multiPurposeCourts: {
@@ -121,6 +127,13 @@ class ScheduleManager extends BaseComponent {
         this.showLoading(true);
         
         try {
+            if (this.state.filters.sport === 'rage_room') {
+                this.setState({ scheduleData: {} });
+                this.renderRageRoomNotice();
+                this.showLoading(false);
+                return;
+            }
+
             const dateRange = this.getDateRange();
             const requestData = {
                 startDate: dateRange.start.toISOString().split('T')[0],
@@ -662,6 +675,40 @@ class ScheduleManager extends BaseComponent {
         }
     }
     
+    renderRageRoomNotice() {
+        const grid = document.getElementById('schedule-grid');
+        if (grid) {
+            grid.innerHTML = `
+                <div class="rage-room-notice">
+                    <div class="notice-icon"><i class="fas fa-fire-alt"></i></div>
+                    <h3>Rage Room is phone-only</h3>
+                    <p>15-minute sessions are booked directly with the team to avoid the 30-minute grid.</p>
+                    <div class="notice-actions">
+                        <a class="btn-modern primary" href="tel:+923161439569"><i class="fas fa-phone"></i> Call 0316 143 9569</a>
+                        <a class="btn-modern secondary" href="https://wa.me/923161439569?text=Hi%21%20I%27d%20like%20to%20book%20the%20Rage%20Room%20%2815-minute%20sessions%29.%20Please%20share%20available%20times%20and%20pricing." target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                    </div>
+                    <small class="notice-footnote">Rage Room is hidden from the slot grid to keep schedules accurate.</small>
+                </div>
+            `;
+        }
+
+        const excel = document.getElementById('schedule-excel');
+        if (excel) {
+            excel.innerHTML = `
+                <div class="rage-room-notice">
+                    <div class="notice-icon"><i class="fas fa-fire-alt"></i></div>
+                    <h3>Rage Room is phone-only</h3>
+                    <p>15-minute sessions are booked directly with the team to avoid the 30-minute grid.</p>
+                    <div class="notice-actions">
+                        <a class="btn-modern primary" href="tel:+923161439569"><i class="fas fa-phone"></i> Call 0316 143 9569</a>
+                        <a class="btn-modern secondary" href="https://wa.me/923161439569" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                    </div>
+                    <small class="notice-footnote">Rage Room is hidden from the slot grid to keep schedules accurate.</small>
+                </div>
+            `;
+        }
+    }
+    
     showLoading(show) {
         const overlay = document.getElementById('loading-overlay');
         if (overlay) {
@@ -677,6 +724,9 @@ class ScheduleManager extends BaseComponent {
     
     getAllCourts() {
         const sportFilter = this.state.filters.sport;
+        if (sportFilter === 'rage_room') {
+            return [];
+        }
         let courts = [];
         
         if (sportFilter && this.options.courtConfig[sportFilter]) {
@@ -685,7 +735,7 @@ class ScheduleManager extends BaseComponent {
                 sport: sportFilter
             }));
         } else {
-            const sportOrder = ['padel', 'cricket', 'futsal', 'pickleball'];
+            const sportOrder = ['padel', 'cricket', 'futsal', 'pickleball', 'axe_throw', 'archery'];
             sportOrder.forEach(sport => {
                 if (this.options.courtConfig[sport]) {
                     this.options.courtConfig[sport].forEach(court => {
