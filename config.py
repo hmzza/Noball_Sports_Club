@@ -3,6 +3,7 @@ Configuration settings for NoBall Sports Club application.
 """
 
 import os
+from urllib.parse import urlparse
 
 
 class Config:
@@ -21,14 +22,30 @@ class Config:
     # Database configuration
     # In production, require explicit env vars; in development, use safe defaults
     if os.environ.get("FLASK_ENV") == "production":
-        DATABASE_CONFIG = {
-            "host": _get_env.__func__("DB_HOST", required=True),
-            "database": _get_env.__func__("DB_NAME", required=True),
-            "user": _get_env.__func__("DB_USER", required=True),
-            "password": _get_env.__func__("DB_PASSWORD", required=True),
-            "port": int(_get_env.__func__("DB_PORT", "5432")),
-            "sslmode": _get_env.__func__("DB_SSLMODE", "require"),
-        }
+        # Prefer explicit DB_* vars; fall back to DATABASE_URL if provided by platform
+        if os.environ.get("DB_HOST"):
+            DATABASE_CONFIG = {
+                "host": _get_env.__func__("DB_HOST", required=True),
+                "database": _get_env.__func__("DB_NAME", required=True),
+                "user": _get_env.__func__("DB_USER", required=True),
+                "password": _get_env.__func__("DB_PASSWORD", required=True),
+                "port": int(_get_env.__func__("DB_PORT", "5432")),
+                "sslmode": _get_env.__func__("DB_SSLMODE", "require"),
+            }
+        else:
+            # Try parsing DATABASE_URL (e.g., postgres://user:pass@host:port/dbname)
+            db_url = os.environ.get("DATABASE_URL") or os.environ.get("DATABASE_URI")
+            if not db_url:
+                raise RuntimeError("Missing required environment variable: DB_HOST")
+            parsed = urlparse(db_url)
+            DATABASE_CONFIG = {
+                "host": parsed.hostname,
+                "database": parsed.path.lstrip("/"),
+                "user": parsed.username,
+                "password": parsed.password,
+                "port": parsed.port or 5432,
+                "sslmode": _get_env.__func__("DB_SSLMODE", "require"),
+            }
         if not SECRET_KEY or SECRET_KEY == "dev-insecure-key":
             raise RuntimeError("SECRET_KEY must be set in production")
     else:
