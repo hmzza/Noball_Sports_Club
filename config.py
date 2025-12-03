@@ -33,6 +33,7 @@ class Config:
     if os.environ.get("FLASK_ENV") == "production":
         # Prefer explicit DB_* vars; fall back to DATABASE_URL if provided by platform
         if os.environ.get("DB_HOST"):
+            _db_source = "env:DB_HOST"
             DATABASE_CONFIG = {
                 "host": _get_env.__func__("DB_HOST", required=True),
                 "database": _get_env.__func__("DB_NAME", required=True),
@@ -51,6 +52,7 @@ class Config:
                 or os.environ.get("POSTGRESQL_URL")
             )
             if db_url:
+                _db_source = "env:DATABASE_URL"
                 parsed = urlparse(db_url)
                 DATABASE_CONFIG = {
                     "host": parsed.hostname,
@@ -63,6 +65,7 @@ class Config:
             else:
                 # Last-resort: fall back to local-style defaults to keep app booting,
                 # but warn so platform logs show the misconfiguration.
+                _db_source = "fallback:localhost"
                 logger.warning("DB_HOST/DATABASE_URL not set; using localhost defaults in production.")
                 DATABASE_CONFIG = {
                     "host": "localhost",
@@ -74,6 +77,14 @@ class Config:
                 }
         if not SECRET_KEY or SECRET_KEY == "dev-insecure-key":
             logger.warning("SECRET_KEY not provided; using generated fallback. Set SECRET_KEY env for stable sessions.")
+        logger.info(
+            "Database configuration source=%s host=%s port=%s database=%s user=%s",
+            _db_source if ' _db_source' in locals() else "unknown",
+            DATABASE_CONFIG.get("host"),
+            DATABASE_CONFIG.get("port"),
+            DATABASE_CONFIG.get("database"),
+            DATABASE_CONFIG.get("user"),
+        )
     else:
         DATABASE_CONFIG = {
             "host": os.environ.get("DB_HOST", "localhost"),
