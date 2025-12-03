@@ -32,6 +32,8 @@ class Config:
     # In production, require explicit env vars; in development, use safe defaults
     if os.environ.get("FLASK_ENV") == "production":
         # Prefer explicit DB_* vars; fall back to DATABASE_URL if provided by platform
+        _db_source = "unknown"
+
         if os.environ.get("DB_HOST"):
             _db_source = "env:DB_HOST"
             DATABASE_CONFIG = {
@@ -79,7 +81,7 @@ class Config:
             logger.warning("SECRET_KEY not provided; using generated fallback. Set SECRET_KEY env for stable sessions.")
         logger.info(
             "Database configuration source=%s host=%s port=%s database=%s user=%s",
-            _db_source if ' _db_source' in locals() else "unknown",
+            _db_source,
             DATABASE_CONFIG.get("host"),
             DATABASE_CONFIG.get("port"),
             DATABASE_CONFIG.get("database"),
