@@ -357,7 +357,7 @@ class AdminScheduleManager {
           <h3>Rage Room is phone-only</h3>
           <p>Sessions are booked in 15-minute blocks directly via call or WhatsApp.</p>
           <div class="notice-actions">
-            <a class="btn-modern primary" href="tel:+923161439569"><i class="fas fa-phone"></i> Call 0316 143 9569</a>
+            <a class="btn-modern primary" href="tel:+923161439569"><i class="fas fa-phone"></i> Call 0332 5021711</a>
             <a class="btn-modern secondary" href="https://wa.me/923161439569?text=Hi%21%20I%27d%20like%20to%20book%20the%20Rage%20Room%20%2815-minute%20sessions%29.%20Please%20share%20available%20times%20and%20pricing." target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
           </div>
           <small class="notice-footnote">Rage Room is excluded from the 30-minute slot grid to keep timings accurate.</small>
@@ -373,7 +373,7 @@ class AdminScheduleManager {
           <h3>Rage Room is phone-only</h3>
           <p>15-minute sessions are booked directly via call or WhatsApp.</p>
           <div class="notice-actions">
-            <a class="btn-modern primary" href="tel:+923161439569"><i class="fas fa-phone"></i> Call 0316 143 9569</a>
+            <a class="btn-modern primary" href="tel:+923161439569"><i class="fas fa-phone"></i> Call 0332 5021711</a>
             <a class="btn-modern secondary" href="https://wa.me/923161439569?text=Hi%21%20I%27d%20like%20to%20book%20the%20Rage%20Room%20%2815-minute%20sessions%29.%20Please%20share%20available%20times%20and%20pricing." target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
           </div>
           <small class="notice-footnote">Rage Room is excluded from the 30-minute slot grid to keep timings accurate.</small>
