@@ -4,7 +4,9 @@ Configuration settings for NoBall Sports Club application.
 
 import os
 from urllib.parse import urlparse
+import logging
 
+logger = logging.getLogger(__name__)
 
 class Config:
     """Base configuration class"""
@@ -34,18 +36,35 @@ class Config:
             }
         else:
             # Try parsing DATABASE_URL (e.g., postgres://user:pass@host:port/dbname)
-            db_url = os.environ.get("DATABASE_URL") or os.environ.get("DATABASE_URI")
-            if not db_url:
-                raise RuntimeError("Missing required environment variable: DB_HOST")
-            parsed = urlparse(db_url)
-            DATABASE_CONFIG = {
-                "host": parsed.hostname,
-                "database": parsed.path.lstrip("/"),
-                "user": parsed.username,
-                "password": parsed.password,
-                "port": parsed.port or 5432,
-                "sslmode": _get_env.__func__("DB_SSLMODE", "require"),
-            }
+            db_url = (
+                os.environ.get("DATABASE_URL")
+                or os.environ.get("DATABASE_URI")
+                or os.environ.get("DB_URL")
+                or os.environ.get("POSTGRES_URL")
+                or os.environ.get("POSTGRESQL_URL")
+            )
+            if db_url:
+                parsed = urlparse(db_url)
+                DATABASE_CONFIG = {
+                    "host": parsed.hostname,
+                    "database": parsed.path.lstrip("/"),
+                    "user": parsed.username,
+                    "password": parsed.password,
+                    "port": parsed.port or 5432,
+                    "sslmode": _get_env.__func__("DB_SSLMODE", "require"),
+                }
+            else:
+                # Last-resort: fall back to local-style defaults to keep app booting,
+                # but warn so platform logs show the misconfiguration.
+                logger.warning("DB_HOST/DATABASE_URL not set; using localhost defaults in production.")
+                DATABASE_CONFIG = {
+                    "host": "localhost",
+                    "database": "noball_sports",
+                    "user": "postgres",
+                    "password": "admin@123",
+                    "port": 5432,
+                    "sslmode": "prefer",
+                }
         if not SECRET_KEY or SECRET_KEY == "dev-insecure-key":
             raise RuntimeError("SECRET_KEY must be set in production")
     else:
