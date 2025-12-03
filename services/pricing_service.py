@@ -253,6 +253,12 @@ class PricingService:
     def initialize_default_pricing() -> bool:
         """Initialize default pricing for all courts if none exists"""
         try:
+            from database import DatabaseManager
+
+            if not DatabaseManager.test_connection():
+                logger.warning("Skipping default pricing init: database not reachable.")
+                return False
+
             # Check if any pricing exists
             existing_count_query = "SELECT COUNT(*) as count FROM court_pricing WHERE is_active = TRUE"
             count_result = DatabaseManager.execute_query(existing_count_query, fetch_one=True)

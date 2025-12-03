@@ -26,7 +26,9 @@ class DatabaseManager:
             conn = psycopg2.connect(**DatabaseManager._config)
             return conn
         except Exception as e:
-            logger.error(f"Database connection error: {e}")
+            host = DatabaseManager._config.get("host")
+            port = DatabaseManager._config.get("port")
+            logger.error(f"Database connection error: {e} (host={host}, port={port})")
             return None
     
     @staticmethod
@@ -92,6 +94,11 @@ class DatabaseManager:
     def init_database():
         """Initialize database tables"""
         try:
+            # If we can't connect, skip initialization but don't crash the app
+            if not DatabaseManager.test_connection():
+                logger.warning("Database not reachable; skipping init_database.")
+                return False
+
             create_tables_query = """
                 CREATE TABLE IF NOT EXISTS bookings (
                     id VARCHAR(50) PRIMARY KEY,
