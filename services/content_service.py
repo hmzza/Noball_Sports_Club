@@ -88,6 +88,46 @@ class ContentService:
         return dict(result)
 
     @staticmethod
+    def update_corporate_event(event_id: int, updates: Dict, event_image=None, logo_image=None) -> Optional[Dict]:
+        """Update corporate event details and optionally replace images."""
+        fields = []
+        params = []
+
+        for key in ["company_name", "title", "description", "event_date"]:
+            if updates.get(key) not in (None, ""):
+                fields.append(f"{key} = %s")
+                params.append(updates[key])
+
+        # Handle new images
+        current = DatabaseManager.execute_query(
+            "SELECT event_image, logo_image FROM corporate_events WHERE id = %s",
+            (event_id,),
+            fetch_one=True,
+        )
+        if not current:
+            return None
+
+        if event_image and event_image.filename:
+            new_path = _save_image(event_image, "corporate")
+            fields.append("event_image = %s")
+            params.append(new_path)
+            _remove_image_if_exists(current.get("event_image"))
+
+        if logo_image and logo_image.filename:
+            new_logo_path = _save_image(logo_image, "corporate")
+            fields.append("logo_image = %s")
+            params.append(new_logo_path)
+            _remove_image_if_exists(current.get("logo_image"))
+
+        if not fields:
+            return dict(current)
+
+        params.append(event_id)
+        query = f"UPDATE corporate_events SET {', '.join(fields)} WHERE id = %s RETURNING *"
+        updated = DatabaseManager.execute_query(query, tuple(params), fetch_one=True)
+        return dict(updated) if updated else None
+
+    @staticmethod
     def get_corporate_events(limit: Optional[int] = None) -> List[Dict]:
         """Fetch active corporate events ordered by display + recency."""
         base_query = """

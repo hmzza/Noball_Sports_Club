@@ -502,6 +502,30 @@ def api_delete_corporate_event(event_id):
         logger.error(f"Delete corporate event error: {e}")
         return jsonify({"success": False, "message": str(e)}), 400
 
+@admin_bp.route("/api/corporate-events/<int:event_id>", methods=["PATCH", "POST"])
+@require_auth
+@require_permission('manage_content')
+def api_update_corporate_event(event_id):
+    """Update a corporate event post"""
+    try:
+        updates = {
+            "company_name": request.form.get("companyName") or request.form.get("company_name"),
+            "title": request.form.get("title"),
+            "description": request.form.get("description"),
+            "event_date": request.form.get("event_date") or None,
+        }
+        event_image = request.files.get("event_image")
+        logo_image = request.files.get("logo_image")
+
+        updated = ContentService.update_corporate_event(event_id, updates, event_image, logo_image)
+        if updated:
+            ActivityService.log_activity("updated", "corporate_event", str(event_id), updates.get("title") or updates.get("company_name") or f"event:{event_id}")
+            return jsonify({"success": True, "event": updated})
+        return jsonify({"success": False, "message": "Event not found or not updated"}), 404
+    except Exception as e:
+        logger.error(f"Update corporate event error: {e}")
+        return jsonify({"success": False, "message": str(e)}), 400
+
 @admin_bp.route("/api/gallery", methods=["GET", "POST"])
 @require_auth
 @require_permission('manage_content')

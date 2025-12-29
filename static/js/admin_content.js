@@ -65,7 +65,8 @@
 
             const img = document.createElement("img");
             img.className = "thumb";
-            img.src = buildStatic(ev.event_image) || fallbackImage;
+            const heroPath = ev.event_image || ev.image_path || ev.hero_image;
+            img.src = buildStatic(heroPath) || fallbackImage;
             img.alt = ev.title || ev.company_name || "Corporate event";
 
             const content = document.createElement("div");
@@ -91,11 +92,17 @@
 
             const actions = document.createElement("div");
             actions.className = "actions";
+            const editBtn = document.createElement("button");
+            editBtn.className = "btn btn-ghost";
+            editBtn.dataset.action = "edit-event";
+            editBtn.dataset.id = ev.id;
+            editBtn.innerHTML = `<i class="fas fa-pen"></i> Edit`;
             const delBtn = document.createElement("button");
             delBtn.className = "btn btn-ghost";
             delBtn.dataset.action = "delete-event";
             delBtn.dataset.id = ev.id;
             delBtn.innerHTML = `<i class="fas fa-trash"></i> Remove`;
+            actions.appendChild(editBtn);
             actions.appendChild(delBtn);
 
             wrapper.appendChild(img);
@@ -158,8 +165,11 @@
         setStatus(corporateStatus, "Publishing...");
 
         try {
-            const res = await fetch(corporateEndpoint, {
-                method: "POST",
+            const editingId = corporateForm.dataset.editingId;
+            const targetUrl = editingId ? `${corporateEndpoint}/${editingId}` : corporateEndpoint;
+            const method = editingId ? "POST" : "POST";
+            const res = await fetch(targetUrl, {
+                method,
                 body: formData,
             });
             const data = await res.json().catch(() => ({}));
@@ -168,9 +178,16 @@
                 throw new Error(msg);
             }
 
-            events = [data.event, ...events];
+            if (editingId) {
+                events = events.map((ev) => (Number(ev.id) === Number(editingId) ? data.event : ev));
+            } else {
+                events = [data.event, ...events];
+            }
             renderCorporate();
             corporateForm.reset();
+            delete corporateForm.dataset.editingId;
+            const submitText = corporateForm.querySelector("button[type='submit'] .btn-text");
+            if (submitText) submitText.textContent = "Publish Event";
             setStatus(corporateStatus, "Event published");
         } catch (err) {
             console.error(err);
@@ -239,11 +256,26 @@
     galleryForm?.addEventListener("submit", handleGallerySubmit);
 
     corporateList?.addEventListener("click", (e) => {
-        const btn = e.target.closest("[data-action='delete-event']");
-        if (!btn) return;
-        const id = Number(btn.dataset.id);
-        if (!Number.isFinite(id)) return;
-        deleteEvent(id);
+        const delBtn = e.target.closest("[data-action='delete-event']");
+        const editBtn = e.target.closest("[data-action='edit-event']");
+        if (delBtn) {
+            const id = Number(delBtn.dataset.id);
+            if (!Number.isFinite(id)) return;
+            deleteEvent(id);
+        } else if (editBtn) {
+            const id = Number(editBtn.dataset.id);
+            if (!Number.isFinite(id)) return;
+            const ev = events.find((item) => Number(item.id) === id);
+            if (!ev) return;
+            corporateForm.dataset.editingId = id;
+            corporateForm.querySelector("#companyName").value = ev.company_name || "";
+            corporateForm.querySelector("#eventTitle").value = ev.title || "";
+            corporateForm.querySelector("#eventDesc").value = ev.description || "";
+            corporateForm.querySelector("#eventDate").value = ev.event_date ? ev.event_date.toString().slice(0, 10) : "";
+            const submitText = corporateForm.querySelector("button[type='submit'] .btn-text");
+            if (submitText) submitText.textContent = "Update Event";
+            setStatus(corporateStatus, "Editing mode — update and submit");
+        }
     });
 
     galleryList?.addEventListener("click", (e) => {
