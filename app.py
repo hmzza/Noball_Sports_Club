@@ -199,6 +199,16 @@ def register_main_routes(app):
             db_ok = False
         return jsonify({"ok": True, "db": db_ok}), (200 if db_ok else 503)
 
+    @app.route("/uploads/<path:filename>")
+    def serve_upload(filename):
+        """
+        Serve uploaded files (corporate/gallery). Stored under static/uploads.
+        This bypasses any CDN layer that only knows build-time assets.
+        """
+        from flask import send_from_directory
+        upload_root = os.path.join(app.root_path, "static", "uploads")
+        return send_from_directory(upload_root, filename, conditional=True)
+
 
 def register_api_routes(app):
     """Register API routes"""

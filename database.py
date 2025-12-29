@@ -369,6 +369,72 @@ class DatabaseManager:
                     EXCEPTION
                         WHEN duplicate_column THEN RAISE NOTICE 'column area_category already exists in expenses.';
                     END;
+                    -- Ensure promo_codes table has all required columns (for older deployments)
+                    BEGIN
+                        ALTER TABLE promo_codes ADD COLUMN description TEXT;
+                    EXCEPTION
+                        WHEN duplicate_column THEN RAISE NOTICE 'column description already exists in promo_codes.';
+                    END;
+                    BEGIN
+                        ALTER TABLE promo_codes ADD COLUMN discount_type VARCHAR(20) DEFAULT 'percentage';
+                    EXCEPTION
+                        WHEN duplicate_column THEN RAISE NOTICE 'column discount_type already exists in promo_codes.';
+                    END;
+                    BEGIN
+                        ALTER TABLE promo_codes ADD COLUMN discount_value INTEGER;
+                    EXCEPTION
+                        WHEN duplicate_column THEN RAISE NOTICE 'column discount_value already exists in promo_codes.';
+                    END;
+                    BEGIN
+                        ALTER TABLE promo_codes ADD COLUMN min_amount INTEGER;
+                    EXCEPTION
+                        WHEN duplicate_column THEN RAISE NOTICE 'column min_amount already exists in promo_codes.';
+                    END;
+                    BEGIN
+                        ALTER TABLE promo_codes ADD COLUMN max_discount INTEGER;
+                    EXCEPTION
+                        WHEN duplicate_column THEN RAISE NOTICE 'column max_discount already exists in promo_codes.';
+                    END;
+                    BEGIN
+                        ALTER TABLE promo_codes ADD COLUMN usage_limit INTEGER;
+                    EXCEPTION
+                        WHEN duplicate_column THEN RAISE NOTICE 'column usage_limit already exists in promo_codes.';
+                    END;
+                    BEGIN
+                        ALTER TABLE promo_codes ADD COLUMN usage_count INTEGER DEFAULT 0;
+                    EXCEPTION
+                        WHEN duplicate_column THEN RAISE NOTICE 'column usage_count already exists in promo_codes.';
+                    END;
+                    BEGIN
+                        ALTER TABLE promo_codes ADD COLUMN is_active BOOLEAN DEFAULT TRUE;
+                    EXCEPTION
+                        WHEN duplicate_column THEN RAISE NOTICE 'column is_active already exists in promo_codes.';
+                    END;
+                    BEGIN
+                        ALTER TABLE promo_codes ADD COLUMN valid_from DATE;
+                    EXCEPTION
+                        WHEN duplicate_column THEN RAISE NOTICE 'column valid_from already exists in promo_codes.';
+                    END;
+                    BEGIN
+                        ALTER TABLE promo_codes ADD COLUMN valid_until DATE;
+                    EXCEPTION
+                        WHEN duplicate_column THEN RAISE NOTICE 'column valid_until already exists in promo_codes.';
+                    END;
+                    BEGIN
+                        ALTER TABLE promo_codes ADD COLUMN applicable_sports TEXT;
+                    EXCEPTION
+                        WHEN duplicate_column THEN RAISE NOTICE 'column applicable_sports already exists in promo_codes.';
+                    END;
+                    BEGIN
+                        ALTER TABLE promo_codes ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+                    EXCEPTION
+                        WHEN duplicate_column THEN RAISE NOTICE 'column created_at already exists in promo_codes.';
+                    END;
+                    BEGIN
+                        ALTER TABLE promo_codes ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+                    EXCEPTION
+                        WHEN duplicate_column THEN RAISE NOTICE 'column updated_at already exists in promo_codes.';
+                    END;
                 END $$;
             """
             

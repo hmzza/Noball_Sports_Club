@@ -128,6 +128,8 @@
                         {% set img_path = item.image_path or item.event_image or 'images/dummy.jpeg' %}
                         {% if img_path.startswith('http') %}
                             {% set image_url = img_path %}
+                        {% elif img_path.startswith('uploads/') %}
+                            {% set image_url = url_for('serve_upload', filename=img_path.replace('uploads/', '')) %}
                         {% else %}
                             {% set image_url = url_for('static', filename=img_path) %}
                         {% endif %}
@@ -182,6 +184,8 @@
                         {% set hero_path = event.event_image or 'images/openSpace.jpeg' %}
                         {% if hero_path.startswith('http') %}
                             {% set hero_url = hero_path %}
+                        {% elif hero_path.startswith('uploads/') %}
+                            {% set hero_url = url_for('serve_upload', filename=hero_path.replace('uploads/', '')) %}
                         {% else %}
                             {% set hero_url = url_for('static', filename=hero_path) %}
                         {% endif %}
@@ -189,6 +193,8 @@
                         {% if logo_path %}
                             {% if logo_path.startswith('http') %}
                                 {% set logo_url = logo_path %}
+                            {% elif logo_path.startswith('uploads/') %}
+                                {% set logo_url = url_for('serve_upload', filename=logo_path.replace('uploads/', '')) %}
                             {% else %}
                                 {% set logo_url = url_for('static', filename=logo_path) %}
                             {% endif %}

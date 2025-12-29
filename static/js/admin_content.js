@@ -31,6 +31,9 @@
         if (!path) return "";
         if (/^https?:\/\//i.test(path)) return path;
         const clean = path.replace(/^\/+/, "");
+        if (clean.startsWith("uploads/")) {
+            return `/uploads/${clean.replace(/^uploads\\//, "")}`;
+        }
         return `${staticBase}${clean}`;
     }
 
