@@ -124,10 +124,19 @@ class DatabaseManager:
             try:
                 sql = f"ALTER TABLE IF EXISTS {table} ADD COLUMN IF NOT EXISTS {column} {column_def};"
                 res = DatabaseManager.execute_query(sql, fetch_all=False)
-                return res is not None or True
+                return res is not None
             except Exception as exc:
                 # If column exists, we're fine
                 logger.warning(f"Column ensure warning {table}.{column}: {exc}")
+                return False
+
+        def _ensure_index(create_index_sql: str) -> bool:
+            """Create index; tolerate failures on older deployments."""
+            try:
+                res = DatabaseManager.execute_query(create_index_sql, fetch_all=False)
+                return res is not None
+            except Exception as exc:
+                logger.warning(f"Index ensure warning: {exc}")
                 return False
 
         try:
@@ -283,23 +292,6 @@ class DatabaseManager:
                     user_agent TEXT,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
-                
-                CREATE INDEX IF NOT EXISTS idx_bookings_date_court 
-                ON bookings(booking_date, court, status);
-                CREATE INDEX IF NOT EXISTS idx_promo_codes_code ON promo_codes(code);
-                CREATE INDEX IF NOT EXISTS idx_promo_codes_active ON promo_codes(is_active);
-                CREATE INDEX IF NOT EXISTS idx_promo_codes_dates ON promo_codes(valid_from, valid_until);
-                CREATE INDEX IF NOT EXISTS idx_expenses_date ON expenses(expense_date);
-                CREATE INDEX IF NOT EXISTS idx_expenses_area_category ON expenses(area_category);
-                CREATE INDEX IF NOT EXISTS idx_expenses_category ON expenses(category);
-                CREATE INDEX IF NOT EXISTS idx_expenses_type ON expenses(expense_type);
-                CREATE INDEX IF NOT EXISTS idx_admin_users_username ON admin_users(username);
-                CREATE INDEX IF NOT EXISTS idx_admin_users_active ON admin_users(is_active);
-                CREATE INDEX IF NOT EXISTS idx_admin_users_role ON admin_users(role);
-                CREATE INDEX IF NOT EXISTS idx_activity_logs_user ON activity_logs(user_id);
-                CREATE INDEX IF NOT EXISTS idx_activity_logs_entity ON activity_logs(entity_type, entity_id);
-                CREATE INDEX IF NOT EXISTS idx_activity_logs_created ON activity_logs(created_at);
-                CREATE INDEX IF NOT EXISTS idx_activity_logs_action ON activity_logs(action);
                 
                 -- Add promo code columns to existing bookings table if they don't exist
                 DO $$ 
@@ -503,6 +495,53 @@ class DatabaseManager:
             }
             for col, col_def in promo_columns.items():
                 _ensure_column("promo_codes", col, col_def)
+
+            # Ensure bookings/expenses columns exist before creating indexes (older deployments)
+            booking_columns = {
+                "promo_code": "VARCHAR(50)",
+                "discount_amount": "INTEGER DEFAULT 0",
+                "original_amount": "INTEGER",
+                "admin_comments": "TEXT",
+            }
+            for col, col_def in booking_columns.items():
+                _ensure_column("bookings", col, col_def)
+
+            expense_columns = {
+                "title": "VARCHAR(255)",
+                "description": "TEXT",
+                "amount": "DECIMAL(10,2)",
+                "category": "VARCHAR(50)",
+                "expense_date": "DATE",
+                "expense_type": "VARCHAR(20) DEFAULT 'one_time'",
+                "recurring_frequency": "VARCHAR(20)",
+                "created_by": "VARCHAR(100) DEFAULT 'admin'",
+                "created_at": "TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
+                "updated_at": "TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
+                "area_category": "VARCHAR(10) DEFAULT 'both'",
+            }
+            for col, col_def in expense_columns.items():
+                _ensure_column("expenses", col, col_def)
+
+            # Create indexes after columns exist (run individually to avoid rolling back init)
+            index_statements = [
+                "CREATE INDEX IF NOT EXISTS idx_bookings_date_court ON bookings(booking_date, court, status);",
+                "CREATE INDEX IF NOT EXISTS idx_promo_codes_code ON promo_codes(code);",
+                "CREATE INDEX IF NOT EXISTS idx_promo_codes_active ON promo_codes(is_active);",
+                "CREATE INDEX IF NOT EXISTS idx_promo_codes_dates ON promo_codes(valid_from, valid_until);",
+                "CREATE INDEX IF NOT EXISTS idx_expenses_date ON expenses(expense_date);",
+                "CREATE INDEX IF NOT EXISTS idx_expenses_area_category ON expenses(area_category);",
+                "CREATE INDEX IF NOT EXISTS idx_expenses_category ON expenses(category);",
+                "CREATE INDEX IF NOT EXISTS idx_expenses_type ON expenses(expense_type);",
+                "CREATE INDEX IF NOT EXISTS idx_admin_users_username ON admin_users(username);",
+                "CREATE INDEX IF NOT EXISTS idx_admin_users_active ON admin_users(is_active);",
+                "CREATE INDEX IF NOT EXISTS idx_admin_users_role ON admin_users(role);",
+                "CREATE INDEX IF NOT EXISTS idx_activity_logs_user ON activity_logs(user_id);",
+                "CREATE INDEX IF NOT EXISTS idx_activity_logs_entity ON activity_logs(entity_type, entity_id);",
+                "CREATE INDEX IF NOT EXISTS idx_activity_logs_created ON activity_logs(created_at);",
+                "CREATE INDEX IF NOT EXISTS idx_activity_logs_action ON activity_logs(action);",
+            ]
+            for stmt in index_statements:
+                _ensure_index(stmt)
 
             if success:
                 logger.info("Database tables created successfully")

@@ -207,7 +207,11 @@ def register_main_routes(app):
         """
         from flask import send_from_directory
         upload_root = os.path.join(app.root_path, "static", "uploads")
-        return send_from_directory(upload_root, filename, conditional=True)
+        abs_path = os.path.join(upload_root, filename)
+        if os.path.exists(abs_path):
+            return send_from_directory(upload_root, filename, conditional=True)
+        # Graceful fallback: return placeholder instead of broken images
+        return send_from_directory(os.path.join(app.root_path, "static", "images"), "dummy.jpeg", conditional=True)
 
 
 def register_api_routes(app):

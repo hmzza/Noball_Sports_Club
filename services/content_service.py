@@ -15,6 +15,96 @@ logger = logging.getLogger(__name__)
 
 ALLOWED_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
 
+def _spaces_config() -> Optional[Dict[str, str]]:
+    """Return Spaces config if enabled via env vars."""
+    bucket = os.environ.get("SPACES_BUCKET")
+    key = os.environ.get("SPACES_KEY") or os.environ.get("SPACES_ACCESS_KEY_ID")
+    secret = os.environ.get("SPACES_SECRET") or os.environ.get("SPACES_SECRET_ACCESS_KEY")
+    region = os.environ.get("SPACES_REGION", "sgp1")
+    if not bucket or not key or not secret:
+        return None
+    endpoint = os.environ.get("SPACES_ENDPOINT") or f"https://{region}.digitaloceanspaces.com"
+    public_base = os.environ.get("SPACES_PUBLIC_BASE") or f"https://{bucket}.{region}.digitaloceanspaces.com"
+    prefix = os.environ.get("SPACES_PREFIX", "uploads").strip("/ ")
+    return {
+        "bucket": bucket,
+        "key": key,
+        "secret": secret,
+        "region": region,
+        "endpoint": endpoint,
+        "public_base": public_base.rstrip("/"),
+        "prefix": prefix,
+    }
+
+
+def _upload_to_spaces(file_storage, subfolder: str, filename: str) -> str:
+    """Upload a file to DigitalOcean Spaces and return public URL."""
+    cfg = _spaces_config()
+    if not cfg:
+        raise RuntimeError("Spaces not configured")
+
+    try:
+        import boto3  # type: ignore
+    except Exception as exc:  # pragma: no cover
+        raise RuntimeError("boto3 is required for Spaces uploads") from exc
+
+    session = boto3.session.Session()
+    client = session.client(
+        "s3",
+        region_name=cfg["region"],
+        endpoint_url=cfg["endpoint"],
+        aws_access_key_id=cfg["key"],
+        aws_secret_access_key=cfg["secret"],
+    )
+
+    object_key = f"{cfg['prefix']}/{subfolder}/{filename}".lstrip("/")
+    content_type = getattr(file_storage, "mimetype", None) or "application/octet-stream"
+    # Ensure stream is at beginning
+    try:
+        file_storage.stream.seek(0)
+    except Exception:
+        pass
+
+    client.upload_fileobj(
+        file_storage.stream,
+        cfg["bucket"],
+        object_key,
+        ExtraArgs={
+            "ACL": "public-read",
+            "ContentType": content_type,
+            "CacheControl": "public, max-age=31536000, immutable",
+        },
+    )
+    return f"{cfg['public_base']}/{object_key}"
+
+
+def _try_delete_spaces_object(url: str) -> None:
+    """Best-effort delete for Spaces URLs created by this app."""
+    cfg = _spaces_config()
+    if not cfg:
+        return
+    if not url.startswith(cfg["public_base"] + "/"):
+        return
+
+    key = url[len(cfg["public_base"]) + 1 :]
+    try:
+        import boto3  # type: ignore
+    except Exception:  # pragma: no cover
+        return
+
+    session = boto3.session.Session()
+    client = session.client(
+        "s3",
+        region_name=cfg["region"],
+        endpoint_url=cfg["endpoint"],
+        aws_access_key_id=cfg["key"],
+        aws_secret_access_key=cfg["secret"],
+    )
+    try:
+        client.delete_object(Bucket=cfg["bucket"], Key=key)
+    except Exception as exc:  # pragma: no cover
+        logger.warning(f"Could not delete Spaces object {key}: {exc}")
+
 
 def _is_allowed_file(filename: str) -> bool:
     """Validate file extension for uploads."""
@@ -36,6 +126,10 @@ def _save_image(file_storage, subfolder: str) -> str:
     ext = os.path.splitext(safe_name)[1]
     filename = f"{uuid.uuid4().hex}{ext}"
 
+    # Production-safe: store in Spaces if configured (shared across instances)
+    if _spaces_config():
+        return _upload_to_spaces(file_storage, subfolder, filename)
+
     upload_dir = os.path.join(current_app.root_path, "static", "uploads", subfolder)
     os.makedirs(upload_dir, exist_ok=True)
 
@@ -49,6 +143,9 @@ def _remove_image_if_exists(relative_path: Optional[str]) -> None:
     """Remove stored image when deleting records."""
     try:
         if not relative_path:
+            return
+        if str(relative_path).startswith("http"):
+            _try_delete_spaces_object(str(relative_path))
             return
         abs_path = os.path.join(current_app.root_path, "static", relative_path)
         if os.path.exists(abs_path):
