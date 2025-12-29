@@ -119,6 +119,17 @@ class DatabaseManager:
                 logger.error(f"Failed creating table {name}: {exc}")
                 return False
 
+        def _ensure_column(table: str, column: str, column_def: str) -> bool:
+            """Add column if it does not exist (Postgres 9.6+ supports IF NOT EXISTS)."""
+            try:
+                sql = f"ALTER TABLE IF EXISTS {table} ADD COLUMN IF NOT EXISTS {column} {column_def};"
+                res = DatabaseManager.execute_query(sql, fetch_all=False)
+                return res is not None or True
+            except Exception as exc:
+                # If column exists, we're fine
+                logger.warning(f"Column ensure warning {table}.{column}: {exc}")
+                return False
+
         try:
             # If we can't connect, skip initialization but don't crash the app
             if not DatabaseManager.test_connection():
@@ -473,6 +484,25 @@ class DatabaseManager:
             for tbl, stmt in content_tables.items():
                 if not _ensure_table(tbl, stmt):
                     success = False
+
+            # Ensure promo_codes has expected columns (idempotent)
+            promo_columns = {
+                "description": "TEXT",
+                "discount_type": "VARCHAR(20) DEFAULT 'percentage'",
+                "discount_value": "INTEGER",
+                "min_amount": "INTEGER",
+                "max_discount": "INTEGER",
+                "usage_limit": "INTEGER",
+                "usage_count": "INTEGER DEFAULT 0",
+                "is_active": "BOOLEAN DEFAULT TRUE",
+                "valid_from": "DATE",
+                "valid_until": "DATE",
+                "applicable_sports": "TEXT",
+                "created_at": "TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
+                "updated_at": "TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
+            }
+            for col, col_def in promo_columns.items():
+                _ensure_column("promo_codes", col, col_def)
 
             if success:
                 logger.info("Database tables created successfully")
