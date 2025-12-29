@@ -346,14 +346,44 @@ class DatabaseManager:
                 END $$;
             """
             
+            success = True
             result = DatabaseManager.execute_query(create_tables_query, fetch_all=False)
-            if result is not None:
+            if result is None:
+                success = False
+
+            # Ensure new content tables are present even if the big block failed on older deployments
+            content_tables = [
+                """
+                CREATE TABLE IF NOT EXISTS corporate_events (
+                    id SERIAL PRIMARY KEY,
+                    company_name VARCHAR(150) NOT NULL,
+                    title VARCHAR(200) NOT NULL,
+                    description TEXT,
+                    event_image VARCHAR(255) NOT NULL,
+                    logo_image VARCHAR(255),
+                    event_date DATE,
+                    display_order INTEGER DEFAULT 0,
+                    is_active BOOLEAN DEFAULT TRUE,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+                """,
+                """
+                CREATE TABLE IF NOT EXISTS gallery_photos (
+                    id SERIAL PRIMARY KEY,
+                    title VARCHAR(200),
+                    description TEXT,
+                    image_path VARCHAR(255) NOT NULL,
+                    display_order INTEGER DEFAULT 0,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+                """,
+            ]
+            for stmt in content_tables:
+                if DatabaseManager.execute_query(stmt, fetch_all=False) is None:
+                    success = False
+
+            if success:
                 logger.info("Database tables created successfully")
-                
-                # Skip index creation for blocked_slots to avoid conflicts
-                # The table will work fine without this performance index
-                logger.info("Database indexes skipped to avoid conflicts")
-                
                 logger.info("Database initialized successfully")
                 return True
             else:

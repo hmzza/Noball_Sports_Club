@@ -67,8 +67,10 @@ def create_app(config_name=None):
 
     # Initialize database (don't fail startup if database is not ready)
     try:
-        DatabaseManager.init_database()
-        logger.info("Database initialized successfully")
+        if DatabaseManager.init_database():
+            logger.info("Database initialized successfully")
+        else:
+            logger.warning("Database initialization did not complete; some tables may be missing.")
     except Exception as e:
         logger.warning(
             f"Database initialization failed: {e}. App will start without database."
