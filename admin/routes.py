@@ -8,6 +8,7 @@ from auth_middleware import require_auth, require_permission, super_admin_only, 
 from services.auth_service import AuthService, SessionManager
 from services.activity_service import ActivityService
 from services.admin_service import AdminService
+from services.content_service import ContentService
 from .views import AdminDashboardView, AdminBookingView, AdminScheduleView, AdminBookingControlView, AdminPricingView, AdminAPIView, AdminExpenseView
 from services.contact_service import ContactService
 from datetime import datetime
@@ -138,6 +139,19 @@ def admin_contacts():
     except Exception as e:
         logger.error(f"Error loading contacts: {e}")
         return render_template("admin_contacts.html", contacts=[])
+
+@admin_bp.route("/content")
+@require_auth
+@require_permission('manage_content')
+def admin_content():
+    """Content management for corporate events and gallery"""
+    try:
+        events = ContentService.get_corporate_events()
+        gallery_items = ContentService.get_gallery_photos()
+        return render_template("admin_content.html", events=events, gallery_items=gallery_items)
+    except Exception as e:
+        logger.error(f"Error loading content manager: {e}")
+        return render_template("admin_content.html", events=[], gallery_items=[], error=str(e))
 
 # User Management Routes (Super Admin Only)
 @admin_bp.route("/users")
@@ -439,6 +453,91 @@ def api_bulk_search():
 def api_bulk_action():
     """Perform bulk action on multiple bookings"""
     return AdminAPIView.bulk_action()
+
+@admin_bp.route("/api/corporate-events", methods=["GET", "POST"])
+@require_auth
+@require_permission('manage_content')
+def api_corporate_events():
+    """Create or list corporate event posts"""
+    try:
+        if request.method == "GET":
+            events = ContentService.get_corporate_events()
+            return jsonify({"success": True, "events": events})
+
+        company_name = request.form.get("companyName") or request.form.get("company_name")
+        title = request.form.get("title")
+        description = request.form.get("description", "")
+        event_date = request.form.get("event_date") or None
+        event_image = request.files.get("event_image")
+        logo_image = request.files.get("logo_image")
+
+        created = ContentService.add_corporate_event(
+            company_name=company_name,
+            title=title,
+            description=description,
+            event_image=event_image,
+            logo_image=logo_image,
+            event_date=event_date
+        )
+
+        if created:
+            ActivityService.log_activity("created", "corporate_event", str(created.get("id")), title or company_name)
+            return jsonify({"success": True, "event": created})
+        return jsonify({"success": False, "message": "Unable to create event"}), 400
+    except Exception as e:
+        logger.error(f"Corporate event error: {e}")
+        return jsonify({"success": False, "message": str(e)}), 400
+
+@admin_bp.route("/api/corporate-events/<int:event_id>", methods=["DELETE"])
+@require_auth
+@require_permission('manage_content')
+def api_delete_corporate_event(event_id):
+    """Delete a corporate event post"""
+    try:
+        if ContentService.delete_corporate_event(event_id):
+            ActivityService.log_activity("deleted", "corporate_event", str(event_id), f"event:{event_id}")
+            return jsonify({"success": True})
+        return jsonify({"success": False, "message": "Event not found"}), 404
+    except Exception as e:
+        logger.error(f"Delete corporate event error: {e}")
+        return jsonify({"success": False, "message": str(e)}), 400
+
+@admin_bp.route("/api/gallery", methods=["GET", "POST"])
+@require_auth
+@require_permission('manage_content')
+def api_gallery():
+    """Manage gallery photos"""
+    try:
+        if request.method == "GET":
+            items = ContentService.get_gallery_photos()
+            return jsonify({"success": True, "items": items})
+
+        title = request.form.get("title") or ""
+        description = request.form.get("description") or ""
+        image_file = request.files.get("image")
+
+        created = ContentService.add_gallery_photo(title, description, image_file)
+        if created:
+            ActivityService.log_activity("created", "gallery_photo", str(created.get("id")), title or "Gallery Photo")
+            return jsonify({"success": True, "item": created})
+        return jsonify({"success": False, "message": "Unable to save image"}), 400
+    except Exception as e:
+        logger.error(f"Gallery API error: {e}")
+        return jsonify({"success": False, "message": str(e)}), 400
+
+@admin_bp.route("/api/gallery/<int:photo_id>", methods=["DELETE"])
+@require_auth
+@require_permission('manage_content')
+def api_delete_gallery(photo_id):
+    """Delete gallery photo"""
+    try:
+        if ContentService.delete_gallery_photo(photo_id):
+            ActivityService.log_activity("deleted", "gallery_photo", str(photo_id), f"gallery:{photo_id}")
+            return jsonify({"success": True})
+        return jsonify({"success": False, "message": "Image not found"}), 404
+    except Exception as e:
+        logger.error(f"Delete gallery image error: {e}")
+        return jsonify({"success": False, "message": str(e)}), 400
 
 # Reports and Analytics API Routes
 @admin_bp.route("/reports")

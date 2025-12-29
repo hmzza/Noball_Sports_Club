@@ -45,6 +45,7 @@
             <ul class="nav-links">
                 <li><a href="#home" class="nav-link">Home</a></li>
                 <li><a href="#gallery" class="nav-link">Gallery</a></li>
+                <li><a href="#corporate" class="nav-link">Corporate</a></li>
                 <li><a href="#about" class="nav-link">About</a></li>
                 <li><a href="#location" class="nav-link">Location</a></li>
                 <li><a href="#contact" class="nav-link">Contact</a></li>
@@ -123,88 +124,21 @@
             
             <div class="gallery-slider">
                 <div class="gallery-track" id="gallery-track">
-                    <div class="gallery-slide" data-image="static/images/openSpace.jpeg" data-title="All-in-one Sports Arena">
-                        <img src="static/images/openSpace.jpeg" alt="Open Space Arena" class="gallery-image">
-                        <div class="slide-overlay">
-                            <h3>Sports Club</h3>
-                            <p>Islamabad's first all in one sports club</p>
+                    {% for item in gallery_items %}
+                        {% set img_path = item.image_path or item.event_image or 'images/dummy.jpeg' %}
+                        {% if img_path.startswith('http') %}
+                            {% set image_url = img_path %}
+                        {% else %}
+                            {% set image_url = url_for('static', filename=img_path) %}
+                        {% endif %}
+                        <div class="gallery-slide" data-image="{{ image_url }}" data-title="{{ item.title or 'NoBall Sports Club' }}">
+                            <img src="{{ image_url }}" alt="{{ item.title or 'NoBall Sports Club' }}" class="gallery-image">
+                            <div class="slide-overlay">
+                                <h3>{{ item.title or 'NoBall Sports Club' }}</h3>
+                                <p>{{ item.description or 'Premium facilities ready for your next match' }}</p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="gallery-slide" data-image="static/images/bothPadel.jpeg" data-title="Padel Court - PU Mondo">
-                        <img src="static/images/bothPadel.jpeg" alt="Padel Courts" class="gallery-image">
-                        <div class="slide-overlay">
-                            <h3>Padel Courts</h3>
-                            <p>Mondo Pu Courts</p>
-                        </div>
-                    </div>
-                    <div class="gallery-slide" data-image="static/images/rageRoom.jpeg" data-title="Rage Room - Safe & Fun">
-                        <img src="static/images/rageRoom.jpeg" alt="Rage Room" class="gallery-image">
-                        <div class="slide-overlay">
-                            <h3>Rage Room</h3>
-                            <p>Professional Setup</p>
-                        </div>
-                    </div>
-                    <div class="gallery-slide" data-image="static/images/cricketfield1.png" data-title="Cricket Court - Professional Setup">
-                        <img src="static/images/cricketfield1.png" alt="Cricket Court" class="gallery-image">
-                        <div class="slide-overlay">
-                            <h3>Cricket Court</h3>
-                            <p>Professional Setup</p>
-                        </div>
-                    </div>
-                    <div class="gallery-slide" data-image="static/images/archery.jpeg" data-title="Archery - Safe & Supervised">
-                        <img src="static/images/archery.jpeg" alt="Rage Room" class="gallery-image">
-                        <div class="slide-overlay">
-                            <h3>Archery</h3>
-                            <p>Safe & Supervised</p>
-                        </div>
-                    </div>
-                    <div class="gallery-slide" data-image="static/images/padelPurple.png" data-title="Padel Court - Purple Mondo Surface">
-                        <img src="static/images/padelPurple.jpeg" alt="Padel Court Purple" class="gallery-image">
-                        <div class="slide-overlay">
-                            <h3>Padel Court</h3>
-                            <p>Purple Mondo Surface</p>
-                        </div>
-                    </div>
-                    
-                    <div class="gallery-slide" data-image="static/images/padelTerra.png" data-title="Padel Court - Teracotta Surface">
-                        <img src="static/images/padelTerra.jpeg" alt="Padel Court Teracotta" class="gallery-image">
-                        <div class="slide-overlay">
-                            <h3>Padel Court</h3>
-                            <p>Teracotta Surface</p>
-                        </div>
-                    </div>
-                    <div class="gallery-slide" data-image="static/images/pickleball2.jpeg" data-title="Pickleball Court - Premium Setup">
-                        <img src="static/images/pickleball2.jpeg" alt="Pickleball Court" class="gallery-image">
-                        <div class="slide-overlay">
-                            <h3>Pickleball Court</h3>
-                            <p>Premium Setup</p>
-                        </div>
-                    </div>
-
-                    
-                    <div class="gallery-slide" data-image="static/images/futsalField.jpeg" data-title="Futsal Court - FIFA Standard">
-                        <img src="static/images/futsalField.jpeg" alt="Futsal Court" class="gallery-image">
-                        <div class="slide-overlay">
-                            <h3>Futsal Court</h3>
-                            <p>FIFA Standard</p>
-                        </div>
-                    </div>
-                    
-                    <div class="gallery-slide" data-image="static/images/pickleball.jpeg" data-title="Pickleball Court - Premium Setup">
-                        <img src="static/images/pickleball.jpeg" alt="Pickleball Court" class="gallery-image">
-                        <div class="slide-overlay">
-                            <h3>Pickleball Court</h3>
-                            <p>Premium Setup</p>
-                        </div>
-                    </div>
-
-                    <div class="gallery-slide" data-image="static/images/openSpace2.jpeg" data-title="All-in-one Sports Arena">
-                        <img src="static/images/openSpace2.jpeg" alt="Open Space Arena" class="gallery-image">
-                        <div class="slide-overlay">
-                            <h3>Sports Club</h3>
-                            <p>Islamabad's first all in one sports club</p>
-                        </div>
-                    </div>
+                    {% endfor %}
                 </div>
                 
                 <button class="gallery-nav prev" id="gallery-prev">
@@ -215,6 +149,88 @@
                 </button>
                 
                 <div class="gallery-dots" id="gallery-dots"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Corporate Events -->
+    <section id="corporate" class="corporate-modern">
+        <div class="container-modern">
+            <div class="corporate-header">
+                <div>
+                    <span class="section-badge">Corporate</span>
+                    <h2 class="section-title">Corporate Events at NoBall</h2>
+                    <p class="section-description">
+                        Celebrate launches, team offsites, and client nights with a private sports takeover.
+                    </p>
+                </div>
+                <div class="corporate-cta">
+                    <a href="#contact" class="btn-modern primary">
+                        <span class="btn-text">Book your corporate event</span>
+                        <i class="fas fa-briefcase"></i>
+                    </a>
+                    <a href="https://wa.me/{{ whatsapp_number }}?text=Hi%20Team%20NoBall%2C%20we%20want%20a%20corporate%20event%20quote" target="_blank" class="btn-modern secondary">
+                        <span class="btn-text">Get a quote</span>
+                        <i class="fas fa-comment-dollar"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="corporate-grid">
+                {% if corporate_events %}
+                    {% for event in corporate_events %}
+                        {% set hero_path = event.event_image or 'images/openSpace.jpeg' %}
+                        {% if hero_path.startswith('http') %}
+                            {% set hero_url = hero_path %}
+                        {% else %}
+                            {% set hero_url = url_for('static', filename=hero_path) %}
+                        {% endif %}
+                        {% set logo_path = event.logo_image %}
+                        {% if logo_path %}
+                            {% if logo_path.startswith('http') %}
+                                {% set logo_url = logo_path %}
+                            {% else %}
+                                {% set logo_url = url_for('static', filename=logo_path) %}
+                            {% endif %}
+                        {% endif %}
+                        <article class="corporate-card">
+                            <div class="corporate-media">
+                                <img src="{{ hero_url }}" alt="{{ event.title or event.company_name }}" class="corporate-image">
+                                {% if logo_path %}
+                                    <div class="corporate-logo">
+                                        <img src="{{ logo_url }}" alt="{{ event.company_name }} logo">
+                                    </div>
+                                {% endif %}
+                                <div class="corporate-pill">Featured</div>
+                            </div>
+                            <div class="corporate-body">
+                                <div class="corporate-meta">
+                                    <span class="company">{{ event.company_name }}</span>
+                                    {% if event.event_date %}
+                                        {% if event.event_date.__class__.__name__ == 'date' %}
+                                            {% set date_label = event.event_date.strftime('%b %d, %Y') %}
+                                        {% else %}
+                                            {% set date_label = event.event_date %}
+                                        {% endif %}
+                                        <span class="date">{{ date_label }}</span>
+                                    {% endif %}
+                                </div>
+                                <h3>{{ event.title }}</h3>
+                                {% if event.description %}<p>{{ event.description }}</p>{% endif %}
+                            </div>
+                        </article>
+                    {% endfor %}
+                {% else %}
+                    <article class="corporate-card placeholder">
+                        <div class="corporate-body">
+                            <div class="corporate-meta">
+                                <span class="company">Your brand here</span>
+                            </div>
+                            <h3>Showcase your corporate nights</h3>
+                            <p>Upload highlights from your partner events straight from the admin panel.</p>
+                        </div>
+                    </article>
+                {% endif %}
             </div>
         </div>
     </section>
@@ -571,6 +587,7 @@
         const totalSlides = slides.length;
 
         function initGallery() {
+            if (!totalSlides) return;
             // Create dots
             const dotsContainer = document.getElementById('gallery-dots');
             for (let i = 0; i < totalSlides; i++) {
@@ -595,6 +612,7 @@
         }
 
         function updateGallery() {
+            if (!totalSlides) return;
             const track = document.getElementById('gallery-track');
             track.style.transform = `translateX(-${currentSlide * 100}%)`;
             
@@ -610,13 +628,17 @@
         }
 
         function nextSlide() {
-            currentSlide = (currentSlide + 1) % totalSlides;
-            updateGallery();
+            if (totalSlides) {
+                currentSlide = (currentSlide + 1) % totalSlides;
+                updateGallery();
+            }
         }
 
         function prevSlide() {
-            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
-            updateGallery();
+            if (totalSlides) {
+                currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+                updateGallery();
+            }
         }
 
         function openImageModal(imageSrc, title) {
@@ -636,8 +658,7 @@
             document.body.style.overflow = 'auto';
         }
 
-        // Auto-slide gallery
-        setInterval(nextSlide, 5000);
+        // Auto-slide gallery moved inside DOMContentLoaded for safety
         
         // Mobile menu toggle function (backup)
         function toggleMobileMenu() {
@@ -662,6 +683,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize gallery
             initGallery();
+            if (totalSlides > 1) {
+                setInterval(nextSlide, 5000);
+            }
             
             // Mobile menu toggle
             const mobileToggle = document.getElementById('mobile-toggle');

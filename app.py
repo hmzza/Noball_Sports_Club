@@ -106,7 +106,81 @@ def register_main_routes(app):
     def index():
         """Main page route"""
         from config import Config
-        return render_template("index_modern.html", whatsapp_number=Config.WHATSAPP_NUMBER)
+        corporate_events = []
+        gallery_items = []
+
+        try:
+            from services.content_service import ContentService
+            corporate_events = ContentService.get_corporate_events(limit=6)
+            gallery_items = ContentService.get_gallery_photos()
+        except Exception as e:
+            logger.warning(f"Content load skipped: {e}")
+
+        if not gallery_items:
+            gallery_items = [
+                {
+                    "title": "Sports Club",
+                    "description": "Islamabad's first all in one sports club",
+                    "image_path": "images/openSpace.jpeg",
+                },
+                {
+                    "title": "Padel Courts",
+                    "description": "Mondo Pu Courts",
+                    "image_path": "images/bothPadel.jpeg",
+                },
+                {
+                    "title": "Rage Room",
+                    "description": "Professional Setup",
+                    "image_path": "images/rageRoom.jpeg",
+                },
+                {
+                    "title": "Cricket Court",
+                    "description": "Professional Setup",
+                    "image_path": "images/cricketfield1.png",
+                },
+                {
+                    "title": "Archery",
+                    "description": "Safe & Supervised",
+                    "image_path": "images/archery.jpeg",
+                },
+                {
+                    "title": "Padel Court",
+                    "description": "Purple Mondo Surface",
+                    "image_path": "images/padelPurple.jpeg",
+                },
+                {
+                    "title": "Padel Court",
+                    "description": "Teracotta Surface",
+                    "image_path": "images/padelTerra.jpeg",
+                },
+                {
+                    "title": "Pickleball Court",
+                    "description": "Premium Setup",
+                    "image_path": "images/pickleball2.jpeg",
+                },
+                {
+                    "title": "Futsal Court",
+                    "description": "FIFA Standard",
+                    "image_path": "images/futsalField.jpeg",
+                },
+                {
+                    "title": "Pickleball Court",
+                    "description": "Premium Setup",
+                    "image_path": "images/pickleball.jpeg",
+                },
+                {
+                    "title": "Sports Club",
+                    "description": "Islamabad's first all in one sports club",
+                    "image_path": "images/openSpace2.jpeg",
+                },
+            ]
+
+        return render_template(
+            "index_modern.html",
+            whatsapp_number=Config.WHATSAPP_NUMBER,
+            corporate_events=corporate_events,
+            gallery_items=gallery_items,
+        )
 
     @app.route("/booking")
     def booking():

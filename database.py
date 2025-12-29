@@ -199,6 +199,28 @@ class DatabaseManager:
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
 
+                CREATE TABLE IF NOT EXISTS corporate_events (
+                    id SERIAL PRIMARY KEY,
+                    company_name VARCHAR(150) NOT NULL,
+                    title VARCHAR(200) NOT NULL,
+                    description TEXT,
+                    event_image VARCHAR(255) NOT NULL,
+                    logo_image VARCHAR(255),
+                    event_date DATE,
+                    display_order INTEGER DEFAULT 0,
+                    is_active BOOLEAN DEFAULT TRUE,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+
+                CREATE TABLE IF NOT EXISTS gallery_photos (
+                    id SERIAL PRIMARY KEY,
+                    title VARCHAR(200),
+                    description TEXT,
+                    image_path VARCHAR(255) NOT NULL,
+                    display_order INTEGER DEFAULT 0,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+
                 CREATE TABLE IF NOT EXISTS admin_users (
                     id SERIAL PRIMARY KEY,
                     username VARCHAR(50) UNIQUE NOT NULL,

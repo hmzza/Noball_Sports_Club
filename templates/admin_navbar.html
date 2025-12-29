@@ -81,6 +81,11 @@
                             <span>Pricing</span>
                         </a>
 
+                        <a href="{{ url_for('admin_panel.admin_content') }}" class="nav-link {{ 'active' if request.endpoint == 'admin_panel.admin_content' else '' }}">
+                            <i class="fas fa-images"></i>
+                            <span>Content</span>
+                        </a>
+
                         <a href="{{ url_for('admin_panel.admin_promo_codes') }}" class="nav-link {{ 'active' if request.endpoint == 'admin_panel.admin_promo_codes' else '' }}">
                             <i class="fas fa-percent"></i>
                             <span>Promo Codes</span>

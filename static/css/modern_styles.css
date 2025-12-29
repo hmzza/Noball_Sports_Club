@@ -1386,6 +1386,125 @@ h1, h2, h3, h4, h5, h6 {
     transform: scale(1.2);
 }
 
+/* Corporate Events */
+.corporate-modern {
+    background: var(--gray-50);
+    padding: var(--space-20) 0;
+}
+
+.corporate-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-6);
+    flex-wrap: wrap;
+}
+
+.corporate-cta {
+    display: flex;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+}
+
+.corporate-grid {
+    margin-top: var(--space-8);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-4);
+}
+
+.corporate-card {
+    background: var(--white);
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--gray-100);
+}
+
+.corporate-card.placeholder {
+    border: 1px dashed var(--gray-200);
+    background: rgba(255, 255, 255, 0.7);
+}
+
+.corporate-media {
+    position: relative;
+    height: 220px;
+    background: var(--gray-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.corporate-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.corporate-logo {
+    position: absolute;
+    bottom: var(--space-3);
+    right: var(--space-3);
+    background: var(--white);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.corporate-logo img {
+    height: 42px;
+    width: auto;
+    object-fit: contain;
+}
+
+.corporate-pill {
+    position: absolute;
+    top: var(--space-3);
+    left: var(--space-3);
+    background: var(--accent-gradient);
+    color: var(--white);
+    padding: 0.35rem 0.9rem;
+    border-radius: var(--radius-full);
+    font-weight: 700;
+    font-size: 0.9rem;
+    box-shadow: var(--shadow-md);
+}
+
+.corporate-body {
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.corporate-meta {
+    display: flex;
+    gap: var(--space-3);
+    align-items: center;
+    color: var(--gray-600);
+    font-weight: 600;
+}
+
+.corporate-meta .company {
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.corporate-meta .company::before {
+    content: "•";
+    color: var(--gray-400);
+}
+
+.corporate-meta .date {
+    color: var(--gray-500);
+    font-weight: 500;
+}
 /* Image Modal */
 .image-modal {
     position: fixed;
@@ -1681,6 +1800,20 @@ h1, h2, h3, h4, h5, h6 {
     
     .sports-modern, .gallery-modern, .experience-modern, .contact-modern {
         padding: var(--space-16) 0;
+    }
+
+    .corporate-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .corporate-cta {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .corporate-grid {
+        grid-template-columns: 1fr;
     }
     
     .hero-title {

@@ -562,14 +562,14 @@ class AdminRole:
                 'view_dashboard', 'view_schedule', 'view_bookings', 'view_pricing',
                 'view_promo_codes', 'view_expenses', 'view_reports', 'view_revenue',
                 'manage_bookings', 'manage_schedule', 'manage_pricing', 
-                'manage_promo_codes', 'manage_expenses', 'manage_users',
+                'manage_promo_codes', 'manage_expenses', 'manage_users', 'manage_content',
                 'edit_users', 'lock_users', 'create_users', 'view_logs', 'delete_logs'
             ],
             cls.ADMIN: [
                 'view_dashboard', 'view_schedule', 'view_bookings', 'view_pricing',
                 'view_promo_codes', 'view_expenses', 'view_reports', 'view_revenue',
                 'manage_bookings', 'manage_schedule', 'manage_pricing', 
-                'manage_promo_codes', 'manage_expenses', 'view_logs'
+                'manage_promo_codes', 'manage_expenses', 'manage_content', 'view_logs'
             ],
             cls.STAFF: [
                 'view_dashboard', 'view_schedule', 'view_bookings', 'manage_bookings'
