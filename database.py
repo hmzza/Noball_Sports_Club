@@ -93,6 +93,32 @@ class DatabaseManager:
     @staticmethod
     def init_database():
         """Initialize database tables"""
+        def _table_exists(name: str) -> bool:
+            try:
+                res = DatabaseManager.execute_query(
+                    "SELECT to_regclass(%s) AS tbl", (name,), fetch_one=True
+                )
+                return bool(res and res.get("tbl"))
+            except Exception:
+                return False
+
+        def _ensure_table(name: str, create_sql: str) -> bool:
+            """Create table if missing; tolerate duplicate errors."""
+            if _table_exists(name):
+                return True
+            try:
+                res = DatabaseManager.execute_query(create_sql, fetch_all=False)
+                if res is None:
+                    # Some drivers return None for DDL success; verify existence
+                    return _table_exists(name)
+                return True
+            except Exception as exc:
+                # If table now exists after the exception, treat as success to be idempotent
+                if _table_exists(name):
+                    return True
+                logger.error(f"Failed creating table {name}: {exc}")
+                return False
+
         try:
             # If we can't connect, skip initialization but don't crash the app
             if not DatabaseManager.test_connection():
@@ -352,34 +378,34 @@ class DatabaseManager:
                 success = False
 
             # Ensure new content tables are present even if the big block failed on older deployments
-            content_tables = [
-                """
-                CREATE TABLE IF NOT EXISTS corporate_events (
-                    id SERIAL PRIMARY KEY,
-                    company_name VARCHAR(150) NOT NULL,
-                    title VARCHAR(200) NOT NULL,
-                    description TEXT,
-                    event_image VARCHAR(255) NOT NULL,
-                    logo_image VARCHAR(255),
-                    event_date DATE,
-                    display_order INTEGER DEFAULT 0,
-                    is_active BOOLEAN DEFAULT TRUE,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                );
+            content_tables = {
+                "corporate_events": """
+                    CREATE TABLE IF NOT EXISTS corporate_events (
+                        id SERIAL PRIMARY KEY,
+                        company_name VARCHAR(150) NOT NULL,
+                        title VARCHAR(200) NOT NULL,
+                        description TEXT,
+                        event_image VARCHAR(255) NOT NULL,
+                        logo_image VARCHAR(255),
+                        event_date DATE,
+                        display_order INTEGER DEFAULT 0,
+                        is_active BOOLEAN DEFAULT TRUE,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    );
                 """,
-                """
-                CREATE TABLE IF NOT EXISTS gallery_photos (
-                    id SERIAL PRIMARY KEY,
-                    title VARCHAR(200),
-                    description TEXT,
-                    image_path VARCHAR(255) NOT NULL,
-                    display_order INTEGER DEFAULT 0,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                );
+                "gallery_photos": """
+                    CREATE TABLE IF NOT EXISTS gallery_photos (
+                        id SERIAL PRIMARY KEY,
+                        title VARCHAR(200),
+                        description TEXT,
+                        image_path VARCHAR(255) NOT NULL,
+                        display_order INTEGER DEFAULT 0,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    );
                 """,
-            ]
-            for stmt in content_tables:
-                if DatabaseManager.execute_query(stmt, fetch_all=False) is None:
+            }
+            for tbl, stmt in content_tables.items():
+                if not _ensure_table(tbl, stmt):
                     success = False
 
             if success:
