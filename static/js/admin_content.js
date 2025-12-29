@@ -32,8 +32,9 @@
         if (/^https?:\/\//i.test(path)) return path;
         const clean = path.replace(/^\/+/, "");
         if (clean.startsWith("uploads/")) {
-            const filename = clean.replace(/^uploads\//, "");
-            return `/uploads/${encodeURIComponent(filename)}`;
+            const stripped = clean.replace(/^uploads\//, "");
+            const parts = stripped.split("/").map((p) => encodeURIComponent(p));
+            return `/uploads/${parts.join("/")}`;
         }
         return `${staticBase}${clean}`;
     }
