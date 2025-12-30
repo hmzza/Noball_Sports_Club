@@ -177,6 +177,17 @@
             <section class="panel">
                 <h2>Corporate Events</h2>
                 <p class="hint">Post company spotlights with a hero image, logo, and a short blurb.</p>
+                {% if storage_info and storage_info.mode %}
+                    {% if storage_info.mode == 'spaces' %}
+                        <p class="hint" style="margin-top:-0.5rem">
+                            Upload storage: <strong>Spaces</strong> ({{ storage_info.bucket }} / {{ storage_info.region }})
+                        </p>
+                    {% else %}
+                        <p class="hint" style="margin-top:-0.5rem; color:#b45309">
+                            Upload storage: <strong>Local</strong> (not reliable on production). Set Spaces env vars to fix missing images.
+                        </p>
+                    {% endif %}
+                {% endif %}
 
                 <form id="corporate-form" class="stack" enctype="multipart/form-data" method="post">
                     <div class="field">

@@ -14,19 +14,32 @@ from database import DatabaseManager
 logger = logging.getLogger(__name__)
 
 ALLOWED_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
+_SPACES_CONFIG_LOGGED = False
 
 def _spaces_config() -> Optional[Dict[str, str]]:
     """Return Spaces config if enabled via env vars."""
     bucket = os.environ.get("SPACES_BUCKET")
-    key = os.environ.get("SPACES_KEY") or os.environ.get("SPACES_ACCESS_KEY_ID")
-    secret = os.environ.get("SPACES_SECRET") or os.environ.get("SPACES_SECRET_ACCESS_KEY")
-    region = os.environ.get("SPACES_REGION", "sgp1")
+    key = (
+        os.environ.get("SPACES_KEY")
+        or os.environ.get("SPACES_ACCESS_KEY_ID")
+        or os.environ.get("SPACES_ACCESS_KEY")
+        or os.environ.get("AWS_ACCESS_KEY_ID")
+        or os.environ.get("AWS_ACCESS_KEY")
+    )
+    secret = (
+        os.environ.get("SPACES_SECRET")
+        or os.environ.get("SPACES_SECRET_ACCESS_KEY")
+        or os.environ.get("SPACES_SECRET_KEY")
+        or os.environ.get("AWS_SECRET_ACCESS_KEY")
+        or os.environ.get("AWS_SECRET_KEY")
+    )
+    region = os.environ.get("SPACES_REGION") or os.environ.get("AWS_REGION") or os.environ.get("AWS_DEFAULT_REGION") or "sgp1"
     if not bucket or not key or not secret:
         return None
     endpoint = os.environ.get("SPACES_ENDPOINT") or f"https://{region}.digitaloceanspaces.com"
     public_base = os.environ.get("SPACES_PUBLIC_BASE") or f"https://{bucket}.{region}.digitaloceanspaces.com"
     prefix = os.environ.get("SPACES_PREFIX", "uploads").strip("/ ")
-    return {
+    cfg = {
         "bucket": bucket,
         "key": key,
         "secret": secret,
@@ -34,6 +47,32 @@ def _spaces_config() -> Optional[Dict[str, str]]:
         "endpoint": endpoint,
         "public_base": public_base.rstrip("/"),
         "prefix": prefix,
+    }
+    global _SPACES_CONFIG_LOGGED
+    if not _SPACES_CONFIG_LOGGED:
+        _SPACES_CONFIG_LOGGED = True
+        logger.info(
+            "Spaces upload enabled (bucket=%s region=%s endpoint=%s prefix=%s public_base=%s)",
+            cfg["bucket"],
+            cfg["region"],
+            cfg["endpoint"],
+            cfg["prefix"],
+            cfg["public_base"],
+        )
+    return cfg
+
+
+def get_upload_storage_info() -> Dict[str, Optional[str]]:
+    """Return safe, non-secret storage info for debugging/admin UI."""
+    cfg = _spaces_config()
+    if not cfg:
+        return {"mode": "local", "bucket": None, "region": None, "public_base": None, "prefix": None}
+    return {
+        "mode": "spaces",
+        "bucket": cfg.get("bucket"),
+        "region": cfg.get("region"),
+        "public_base": cfg.get("public_base"),
+        "prefix": cfg.get("prefix"),
     }
 
 

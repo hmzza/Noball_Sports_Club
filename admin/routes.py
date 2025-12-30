@@ -148,10 +148,16 @@ def admin_content():
     try:
         events = ContentService.get_corporate_events()
         gallery_items = ContentService.get_gallery_photos()
-        return render_template("admin_content.html", events=events, gallery_items=gallery_items)
+        storage_info = {}
+        try:
+            from services.content_service import get_upload_storage_info
+            storage_info = get_upload_storage_info()
+        except Exception:
+            storage_info = {}
+        return render_template("admin_content.html", events=events, gallery_items=gallery_items, storage_info=storage_info)
     except Exception as e:
         logger.error(f"Error loading content manager: {e}")
-        return render_template("admin_content.html", events=[], gallery_items=[], error=str(e))
+        return render_template("admin_content.html", events=[], gallery_items=[], error=str(e), storage_info={})
 
 # User Management Routes (Super Admin Only)
 @admin_bp.route("/users")
