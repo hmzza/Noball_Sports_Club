@@ -45,7 +45,6 @@ def _upload_to_spaces(file_storage, subfolder: str, filename: str) -> str:
 
     try:
         import boto3  # type: ignore
-        from boto3.s3.transfer import TransferConfig  # type: ignore
         from botocore.exceptions import ClientError  # type: ignore
     except Exception as exc:  # pragma: no cover
         raise RuntimeError("boto3 is required for Spaces uploads") from exc
@@ -61,18 +60,13 @@ def _upload_to_spaces(file_storage, subfolder: str, filename: str) -> str:
 
     object_key = f"{cfg['prefix']}/{subfolder}/{filename}".lstrip("/")
     content_type = getattr(file_storage, "mimetype", None) or "application/octet-stream"
-    # Ensure stream is at beginning
+    # Read into memory so retries don't fail with "I/O operation on closed file"
+    # (some transfer paths may close the underlying stream on errors).
     try:
         file_storage.stream.seek(0)
     except Exception:
         pass
-
-    # Avoid multipart uploads for typical images to prevent some providers from
-    # rejecting ACL parameters on CreateMultipartUpload.
-    transfer_cfg = TransferConfig(
-        multipart_threshold=64 * 1024 * 1024,  # 64MB
-        multipart_chunksize=16 * 1024 * 1024,  # 16MB
-    )
+    data = file_storage.stream.read()
 
     # Some bucket types/settings reject ACL headers (common with "ACLs disabled"
     # or certain storage tiers). Try with public-read first, then retry without.
@@ -83,28 +77,22 @@ def _upload_to_spaces(file_storage, subfolder: str, filename: str) -> str:
     }
 
     try:
-        client.upload_fileobj(
-            file_storage.stream,
-            cfg["bucket"],
-            object_key,
-            ExtraArgs=extra_args,
-            Config=transfer_cfg,
+        client.put_object(
+            Bucket=cfg["bucket"],
+            Key=object_key,
+            Body=data,
+            **extra_args,
         )
     except ClientError as exc:
         code = (exc.response or {}).get("Error", {}).get("Code", "")
         if code in {"UnsupportedAclConfigurationException", "AccessControlListNotSupported"}:
             extra_args.pop("ACL", None)
             try:
-                file_storage.stream.seek(0)
-            except Exception:
-                pass
-            try:
-                client.upload_fileobj(
-                    file_storage.stream,
-                    cfg["bucket"],
-                    object_key,
-                    ExtraArgs=extra_args,
-                    Config=transfer_cfg,
+                client.put_object(
+                    Bucket=cfg["bucket"],
+                    Key=object_key,
+                    Body=data,
+                    **extra_args,
                 )
             except ClientError as exc2:
                 raise RuntimeError(
