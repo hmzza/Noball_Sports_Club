@@ -91,8 +91,57 @@ class PromoService:
     def create_promo_code(promo_data: Dict) -> Tuple[bool, str]:
         """Create a new promo code"""
         try:
+            data = promo_data or {}
+            code_val = (data.get('code') or '').upper().strip()
+            if not code_val:
+                return False, "Promo code is required"
+            discount_type = (data.get('discount_type') or 'percentage').lower()
+            if discount_type not in ('percentage', 'fixed_amount'):
+                discount_type = 'percentage'
+            try:
+                discount_value = int(data.get('discount_value', 0))
+            except Exception:
+                return False, "Invalid discount value"
+            if discount_value <= 0:
+                return False, "Discount value must be greater than 0"
+
+            def _parse_int(val):
+                try:
+                    return int(val) if val not in (None, '') else None
+                except Exception:
+                    return None
+
+            def _parse_date(val):
+                if not val:
+                    return None
+                if isinstance(val, date):
+                    return val
+                try:
+                    return datetime.strptime(val, "%Y-%m-%d").date()
+                except Exception:
+                    return None
+
+            min_amount = _parse_int(data.get('min_amount'))
+            max_discount = _parse_int(data.get('max_discount'))
+            usage_limit = _parse_int(data.get('usage_limit'))
+            valid_from = _parse_date(data.get('valid_from'))
+            valid_until = _parse_date(data.get('valid_until'))
+
+            applicable_sports = data.get('applicable_sports')
+            if isinstance(applicable_sports, str):
+                # accept comma-separated or JSON
+                if applicable_sports.strip().startswith('['):
+                    try:
+                        applicable_sports = json.loads(applicable_sports)
+                    except Exception:
+                        applicable_sports = None
+                else:
+                    applicable_sports = [s.strip() for s in applicable_sports.split(',') if s.strip()]
+            if isinstance(applicable_sports, list) and not applicable_sports:
+                applicable_sports = None
+
             # Check if code already exists
-            existing = PromoService.get_promo_code_by_code(promo_data.get('code', ''))
+            existing = PromoService.get_promo_code_by_code(code_val)
             if existing:
                 return False, "Promo code already exists"
             
@@ -104,21 +153,21 @@ class PromoService:
             """
             
             params = (
-                promo_data.get('code', '').upper(),
-                promo_data.get('description', ''),
-                promo_data.get('discount_type', 'percentage'),
-                int(promo_data.get('discount_value', 0)),
-                int(promo_data.get('min_amount')) if promo_data.get('min_amount') else None,
-                int(promo_data.get('max_discount')) if promo_data.get('max_discount') else None,
-                int(promo_data.get('usage_limit')) if promo_data.get('usage_limit') else None,
-                promo_data.get('valid_from'),
-                promo_data.get('valid_until'),
-                promo_data.get('applicable_sports')
+                code_val,
+                data.get('description', ''),
+                discount_type,
+                discount_value,
+                min_amount,
+                max_discount,
+                usage_limit,
+                valid_from,
+                valid_until,
+                json.dumps(applicable_sports) if applicable_sports else None,
             )
             
             result = DatabaseManager.execute_query(insert_query, params, fetch_all=False)
             
-            if result is not None:
+            if result is not None and result > 0:
                 logger.info(f"Created promo code: {promo_data.get('code')}")
                 return True, f"Promo code '{promo_data.get('code')}' created successfully"
             else:
@@ -132,6 +181,51 @@ class PromoService:
     def update_promo_code(code: str, promo_data: Dict) -> Tuple[bool, str]:
         """Update an existing promo code"""
         try:
+            data = promo_data or {}
+            discount_type = (data.get('discount_type') or 'percentage').lower()
+            if discount_type not in ('percentage', 'fixed_amount'):
+                discount_type = 'percentage'
+            try:
+                discount_value = int(data.get('discount_value', 0))
+            except Exception:
+                return False, "Invalid discount value"
+            if discount_value <= 0:
+                return False, "Discount value must be greater than 0"
+
+            def _parse_int(val):
+                try:
+                    return int(val) if val not in (None, '') else None
+                except Exception:
+                    return None
+
+            def _parse_date(val):
+                if not val:
+                    return None
+                if isinstance(val, date):
+                    return val
+                try:
+                    return datetime.strptime(val, "%Y-%m-%d").date()
+                except Exception:
+                    return None
+
+            min_amount = _parse_int(data.get('min_amount'))
+            max_discount = _parse_int(data.get('max_discount'))
+            usage_limit = _parse_int(data.get('usage_limit'))
+            valid_from = _parse_date(data.get('valid_from'))
+            valid_until = _parse_date(data.get('valid_until'))
+
+            applicable_sports = data.get('applicable_sports')
+            if isinstance(applicable_sports, str):
+                if applicable_sports.strip().startswith('['):
+                    try:
+                        applicable_sports = json.loads(applicable_sports)
+                    except Exception:
+                        applicable_sports = None
+                else:
+                    applicable_sports = [s.strip() for s in applicable_sports.split(',') if s.strip()]
+            if isinstance(applicable_sports, list) and not applicable_sports:
+                applicable_sports = None
+
             update_query = """
                 UPDATE promo_codes 
                 SET description = %s, discount_type = %s, discount_value = %s, 
@@ -142,16 +236,16 @@ class PromoService:
             """
             
             params = (
-                promo_data.get('description', ''),
-                promo_data.get('discount_type', 'percentage'),
-                int(promo_data.get('discount_value', 0)),
-                int(promo_data.get('min_amount')) if promo_data.get('min_amount') else None,
-                int(promo_data.get('max_discount')) if promo_data.get('max_discount') else None,
-                int(promo_data.get('usage_limit')) if promo_data.get('usage_limit') else None,
-                promo_data.get('valid_from'),
-                promo_data.get('valid_until'),
-                promo_data.get('applicable_sports'),
-                bool(promo_data.get('is_active', True)),
+                data.get('description', ''),
+                discount_type,
+                discount_value,
+                min_amount,
+                max_discount,
+                usage_limit,
+                valid_from,
+                valid_until,
+                json.dumps(applicable_sports) if applicable_sports else None,
+                bool(data.get('is_active', True)),
                 code
             )
             
