@@ -580,6 +580,18 @@ class DatabaseManager:
             for col, col_def in expense_columns.items():
                 _ensure_column("expenses", col, col_def)
 
+            # Ensure blocked_slots has expected columns (older deployments)
+            blocked_columns = {
+                "court": "VARCHAR(50)",
+                "date": "DATE",
+                "time_slot": "TIME",
+                "reason": "TEXT",
+                "blocked_by": "VARCHAR(100) DEFAULT 'admin'",
+                "created_at": "TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
+            }
+            for col, col_def in blocked_columns.items():
+                _ensure_column("blocked_slots", col, col_def)
+
             # Create indexes after columns exist (run individually to avoid rolling back init)
             index_statements = [
                 "CREATE INDEX IF NOT EXISTS idx_bookings_date_court ON bookings(booking_date, court, status);",

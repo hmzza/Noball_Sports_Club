@@ -1208,6 +1208,22 @@ document.addEventListener("DOMContentLoaded", function () {
   console.log("🚀 Initializing Booking System...");
   window.bookingSystem = new BookingSystem();
   console.log("✅ Booking System initialized successfully");
+
+  // Wire promo apply button & enter key
+  const applyBtn = document.getElementById('apply-promo-btn');
+  applyBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.bookingSystem?.applyPromoCode();
+  });
+  const promoInput = document.getElementById('promo-code-input');
+  if (promoInput) {
+    promoInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        window.bookingSystem?.applyPromoCode();
+      }
+    });
+  }
 });
 
 // Debug helpers
