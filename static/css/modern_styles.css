@@ -1813,7 +1813,28 @@ h1, h2, h3, h4, h5, h6 {
     }
 
     .corporate-grid {
-        grid-template-columns: 1fr;
+        display: flex;
+        grid-template-columns: none;
+        gap: var(--space-4);
+        overflow-x: auto;
+        padding-bottom: var(--space-4);
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .corporate-grid::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .corporate-grid::-webkit-scrollbar-thumb {
+        background: rgba(148, 163, 184, 0.5);
+        border-radius: 999px;
+    }
+
+    .corporate-card {
+        flex: 0 0 86%;
+        max-width: 420px;
+        scroll-snap-align: start;
     }
     
     .hero-title {

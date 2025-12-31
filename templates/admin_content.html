@@ -207,6 +207,11 @@
                         <input type="date" id="eventDate" name="event_date">
                     </div>
                     <div class="field">
+                        <label for="eventPriority">Priority</label>
+                        <input type="number" id="eventPriority" name="display_order" placeholder="0" min="-1000" max="1000">
+                        <span class="muted">Higher number shows first.</span>
+                    </div>
+                    <div class="field">
                         <label for="eventImage">Feature Image *</label>
                         <input type="file" id="eventImage" name="event_image" accept=".jpg,.jpeg,.png,.webp" required>
                     </div>

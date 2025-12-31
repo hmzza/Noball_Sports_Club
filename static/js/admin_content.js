@@ -56,6 +56,22 @@
         return isNaN(d.getTime()) ? "" : d.toLocaleDateString();
     }
 
+    function eventPriority(ev) {
+        const raw = ev?.display_order ?? ev?.priority ?? 0;
+        const value = Number(raw);
+        return Number.isFinite(value) ? value : 0;
+    }
+
+    function sortEvents(list) {
+        return [...(list || [])].sort((a, b) => {
+            const orderDiff = eventPriority(b) - eventPriority(a);
+            if (orderDiff !== 0) return orderDiff;
+            const aTime = Date.parse(a?.created_at || "") || 0;
+            const bTime = Date.parse(b?.created_at || "") || 0;
+            return bTime - aTime;
+        });
+    }
+
     function renderCorporate() {
         corporateList.innerHTML = "";
         if (!events.length) {
@@ -88,7 +104,9 @@
 
             const meta = document.createElement("div");
             meta.className = "chip";
-            meta.textContent = formatDate(ev.event_date) || "No date set";
+            const priority = eventPriority(ev);
+            const dateLabel = formatDate(ev.event_date);
+            meta.textContent = [`Priority ${priority}`, dateLabel || "No date set"].join(" • ");
 
             content.appendChild(heading);
             if (sub.textContent) content.appendChild(sub);
@@ -188,6 +206,7 @@
             } else {
                 events = [data.event, ...events];
             }
+            events = sortEvents(events);
             renderCorporate();
             corporateForm.reset();
             delete corporateForm.dataset.editingId;
@@ -277,6 +296,8 @@
             corporateForm.querySelector("#eventTitle").value = ev.title || "";
             corporateForm.querySelector("#eventDesc").value = ev.description || "";
             corporateForm.querySelector("#eventDate").value = ev.event_date ? ev.event_date.toString().slice(0, 10) : "";
+            const priorityEl = corporateForm.querySelector("#eventPriority");
+            if (priorityEl) priorityEl.value = String(eventPriority(ev));
             const submitText = corporateForm.querySelector("button[type='submit'] .btn-text");
             if (submitText) submitText.textContent = "Update Event";
             setStatus(corporateStatus, "Editing mode — update and submit");
@@ -291,6 +312,7 @@
         deleteGallery(id);
     });
 
+    events = sortEvents(events);
     renderCorporate();
     renderGallery();
 })();

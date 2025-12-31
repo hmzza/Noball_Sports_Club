@@ -474,6 +474,11 @@ def api_corporate_events():
         title = request.form.get("title")
         description = request.form.get("description", "")
         event_date = request.form.get("event_date") or None
+        display_order_raw = request.form.get("display_order") or request.form.get("priority")
+        try:
+            display_order = int(display_order_raw) if display_order_raw not in (None, "") else 0
+        except ValueError:
+            display_order = 0
         event_image = request.files.get("event_image")
         logo_image = request.files.get("logo_image")
 
@@ -483,7 +488,8 @@ def api_corporate_events():
             description=description,
             event_image=event_image,
             logo_image=logo_image,
-            event_date=event_date
+            event_date=event_date,
+            display_order=display_order,
         )
 
         if created:
@@ -514,11 +520,19 @@ def api_delete_corporate_event(event_id):
 def api_update_corporate_event(event_id):
     """Update a corporate event post"""
     try:
+        display_order_raw = request.form.get("display_order") or request.form.get("priority")
+        display_order = None
+        if display_order_raw not in (None, ""):
+            try:
+                display_order = int(display_order_raw)
+            except ValueError:
+                display_order = None
         updates = {
             "company_name": request.form.get("companyName") or request.form.get("company_name"),
             "title": request.form.get("title"),
             "description": request.form.get("description"),
             "event_date": request.form.get("event_date") or None,
+            "display_order": display_order,
         }
         event_image = request.files.get("event_image")
         logo_image = request.files.get("logo_image")

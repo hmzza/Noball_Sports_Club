@@ -226,24 +226,26 @@ class ContentService:
     # ---- Corporate Events ----
     @staticmethod
     def add_corporate_event(company_name: str, title: str, description: str, event_image, logo_image=None,
-                            event_date: Optional[str] = None) -> Dict:
+                            event_date: Optional[str] = None, display_order: Optional[int] = None) -> Dict:
         """Create a corporate event post with images."""
         if not company_name or not title:
             raise ValueError("Company name and title are required")
         if event_date == "":
             event_date = None
+        if display_order is None:
+            display_order = 0
 
         event_image_path = _save_image(event_image, "corporate")
         logo_image_path = _save_image(logo_image, "corporate") if logo_image and logo_image.filename else None
 
         query = """
-            INSERT INTO corporate_events (company_name, title, description, event_image, logo_image, event_date)
-            VALUES (%s, %s, %s, %s, %s, %s)
-            RETURNING id, company_name, title, description, event_image, logo_image, event_date, created_at
+            INSERT INTO corporate_events (company_name, title, description, event_image, logo_image, event_date, display_order)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            RETURNING id, company_name, title, description, event_image, logo_image, event_date, display_order, created_at
         """
         result = DatabaseManager.execute_query(
             query,
-            (company_name, title, description, event_image_path, logo_image_path, event_date),
+            (company_name, title, description, event_image_path, logo_image_path, event_date, display_order),
             fetch_one=True
         )
         if not result:
@@ -256,7 +258,7 @@ class ContentService:
         fields = []
         params = []
 
-        for key in ["company_name", "title", "description", "event_date"]:
+        for key in ["company_name", "title", "description", "event_date", "display_order"]:
             if updates.get(key) not in (None, ""):
                 fields.append(f"{key} = %s")
                 params.append(updates[key])
@@ -294,7 +296,7 @@ class ContentService:
     def get_corporate_events(limit: Optional[int] = None) -> List[Dict]:
         """Fetch active corporate events ordered by display + recency."""
         base_query = """
-            SELECT id, company_name, title, description, event_image, logo_image, event_date, created_at
+            SELECT id, company_name, title, description, event_image, logo_image, event_date, display_order, created_at
             FROM corporate_events
             WHERE is_active = TRUE
             ORDER BY display_order DESC, created_at DESC
