@@ -167,14 +167,10 @@
                     </p>
                 </div>
                 <div class="corporate-cta">
-                    <a href="#contact" class="btn-modern primary">
+                    <button type="button" class="btn-modern primary" id="corporate-book-btn">
                         <span class="btn-text">Book your corporate event</span>
                         <i class="fas fa-briefcase"></i>
-                    </a>
-                    <a href="https://wa.me/{{ whatsapp_number }}?text=Hi%20Team%20NoBall%2C%20we%20want%20a%20corporate%20event%20quote" target="_blank" class="btn-modern secondary">
-                        <span class="btn-text">Get a quote</span>
-                        <i class="fas fa-comment-dollar"></i>
-                    </a>
+                    </button>
                 </div>
             </div>
 
@@ -293,6 +289,60 @@
             <div class="modal-info">
                 <h3 id="modal-title"></h3>
             </div>
+        </div>
+    </div>
+
+    <!-- Corporate Inquiry Modal -->
+    <div class="form-modal" id="corporate-modal" aria-hidden="true">
+        <div class="modal-backdrop" id="corporate-modal-backdrop"></div>
+        <div class="modal-content form-content" role="dialog" aria-modal="true" aria-labelledby="corporate-modal-title">
+            <button class="modal-close" id="corporate-modal-close" type="button" aria-label="Close">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-info">
+                <h3 id="corporate-modal-title">Corporate Event Request</h3>
+                <p class="modal-subtitle">Share your details and we’ll get back with availability and options.</p>
+            </div>
+            <form id="corporate-inquiry-form" class="modal-form">
+                <div class="form-grid">
+                    <label class="form-field">
+                        <span>Company Name *</span>
+                        <input name="company_name" type="text" required placeholder="Company / Team name">
+                    </label>
+                    <label class="form-field">
+                        <span>Contact Person</span>
+                        <input name="contact_name" type="text" placeholder="Your name">
+                    </label>
+                    <label class="form-field">
+                        <span>Phone *</span>
+                        <input name="contact_phone" type="tel" required placeholder="+92...">
+                    </label>
+                    <label class="form-field">
+                        <span>Email</span>
+                        <input name="contact_email" type="email" placeholder="name@company.com">
+                    </label>
+                    <label class="form-field">
+                        <span>Preferred Date</span>
+                        <input name="preferred_date" type="date">
+                    </label>
+                    <label class="form-field">
+                        <span>Attendees (approx.)</span>
+                        <input name="attendees" type="number" min="1" max="2000" placeholder="e.g. 20">
+                    </label>
+                    <label class="form-field form-field-wide">
+                        <span>Details</span>
+                        <textarea name="message" rows="4" placeholder="What are you planning? (sports, timing, format, etc.)"></textarea>
+                    </label>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-modern secondary" type="button" id="corporate-cancel-btn">Cancel</button>
+                    <button class="btn-modern primary" type="submit" id="corporate-submit-btn">
+                        <span class="btn-text">Send Request</span>
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                <div class="modal-status" id="corporate-form-status" role="status" aria-live="polite"></div>
+            </form>
         </div>
     </div>
 
@@ -732,6 +782,37 @@
             document.body.style.overflow = 'auto';
         }
 
+        function openCorporateModal() {
+            const modal = document.getElementById('corporate-modal');
+            if (!modal) return;
+            modal.classList.add('active');
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCorporateModal() {
+            const modal = document.getElementById('corporate-modal');
+            const status = document.getElementById('corporate-form-status');
+            if (!modal) return;
+            modal.classList.remove('active');
+            modal.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = 'auto';
+            if (status) status.textContent = '';
+        }
+
+        async function submitCorporateInquiry(payload) {
+            const res = await fetch('/api/corporate-inquiry', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok || !data.success) {
+                throw new Error(data.message || `Failed (${res.status})`);
+            }
+            return data;
+        }
+
         // Auto-slide gallery moved inside DOMContentLoaded for safety
         
         // Mobile menu toggle function (backup)
@@ -761,6 +842,49 @@
             if (totalSlides > 1) {
                 setInterval(nextSlide, 5000);
             }
+
+            // Corporate inquiry modal wiring
+            const bookBtn = document.getElementById('corporate-book-btn');
+            const modalBackdrop = document.getElementById('corporate-modal-backdrop');
+            const modalClose = document.getElementById('corporate-modal-close');
+            const cancelBtn = document.getElementById('corporate-cancel-btn');
+            const form = document.getElementById('corporate-inquiry-form');
+            const status = document.getElementById('corporate-form-status');
+            const submitBtn = document.getElementById('corporate-submit-btn');
+
+            bookBtn?.addEventListener('click', (e) => {
+                e.preventDefault();
+                openCorporateModal();
+            });
+            modalBackdrop?.addEventListener('click', closeCorporateModal);
+            modalClose?.addEventListener('click', closeCorporateModal);
+            cancelBtn?.addEventListener('click', closeCorporateModal);
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeCorporateModal();
+            });
+
+            form?.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (!status || !submitBtn) return;
+
+                const formData = new FormData(form);
+                const payload = Object.fromEntries(formData.entries());
+                if (payload.attendees) payload.attendees = Number(payload.attendees);
+
+                status.textContent = 'Sending...';
+                submitBtn.disabled = true;
+                try {
+                    await submitCorporateInquiry(payload);
+                    status.textContent = 'Request sent. Our team will reach out shortly.';
+                    form.reset();
+                    setTimeout(closeCorporateModal, 1200);
+                } catch (err) {
+                    console.error(err);
+                    status.textContent = err.message || 'Unable to send request';
+                } finally {
+                    submitBtn.disabled = false;
+                }
+            });
             
             // Mobile menu toggle
             const mobileToggle = document.getElementById('mobile-toggle');

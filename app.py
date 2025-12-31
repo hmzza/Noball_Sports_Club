@@ -217,6 +217,28 @@ def register_main_routes(app):
 def register_api_routes(app):
     """Register API routes"""
 
+    @app.route("/api/corporate-inquiry", methods=["POST"])
+    def create_corporate_inquiry():
+        """Public endpoint: submit a corporate event inquiry from the website."""
+        try:
+            payload = request.get_json(force=True) or {}
+            from services.corporate_inquiry_service import CorporateInquiryService
+            inquiry = CorporateInquiryService.create_inquiry(payload)
+            if not inquiry:
+                return jsonify({"success": False, "message": "Unable to create inquiry"}), 400
+
+            # Email notification to internal team (optional, if SMTP configured)
+            notify_to = os.environ.get("CORPORATE_INQUIRY_NOTIFY_EMAIL") or os.environ.get("EMAIL_FROM") or "noballarena@gmail.com"
+            try:
+                EmailService.send_corporate_inquiry_notification(notify_to, inquiry)
+            except Exception:
+                pass
+
+            return jsonify({"success": True, "inquiry": inquiry})
+        except Exception as e:
+            logger.error(f"Corporate inquiry error: {e}")
+            return jsonify({"success": False, "message": str(e)}), 400
+
     @app.route("/api/booked-slots", methods=["POST"])
     def get_booked_slots():
         """

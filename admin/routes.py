@@ -140,6 +140,20 @@ def admin_contacts():
         logger.error(f"Error loading contacts: {e}")
         return render_template("admin_contacts.html", contacts=[])
 
+@admin_bp.route("/corporate-inquiries")
+@require_auth
+@require_permission('view_reports')
+def admin_corporate_inquiries():
+    """Corporate event inquiry submissions"""
+    try:
+        from services.corporate_inquiry_service import CorporateInquiryService
+        inquiries = CorporateInquiryService.list_inquiries()
+        unread_count = CorporateInquiryService.unread_count()
+        return render_template("admin_corporate_inquiries.html", inquiries=inquiries, unread_count=unread_count)
+    except Exception as e:
+        logger.error(f"Error loading corporate inquiries: {e}")
+        return render_template("admin_corporate_inquiries.html", inquiries=[], unread_count=0, error=str(e))
+
 @admin_bp.route("/content")
 @require_auth
 @require_permission('manage_content')
@@ -158,6 +172,58 @@ def admin_content():
     except Exception as e:
         logger.error(f"Error loading content manager: {e}")
         return render_template("admin_content.html", events=[], gallery_items=[], error=str(e), storage_info={})
+
+@admin_bp.route("/api/corporate-inquiries", methods=["GET"])
+@require_auth
+@require_permission('view_reports')
+def api_corporate_inquiries():
+    """List corporate inquiries"""
+    try:
+        from services.corporate_inquiry_service import CorporateInquiryService
+        status = request.args.get("status") or None
+        items = CorporateInquiryService.list_inquiries(status=status)
+        return jsonify({"success": True, "items": items})
+    except Exception as e:
+        logger.error(f"Corporate inquiries list error: {e}")
+        return jsonify({"success": False, "message": str(e)}), 400
+
+@admin_bp.route("/api/corporate-inquiries/unread-count", methods=["GET"])
+@require_auth
+@require_permission('view_reports')
+def api_corporate_inquiries_unread_count():
+    """Unread corporate inquiries count for nav badge"""
+    try:
+        from services.corporate_inquiry_service import CorporateInquiryService
+        return jsonify({"success": True, "count": CorporateInquiryService.unread_count()})
+    except Exception as e:
+        logger.error(f"Corporate inquiries count error: {e}")
+        return jsonify({"success": False, "count": 0}), 200
+
+@admin_bp.route("/api/corporate-inquiries/<int:inquiry_id>/reviewed", methods=["POST"])
+@require_auth
+@require_permission('view_reports')
+def api_corporate_inquiry_mark_reviewed(inquiry_id):
+    """Mark an inquiry reviewed"""
+    try:
+        from services.corporate_inquiry_service import CorporateInquiryService
+        ok = CorporateInquiryService.mark_reviewed(inquiry_id)
+        return jsonify({"success": bool(ok)})
+    except Exception as e:
+        logger.error(f"Corporate inquiry review error: {e}")
+        return jsonify({"success": False, "message": str(e)}), 400
+
+@admin_bp.route("/api/corporate-inquiries/<int:inquiry_id>", methods=["DELETE"])
+@require_auth
+@require_permission('view_reports')
+def api_corporate_inquiry_delete(inquiry_id):
+    """Delete an inquiry"""
+    try:
+        from services.corporate_inquiry_service import CorporateInquiryService
+        ok = CorporateInquiryService.delete_inquiry(inquiry_id)
+        return jsonify({"success": bool(ok)})
+    except Exception as e:
+        logger.error(f"Corporate inquiry delete error: {e}")
+        return jsonify({"success": False, "message": str(e)}), 400
 
 # User Management Routes (Super Admin Only)
 @admin_bp.route("/users")

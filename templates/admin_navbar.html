@@ -91,6 +91,12 @@
                             <span>Promo Codes</span>
                         </a>
 
+                        <a href="{{ url_for('admin_panel.admin_corporate_inquiries') }}" class="nav-link {{ 'active' if request.endpoint == 'admin_panel.admin_corporate_inquiries' else '' }}">
+                            <i class="fas fa-briefcase"></i>
+                            <span>Corporate Leads</span>
+                            <span class="nav-badge" id="corporateInquiryBadge" style="display:none">New</span>
+                        </a>
+
                         <a href="{{ url_for('admin_panel.admin_expenses') }}" class="nav-link {{ 'active' if request.endpoint == 'admin_panel.admin_expenses' else '' }}">
                             <i class="fas fa-money-bill-wave"></i>
                             <span>Expenses</span>
@@ -344,6 +350,18 @@
     flex-direction: column;
     gap: 0.5rem;
     margin-bottom: 2rem;
+}
+
+.nav-badge {
+    margin-left: auto;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: 0.02em;
 }
 
 .nav-link {
@@ -645,5 +663,21 @@ class AdminNavbar {
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     new AdminNavbar();
+
+    const badge = document.getElementById('corporateInquiryBadge');
+    if (badge) {
+        fetch('{{ url_for("admin_panel.api_corporate_inquiries_unread_count") }}', { credentials: 'same-origin' })
+            .then((r) => r.json())
+            .then((data) => {
+                const count = Number(data?.count || 0);
+                if (count > 0) {
+                    badge.textContent = `New ${count}`;
+                    badge.style.display = 'inline-flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+            })
+            .catch(() => {});
+    }
 });
 </script>

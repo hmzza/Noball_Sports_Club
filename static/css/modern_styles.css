@@ -1615,6 +1615,110 @@ h1, h2, h3, h4, h5, h6 {
     box-shadow: var(--shadow-2xl);
 }
 
+.form-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.65);
+    display: none;
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-6);
+}
+
+.form-modal.active {
+    display: flex;
+}
+
+.form-content {
+    width: min(680px, 92vw);
+    max-height: 90vh;
+    overflow: auto;
+    padding: var(--space-6);
+}
+
+.modal-info {
+    padding: 0;
+}
+
+.modal-subtitle {
+    margin: var(--space-2) 0 0;
+    color: var(--gray-600);
+}
+
+.modal-form {
+    margin-top: var(--space-5);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.form-field span {
+    font-weight: 700;
+    color: var(--gray-800);
+    font-size: 0.95rem;
+}
+
+.form-field input,
+.form-field textarea {
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: 0.9rem 1rem;
+    font-size: 1rem;
+    color: var(--gray-900);
+    background: var(--white);
+}
+
+.form-field textarea {
+    resize: vertical;
+}
+
+.form-field input:focus,
+.form-field textarea:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+}
+
+.form-field-wide {
+    grid-column: 1 / -1;
+}
+
+.modal-actions {
+    margin-top: var(--space-5);
+    display: flex;
+    gap: var(--space-3);
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+.modal-status {
+    margin-top: var(--space-3);
+    color: var(--gray-600);
+    font-weight: 600;
+}
+
+@media (max-width: 640px) {
+    .form-content {
+        padding: var(--space-5);
+    }
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 .modal-close {
     position: absolute;
     top: var(--space-4);

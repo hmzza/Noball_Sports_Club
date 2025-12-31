@@ -258,6 +258,20 @@ class DatabaseManager:
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
 
+                CREATE TABLE IF NOT EXISTS corporate_inquiries (
+                    id SERIAL PRIMARY KEY,
+                    company_name VARCHAR(200) NOT NULL,
+                    contact_name VARCHAR(150),
+                    contact_phone VARCHAR(30) NOT NULL,
+                    contact_email VARCHAR(150),
+                    preferred_date DATE,
+                    attendees INTEGER,
+                    message TEXT,
+                    status VARCHAR(20) NOT NULL DEFAULT 'new',
+                    reviewed_at TIMESTAMP,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+
                 CREATE TABLE IF NOT EXISTS gallery_photos (
                     id SERIAL PRIMARY KEY,
                     title VARCHAR(200),
@@ -462,6 +476,21 @@ class DatabaseManager:
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     );
                 """,
+                "corporate_inquiries": """
+                    CREATE TABLE IF NOT EXISTS corporate_inquiries (
+                        id SERIAL PRIMARY KEY,
+                        company_name VARCHAR(200) NOT NULL,
+                        contact_name VARCHAR(150),
+                        contact_phone VARCHAR(30) NOT NULL,
+                        contact_email VARCHAR(150),
+                        preferred_date DATE,
+                        attendees INTEGER,
+                        message TEXT,
+                        status VARCHAR(20) NOT NULL DEFAULT 'new',
+                        reviewed_at TIMESTAMP,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    );
+                """,
                 "gallery_photos": """
                     CREATE TABLE IF NOT EXISTS gallery_photos (
                         id SERIAL PRIMARY KEY,
@@ -476,6 +505,22 @@ class DatabaseManager:
             for tbl, stmt in content_tables.items():
                 if not _ensure_table(tbl, stmt):
                     success = False
+
+            # Ensure corporate_inquiries has expected columns (idempotent)
+            inquiry_columns = {
+                "company_name": "VARCHAR(200)",
+                "contact_name": "VARCHAR(150)",
+                "contact_phone": "VARCHAR(30)",
+                "contact_email": "VARCHAR(150)",
+                "preferred_date": "DATE",
+                "attendees": "INTEGER",
+                "message": "TEXT",
+                "status": "VARCHAR(20) DEFAULT 'new'",
+                "reviewed_at": "TIMESTAMP",
+                "created_at": "TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
+            }
+            for col, col_def in inquiry_columns.items():
+                _ensure_column("corporate_inquiries", col, col_def)
 
             # Ensure promo_codes has expected columns (idempotent)
             promo_columns = {
@@ -539,6 +584,8 @@ class DatabaseManager:
                 "CREATE INDEX IF NOT EXISTS idx_activity_logs_entity ON activity_logs(entity_type, entity_id);",
                 "CREATE INDEX IF NOT EXISTS idx_activity_logs_created ON activity_logs(created_at);",
                 "CREATE INDEX IF NOT EXISTS idx_activity_logs_action ON activity_logs(action);",
+                "CREATE INDEX IF NOT EXISTS idx_corporate_inquiries_status ON corporate_inquiries(status);",
+                "CREATE INDEX IF NOT EXISTS idx_corporate_inquiries_created ON corporate_inquiries(created_at);",
             ]
             for stmt in index_statements:
                 _ensure_index(stmt)

@@ -112,3 +112,21 @@ class EmailService:
         text = "\n".join(f"{k} {v}" for k, v in lines.items())
         return EmailService._send_smtp(to_email, status_title, html, text)
 
+    @staticmethod
+    def send_corporate_inquiry_notification(to_email: str, inquiry: Dict) -> bool:
+        """Notify internal team about a new corporate inquiry."""
+        if not to_email:
+            return False
+        title = "New Corporate Event Inquiry"
+        lines = {
+            "Company:": inquiry.get("company_name", ""),
+            "Contact:": inquiry.get("contact_name") or "-",
+            "Phone:": inquiry.get("contact_phone") or "-",
+            "Email:": inquiry.get("contact_email") or "-",
+            "Preferred Date:": str(inquiry.get("preferred_date") or "-"),
+            "Attendees:": str(inquiry.get("attendees") or "-"),
+        }
+        footer = "Open the admin portal to review and follow up."
+        html = EmailService._format_html(title, lines, footer=footer)
+        text = "\n".join(f"{k} {v}" for k, v in lines.items())
+        return EmailService._send_smtp(to_email, title, html, text)
