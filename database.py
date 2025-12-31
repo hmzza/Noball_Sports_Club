@@ -541,6 +541,19 @@ class DatabaseManager:
             for col, col_def in promo_columns.items():
                 _ensure_column("promo_codes", col, col_def)
 
+            # Soften legacy NOT NULL constraints on date columns (valid_from/valid_until) to allow open-ended promos
+            try:
+                DatabaseManager.execute_query(
+                    "ALTER TABLE IF EXISTS promo_codes ALTER COLUMN valid_from DROP NOT NULL;",
+                    fetch_all=False,
+                )
+                DatabaseManager.execute_query(
+                    "ALTER TABLE IF EXISTS promo_codes ALTER COLUMN valid_until DROP NOT NULL;",
+                    fetch_all=False,
+                )
+            except Exception as exc:
+                logger.warning(f"Promo_codes alter nullable warning: {exc}")
+
             # Ensure bookings/expenses columns exist before creating indexes (older deployments)
             booking_columns = {
                 "promo_code": "VARCHAR(50)",
