@@ -178,9 +178,10 @@
                 </div>
             </div>
 
-            <div class="corporate-grid">
-                {% if corporate_events %}
-                    {% for event in corporate_events %}
+            <div class="corporate-slider">
+                <div class="corporate-grid" id="corporate-track">
+                    {% if corporate_events %}
+                        {% for event in corporate_events %}
                         {% set hero_path = event.event_image or 'images/openSpace.jpeg' %}
                         {% if hero_path.startswith('http') %}
                             {% set hero_url = hero_path %}
@@ -225,18 +226,28 @@
                                 {% if event.description %}<p>{{ event.description }}</p>{% endif %}
                             </div>
                         </article>
-                    {% endfor %}
-                {% else %}
-                    <article class="corporate-card placeholder">
-                        <div class="corporate-body">
-                            <div class="corporate-meta">
-                                <span class="company">Your brand here</span>
+                        {% endfor %}
+                    {% else %}
+                        <article class="corporate-card placeholder">
+                            <div class="corporate-body">
+                                <div class="corporate-meta">
+                                    <span class="company">Your brand here</span>
+                                </div>
+                                <h3>Showcase your corporate nights</h3>
+                                <p>Upload highlights from your partner events straight from the admin panel.</p>
                             </div>
-                            <h3>Showcase your corporate nights</h3>
-                            <p>Upload highlights from your partner events straight from the admin panel.</p>
-                        </div>
-                    </article>
-                {% endif %}
+                        </article>
+                    {% endif %}
+                </div>
+
+                <button class="corporate-nav prev" id="corporate-prev" aria-label="Previous corporate event">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="corporate-nav next" id="corporate-next" aria-label="Next corporate event">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+
+                <div class="corporate-dots" id="corporate-dots"></div>
             </div>
         </div>
     </section>
@@ -647,6 +658,63 @@
             }
         }
 
+        // Corporate carousel (horizontal scroll)
+        let corporateIndex = 0;
+
+        function initCorporateCarousel() {
+            const track = document.getElementById('corporate-track');
+            const prevBtn = document.getElementById('corporate-prev');
+            const nextBtn = document.getElementById('corporate-next');
+            const dotsContainer = document.getElementById('corporate-dots');
+            if (!track || !prevBtn || !nextBtn || !dotsContainer) return;
+
+            const cards = Array.from(track.querySelectorAll('.corporate-card'));
+            if (!cards.length) return;
+
+            const positions = () => cards.map((el) => el.offsetLeft);
+
+            function updateCorporateDots() {
+                const dots = dotsContainer.querySelectorAll('.corporate-dot');
+                dots.forEach((dot, idx) => dot.classList.toggle('active', idx === corporateIndex));
+            }
+
+            function scrollToIndex(idx) {
+                const pos = positions();
+                corporateIndex = Math.max(0, Math.min(idx, cards.length - 1));
+                track.scrollTo({ left: pos[corporateIndex], behavior: 'smooth' });
+                updateCorporateDots();
+            }
+
+            function syncIndexFromScroll() {
+                const left = track.scrollLeft;
+                const pos = positions();
+                let idx = 0;
+                for (let i = 0; i < pos.length; i++) {
+                    if (pos[i] <= left + 12) idx = i;
+                }
+                if (idx !== corporateIndex) {
+                    corporateIndex = idx;
+                    updateCorporateDots();
+                }
+            }
+
+            // Build dots
+            dotsContainer.innerHTML = '';
+            cards.forEach((_, idx) => {
+                const dot = document.createElement('div');
+                dot.className = `corporate-dot ${idx === 0 ? 'active' : ''}`;
+                dot.addEventListener('click', () => scrollToIndex(idx));
+                dotsContainer.appendChild(dot);
+            });
+
+            prevBtn.addEventListener('click', () => scrollToIndex(corporateIndex - 1));
+            nextBtn.addEventListener('click', () => scrollToIndex(corporateIndex + 1));
+            track.addEventListener('scroll', () => window.requestAnimationFrame(syncIndexFromScroll), { passive: true });
+
+            // Start at first card
+            scrollToIndex(0);
+        }
+
         function openImageModal(imageSrc, title) {
             const modal = document.getElementById('image-modal');
             const modalImage = document.getElementById('modal-image');
@@ -689,6 +757,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize gallery
             initGallery();
+            initCorporateCarousel();
             if (totalSlides > 1) {
                 setInterval(nextSlide, 5000);
             }

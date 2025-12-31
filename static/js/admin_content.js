@@ -64,7 +64,11 @@
 
     function sortEvents(list) {
         return [...(list || [])].sort((a, b) => {
-            const orderDiff = eventPriority(b) - eventPriority(a);
+            const aPriority = eventPriority(a);
+            const bPriority = eventPriority(b);
+            const aOrder = aPriority > 0 ? aPriority : Number.POSITIVE_INFINITY;
+            const bOrder = bPriority > 0 ? bPriority : Number.POSITIVE_INFINITY;
+            const orderDiff = aOrder - bOrder;
             if (orderDiff !== 0) return orderDiff;
             const aTime = Date.parse(a?.created_at || "") || 0;
             const bTime = Date.parse(b?.created_at || "") || 0;
@@ -106,7 +110,8 @@
             meta.className = "chip";
             const priority = eventPriority(ev);
             const dateLabel = formatDate(ev.event_date);
-            meta.textContent = [`Priority ${priority}`, dateLabel || "No date set"].join(" • ");
+            const priLabel = priority > 0 ? `Priority ${priority}` : "No priority";
+            meta.textContent = [priLabel, dateLabel || "No date set"].join(" • ");
 
             content.appendChild(heading);
             if (sub.textContent) content.appendChild(sub);

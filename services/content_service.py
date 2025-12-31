@@ -299,7 +299,12 @@ class ContentService:
             SELECT id, company_name, title, description, event_image, logo_image, event_date, display_order, created_at
             FROM corporate_events
             WHERE is_active = TRUE
-            ORDER BY display_order DESC, created_at DESC
+            ORDER BY
+                CASE
+                    WHEN COALESCE(display_order, 0) <= 0 THEN 2147483647
+                    ELSE display_order
+                END ASC,
+                created_at DESC
         """
         if limit:
             base_query += " LIMIT %s"
