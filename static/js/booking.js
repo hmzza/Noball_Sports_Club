@@ -984,7 +984,7 @@ class BookingSystem {
         submission_time: new Date().toLocaleString("en-US", {
           year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: true,
         }),
-        to_email: "noballarena@gmail.com",
+        to_email: "noball@courtsideventures.com",
       };
 
       await emailjs.send("service_y85g6ha", "template_ceqhxb3", templateParams);
