@@ -2,6 +2,7 @@
 Email service for sending transactional emails to customers.
 Configurable via environment variables to work in dev/prod.
 """
+
 import os
 import smtplib
 from email.mime.multipart import MIMEMultipart
@@ -19,12 +20,17 @@ class EmailService:
             "port": int(os.environ.get("SMTP_PORT", "587")),
             "user": os.environ.get("SMTP_USER"),
             "password": os.environ.get("SMTP_PASS"),
-            "from_addr": os.environ.get("SMTP_FROM", os.environ.get("EMAIL_FROM", "noballarena@gmail.com")),
-            "use_tls": os.environ.get("SMTP_USE_TLS", "true").lower() in ("1", "true", "yes"),
+            "from_addr": os.environ.get(
+                "SMTP_FROM", os.environ.get("EMAIL_FROM", "noballarena@gmail.com")
+            ),
+            "use_tls": os.environ.get("SMTP_USE_TLS", "true").lower()
+            in ("1", "true", "yes"),
         }
 
     @staticmethod
-    def _send_smtp(to_email: str, subject: str, html_body: str, text_body: str = None) -> bool:
+    def _send_smtp(
+        to_email: str, subject: str, html_body: str, text_body: str = None
+    ) -> bool:
         cfg = EmailService._get_smtp_config()
         if not cfg["host"] or not cfg["user"] or not cfg["password"]:
             # SMTP is not configured; skip silently
@@ -81,14 +87,21 @@ class EmailService:
             "Booking ID:": booking.get("bookingId") or booking.get("id", "N/A"),
             "Sport:": (booking.get("sport") or "").title(),
             "Court:": booking.get("courtName") or booking.get("court") or "",
-            "Date/Time:": booking.get("display_datetime") or booking.get("datetime", ""),
-            "Payment:": "50% Advance" if booking.get("paymentType") == "advance" else "Full",
+            "Date/Time:": booking.get("display_datetime")
+            or booking.get("datetime", ""),
+            "Payment:": (
+                "50% Advance" if booking.get("paymentType") == "advance" else "Full"
+            ),
             "Amount:": f"PKR {int(booking.get('totalAmount', 0)):,}",
             "Status:": "Pending Payment",
         }
-        html = EmailService._format_html(title, lines, footer="We will confirm shortly after verifying payment.")
+        html = EmailService._format_html(
+            title, lines, footer="We will confirm shortly after verifying payment."
+        )
         text = "\n".join(f"{k} {v}" for k, v in lines.items())
-        return EmailService._send_smtp(to_email, "Your booking has been received", html, text)
+        return EmailService._send_smtp(
+            to_email, "Your booking has been received", html, text
+        )
 
     @staticmethod
     def send_booking_status(to_email: str, booking: Dict, status: str) -> bool:
@@ -106,7 +119,7 @@ class EmailService:
             "Date:": str(booking.get("booking_date") or booking.get("date") or ""),
             "Time:": f"{booking.get('start_time','')} - {booking.get('end_time','')}",
             "Amount:": f"PKR {int(booking.get('total_amount', 0)):,}",
-            "Status:": status.replace('_', ' ').title(),
+            "Status:": status.replace("_", " ").title(),
         }
         html = EmailService._format_html(status_title, lines)
         text = "\n".join(f"{k} {v}" for k, v in lines.items())
