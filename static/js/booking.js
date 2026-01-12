@@ -58,6 +58,8 @@ class BookingSystem {
       "futsal-1": "multi-130x60",
     };
 
+    this.autoAdvanceTimer = null;
+
     this.init();
   }
 
@@ -371,6 +373,18 @@ class BookingSystem {
 
     this.validateStep1();
     this.updateStep2PricingDisplay();
+
+    const readyForNext = this.currentStep === 1 && this.bookingData.sport && this.bookingData.court;
+    if (readyForNext) {
+      const nextBtn = document.querySelector("#step-1 .next-step");
+      if (nextBtn) nextBtn.disabled = false;
+      clearTimeout(this.autoAdvanceTimer);
+      this.autoAdvanceTimer = setTimeout(() => {
+        if (this.currentStep === 1 && this.bookingData.sport && this.bookingData.court) {
+          this.nextStep();
+        }
+      }, 200);
+    }
   }
 
   validateStep1() {
@@ -984,7 +998,7 @@ class BookingSystem {
         submission_time: new Date().toLocaleString("en-US", {
           year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: true,
         }),
-        to_email: "noball@courtsideventures.com",
+        to_email: "noball@courtside-ventures.com",
       };
 
       await emailjs.send("service_y85g6ha", "template_ceqhxb3", templateParams);
