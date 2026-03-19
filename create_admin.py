@@ -11,8 +11,13 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from database import DatabaseManager
 from models import AdminUser
-from werkzeug.security import generate_password_hash
-import hashlib
+
+
+def _hash_password(password: str) -> str:
+    """Generate password hash compatible with AdminUser.check_password()."""
+    user = AdminUser()
+    user.set_password(password)
+    return user.password_hash
 
 def create_admin_user(username, password, role='super_admin'):
     """Create an admin user with proper password hashing"""
@@ -27,7 +32,7 @@ def create_admin_user(username, password, role='super_admin'):
         if existing_user:
             print(f"User '{username}' already exists. Updating password...")
             # Update existing user's password
-            password_hash = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), b'salt', 100000).hex()
+            password_hash = _hash_password(password)
             cursor.execute("""
                 UPDATE admin_users 
                 SET password_hash = %s, updated_at = %s, is_active = true
@@ -37,7 +42,7 @@ def create_admin_user(username, password, role='super_admin'):
         else:
             # Create new user
             print(f"Creating new admin user '{username}'...")
-            password_hash = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), b'salt', 100000).hex()
+            password_hash = _hash_password(password)
             cursor.execute("""
                 INSERT INTO admin_users (username, password_hash, role, is_active, created_at, updated_at)
                 VALUES (%s, %s, %s, %s, %s, %s)
