@@ -21,9 +21,17 @@ admin_bp = Blueprint("admin_panel", __name__, url_prefix="/admin")
 @admin_bp.route("/login", methods=["GET", "POST"])
 def login():
     """Admin login"""
+    wants_json = request.is_json or ("application/json" in (request.headers.get("Accept") or ""))
+
     if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
+        payload = request.get_json(silent=True) if request.is_json else request.form
+        username = (payload.get("username") or "").strip()
+        password = (payload.get("password") or "").strip()
+
+        if not username or not password:
+            if wants_json:
+                return jsonify({"success": False, "message": "Username and password are required"}), 400
+            return render_template("admin_login.html", error="Username and password are required")
         
         user = AuthService.authenticate_user(username, password)
         if user:
@@ -32,9 +40,12 @@ def login():
             session["admin_user_id"] = user.id
             session["admin_username"] = user.username
             session["admin_role"] = user.role
+            if wants_json:
+                return jsonify({"success": True, "redirect": url_for("admin_panel.admin_dashboard")}), 200
             return redirect(url_for("admin_panel.admin_dashboard"))
-        else:
-            return render_template("admin_login.html", error="Invalid credentials")
+        if wants_json:
+            return jsonify({"success": False, "message": "Invalid credentials"}), 401
+        return render_template("admin_login.html", error="Invalid credentials")
     
     return render_template("admin_login.html")
 
