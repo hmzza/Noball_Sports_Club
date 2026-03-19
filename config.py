@@ -5,8 +5,23 @@ Configuration settings for NoBall Sports Club application.
 import os
 from urllib.parse import urlparse
 import logging
+from pathlib import Path
+
+from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
+
+
+def _load_environment_files() -> None:
+    """Load local env files without overriding already-exported process vars."""
+    project_root = Path(__file__).resolve().parent
+    for env_name in (".env", ".env.production"):
+        env_path = project_root / env_name
+        if env_path.exists():
+            load_dotenv(env_path, override=False)
+
+
+_load_environment_files()
 
 class Config:
     """Base configuration class"""

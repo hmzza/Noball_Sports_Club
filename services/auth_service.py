@@ -188,13 +188,54 @@ class AuthService:
         """
         try:
             import os
-            username = os.environ.get('ADMIN_USERNAME')
-            password = os.environ.get('ADMIN_PASSWORD')
+            username = (
+                os.environ.get('ADMIN_USERNAME')
+                or os.environ.get('ADMINUSERNAME')
+                or os.environ.get('admin_username')
+                or os.environ.get('adminusername')
+            )
+            password = (
+                os.environ.get('ADMIN_PASSWORD')
+                or os.environ.get('ADMINPASSWORD')
+                or os.environ.get('admin_password')
+                or os.environ.get('adminpassword')
+            )
+
+            if username:
+                username = username.strip()
+            if password:
+                password = password.strip()
+
             if not username or not password:
                 return None
 
             existing = AuthService.get_user_by_username(username)
             if existing:
+                needs_update = (
+                    (not existing.is_active)
+                    or (existing.role != AdminRole.SUPER_ADMIN)
+                    or (not existing.check_password(password))
+                )
+                if not needs_update:
+                    return existing
+
+                updated_user = AdminUser()
+                updated_user.set_password(password)
+                result = DatabaseManager.execute_query(
+                    """
+                    UPDATE admin_users
+                    SET password_hash = %s,
+                        role = %s,
+                        is_active = TRUE,
+                        updated_at = %s
+                    WHERE id = %s
+                    RETURNING id, username, password_hash, role, is_active, created_by, created_at, updated_at, last_login
+                    """,
+                    (updated_user.password_hash, AdminRole.SUPER_ADMIN, datetime.now(), existing.id),
+                    fetch_one=True,
+                )
+                if result:
+                    return AdminUser.from_dict(dict(result))
                 return existing
 
             return AuthService.create_user(

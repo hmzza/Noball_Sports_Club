@@ -11,9 +11,9 @@ from flask import Flask, render_template, request, jsonify
 
 # Timezone support (use backport on Python < 3.9)
 try:
-    from zoneinfo import ZoneInfo
+    from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 except ImportError:  # pragma: no cover
-    from backports.zoneinfo import ZoneInfo  # pip install backports.zoneinfo
+    from backports.zoneinfo import ZoneInfo, ZoneInfoNotFoundError  # pip install backports.zoneinfo
 
 # Import modular components
 from config import config
@@ -28,8 +28,21 @@ from services.email_service import EmailService
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
+def _resolve_arena_timezone():
+    """Use IANA timezone data when available; fall back to Pakistan's fixed UTC+5 offset."""
+    try:
+        return ZoneInfo("Asia/Karachi")
+    except ZoneInfoNotFoundError:
+        logger.warning(
+            "Timezone data for Asia/Karachi is unavailable; falling back to fixed UTC+05:00. "
+            "Install tzdata to use IANA timezone data on Windows."
+        )
+        return timezone(timedelta(hours=5), name="Asia/Karachi")
+
+
 # --------- TZ + window helpers (cross-midnight safe) ---------
-ARENA_TZ = ZoneInfo("Asia/Karachi")
+ARENA_TZ = _resolve_arena_timezone()
 WORKDAY_END_MIN = 5 * 60 + 30  # 05:30
 
 def parse_local_ymd(ymd: str) -> datetime:
