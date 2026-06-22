@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The NoBall Sports Club - Islamabad's all-in-one Sports Club</title>
+    <title>{{ brand.full_name }} - Islamabad's all-in-one leisure destination</title>
     <link rel="stylesheet" href="static/css/modern_styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,7 +18,7 @@
             </div>
         </div>
         <div class="loading-brand">
-            <span class="brand-text">The NoBall Sports Club</span>
+            <span class="brand-text">{{ brand.full_name }}</span>
             <div class="loading-dots">
                 <span></span><span></span><span></span>
             </div>
@@ -39,7 +39,11 @@
     <header class="modern-header">
         <nav class="nav-glass">
             <div class="nav-brand">
-                <img src="static/images/logo.png" alt="NoBall Sports Club" class="brand-logo" style="width: 30px; height: 30px; border-radius: 50%;">
+                <img src="{{ url_for('static', filename=brand.logo_path) }}" alt="{{ brand.full_name }}" class="brand-logo brand-logo-nav">
+                <div class="brand-lockup">
+                    <span class="brand-name">{{ brand.short_name }}</span>
+                    <span class="brand-subtitle">{{ brand.tagline }}</span>
+                </div>
             </div>
             
             <ul class="nav-links">
@@ -64,12 +68,12 @@
         <div class="hero-container">
             <div class="hero-content">
                 <h1 class="hero-title">
-                    <span class="title-main">The NoBall Sports Club</span>
-                    <span class="title-accent">Islamabad's First All in one Club</span>
+                    <span class="title-main">{{ brand.short_name }}</span>
+                    <span class="title-accent">{{ brand.tagline }}</span>
                 </h1>
                 
                 <p class="hero-description">
-                    All-in-one Club with 10+ Sports Facilities • Open 24/7
+                    One destination for sports, social play, and premium leisure experiences.
                 </p>
                 
                 <div class="hero-actions">
@@ -86,15 +90,15 @@
                 <div class="hero-stats">
                     <div class="stat-item">
                         <span class="stat-number">10+</span>
-                        <span class="stat-label">Sports</span>
+                        <span class="stat-label">Experiences</span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-number">24/7</span>
-                        <span class="stat-label">Available</span>
+                        <span class="stat-label">Availability</span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-number">Premium</span>
-                        <span class="stat-label">Quality</span>
+                        <span class="stat-label">Spaces</span>
                     </div>
                 </div>
             </div>
@@ -102,7 +106,7 @@
             <div class="hero-visual">
                 <div class="visual-container">
                     <div class="animated-logo-container">
-                        <img src="static/images/logo.png" alt="NoBall Sports Club" class="rotating-logo">
+                        <img src="{{ url_for('static', filename=brand.logo_path) }}" alt="{{ brand.full_name }}" class="rotating-logo">
                         <div class="logo-glow"></div>
                     </div>
                 </div>
@@ -116,9 +120,9 @@
         <div class="container-modern">
             <div class="section-header">
                 <span class="section-badge">Our Courts</span>
-                <h2 class="section-title">Premium Sports Facilities</h2>
+                <h2 class="section-title">Premium Courts and Leisure Spaces</h2>
                 <p class="section-description">
-                    Take a closer look at our world-class courts and facilities
+                    Take a closer look at our courts, ranges, and signature club experiences.
                 </p>
             </div>
             
@@ -133,10 +137,10 @@
                         {% else %}
                             {% set image_url = url_for('static', filename=img_path) %}
                         {% endif %}
-                        <div class="gallery-slide" data-image="{{ image_url }}" data-title="{{ item.title or 'NoBall Sports Club' }}">
-                            <img src="{{ image_url }}" alt="{{ item.title or 'NoBall Sports Club' }}" class="gallery-image">
+                        <div class="gallery-slide" data-image="{{ image_url }}" data-title="{{ item.title or brand.short_name }}">
+                            <img src="{{ image_url }}" alt="{{ item.title or brand.full_name }}" class="gallery-image">
                             <div class="slide-overlay">
-                                <h3>{{ item.title or 'NoBall Sports Club' }}</h3>
+                                <h3>{{ item.title or brand.short_name }}</h3>
                                 <p>{{ item.description or 'Premium facilities ready for your next match' }}</p>
                             </div>
                         </div>
@@ -161,9 +165,9 @@
             <div class="corporate-header">
                 <div>
                     <span class="section-badge">Corporate</span>
-                    <h2 class="section-title">Corporate Events at NoBall</h2>
+                    <h2 class="section-title">Corporate Experiences at {{ brand.short_name }}</h2>
                     <p class="section-description">
-                        Celebrate launches, team offsites, and client nights with a private sports takeover.
+                        Host launches, team offsites, and client nights with a private leisure-club takeover.
                     </p>
                 </div>
                 <div class="corporate-cta">
@@ -351,7 +355,7 @@
         <div class="container-modern">
             <div class="experience-content">
                 <div class="experience-text">
-                    <span class="section-badge dark">Why Choose NoBall</span>
+                    <span class="section-badge dark">Why Choose {{ brand.short_name }}</span>
                     <h2 class="section-title white">Elevate Your Game Experience</h2>
                     <p class="section-description white">
                         More than just courts - we provide a complete sports ecosystem designed for champions.
@@ -412,7 +416,7 @@
         <div class="container-modern">
             <div class="section-header">
                 <span class="section-badge">About Us</span>
-                <h2 class="section-title white">The NoBall Experience</h2>
+                <h2 class="section-title white">The {{ brand.short_name }} Experience</h2>
                 <p class="section-description white">Where passion meets precision in every game</p>
             </div>
             
@@ -493,7 +497,7 @@
                         </div>
                         <div class="info-content">
                             <h4 style="color: var(--gray-900); margin-bottom: 0.5rem;">Address</h4>
-                            <p style="color: var(--gray-600); margin: 0;">The Noball Sports Club<br>G-12 Main Service Road, Kashmir Highway<br>Islamabad, Pakistan</p>
+                            <p style="color: var(--gray-600); margin: 0;">{{ brand.full_name }}<br>G-12 Main Service Road, Kashmir Highway<br>Islamabad, Pakistan</p>
                         </div>
                     </div>
                     
@@ -520,7 +524,7 @@
                 
                 <div class="map-container">
                     <div class="map-placeholder" style="background: white; padding: 3rem; border-radius: 1.5rem; text-align: center; height: 400px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
-                        <i class="fas fa-map" style="font-size: 3rem; color: var(--accent-gradient); margin-bottom: 1rem;"></i>
+                        <i class="fas fa-map" style="font-size: 3rem; color: var(--brand-accent); margin-bottom: 1rem;"></i>
                         <h4 style="color: var(--gray-900); margin-bottom: 0.5rem;">Interactive Map</h4>
                         <p style="color: var(--gray-600); margin-bottom: 2rem;">GPS coordinates and directions available</p>
                         <a href="https://share.google/YuWCEWVAqzenSBcsX" target="_blank" class="btn-modern primary">
@@ -571,7 +575,7 @@
                             </div>
                             <div class="method-content">
                                 <span class="method-label">Email</span>
-                                <span class="method-value"><a href="mailto:noball@courtsideventures.com" style="color:inherit;text-decoration:none;">noball@courtsideventures.com</a></span>
+                                <span class="method-value"><a href="mailto:{{ brand.contact_email }}" style="color:inherit;text-decoration:none;">{{ brand.contact_email }}</a></span>
                             </div>
                         </div>
                     </div>
@@ -596,11 +600,9 @@
         <div class="container-modern">
             <div class="footer-content">
                 <div class="footer-brand">
-                    <div class="brand-icon">
-                        <i class="fas fa-bolt"></i>
-                    </div>
-                    <span class="brand-name">NoBall Sports Club</span>
-                    <p class="brand-tagline">Islamabad's all-in-one Sports Club</p>
+                    <img src="{{ url_for('static', filename=brand.logo_path) }}" alt="{{ brand.full_name }}" class="brand-logo brand-logo-footer">
+                    <span class="brand-name">{{ brand.full_name }}</span>
+                    <p class="brand-tagline">Islamabad's all-in-one leisure club for play, events, and social experiences.</p>
                 </div>
                 
                 <div class="footer-links">
@@ -626,14 +628,14 @@
                     <div class="link-group">
                         <h4>Contact</h4>
                         <a href="tel:+923293180180">+92 329 3180180</a>
-                        <a href="mailto:noball@courtsideventures.com">noball@courtsideventures.com</a>
+                        <a href="mailto:{{ brand.contact_email }}">{{ brand.contact_email }}</a>
                         <a href="#location">Location</a>
                     </div>
                 </div>
             </div>
             
             <div class="footer-bottom">
-                <p>&copy; 2024 NoBall Sports Club. All rights reserved.</p>
+                <p>&copy; {{ current_year }} {{ brand.full_name }}. All rights reserved.</p>
                 <div class="social-links">
                     <a href="#"><i class="fab fa-instagram"></i></a>
                     <a href="#"><i class="fab fa-facebook"></i></a>
@@ -646,6 +648,7 @@
     <!-- Scripts -->
     <script src="static/js/modern_scripts.js"></script>
     <script>
+        window.CONTACT_EMAIL = {{ brand.contact_email|tojson }};
         // Modern animations and interactions
 
         // Gallery functionality

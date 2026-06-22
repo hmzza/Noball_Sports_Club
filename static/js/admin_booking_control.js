@@ -575,7 +575,7 @@ class AdminBookingControl {
                         <div class="result-detail-value">
                             PKR ${(booking.totalAmount || 0).toLocaleString()}
                             ${booking.promo_code ? `
-                                <br><span style="color: #28a745; font-weight: 600; font-size: 0.85em;">
+                                <br><span style="color: #8b5cf6; font-weight: 600; font-size: 0.85em;">
                                     🎟️ ${booking.promo_code} (-PKR ${(booking.discount_amount || 0).toLocaleString()})
                                 </span>` : ''}
                         </div>
@@ -596,7 +596,7 @@ class AdminBookingControl {
                     ${booking.admin_comments ? `
                     <div class="result-detail">
                         <div class="result-detail-label">Admin Comments</div>
-                        <div class="result-detail-value" style="font-style: italic; color: #28a745;">
+                        <div class="result-detail-value" style="font-style: italic; color: #8b5cf6;">
                             <i class="fas fa-user-shield"></i> ${booking.admin_comments}
                         </div>
                     </div>` : ''}
@@ -963,7 +963,7 @@ class AdminBookingControl {
     };
 
     const colorMap = {
-      success: "#28a745",
+      success: "#8b5cf6",
       error: "#dc3545",
       info: "#17a2b8",
       warning: "#ffc107",

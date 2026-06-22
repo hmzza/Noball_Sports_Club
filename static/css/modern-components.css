@@ -1,6 +1,6 @@
 /**
  * Modern UI Components CSS
- * Clean, professional styling for NoBall Sports Club
+ * Clean, professional styling for ALC
  */
 
 /* ============================================
@@ -8,12 +8,12 @@
    ============================================ */
 :root {
     /* Colors */
-    --primary-color: #2c5aa0;
-    --secondary-color: #28a745;
-    --success-color: #28a745;
-    --warning-color: #ffc107;
+    --primary-color: #6d28d9;
+    --secondary-color: #a855f7;
+    --success-color: #8b5cf6;
+    --warning-color: #d4d4d8;
     --error-color: #dc3545;
-    --info-color: #17a2b8;
+    --info-color: #9333ea;
     
     /* Neutral colors */
     --gray-50: #f8f9fa;
@@ -36,7 +36,7 @@
     --spacing-2xl: 3rem;
     
     /* Typography */
-    --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --font-family: 'Space Grotesk', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     --font-size-xs: 0.75rem;
     --font-size-sm: 0.875rem;
     --font-size-base: 1rem;
@@ -206,8 +206,8 @@
 }
 
 .modern-btn-success:hover {
-    background-color: #1e7e34;
-    border-color: #1e7e34;
+    background-color: #6d28d9;
+    border-color: #6d28d9;
 }
 
 .modern-btn-warning {
@@ -460,7 +460,7 @@
 .time-slot.booked-confirmed {
     background-color: var(--success-color);
     color: white;
-    border-color: #1e7e34;
+    border-color: #6d28d9;
 }
 
 .time-slot.booked-conflict {
@@ -670,8 +670,8 @@
 }
 
 .confirm-btn:hover {
-    background-color: #1e7e34;
-    border-color: #1e7e34;
+    background-color: #6d28d9;
+    border-color: #6d28d9;
 }
 
 .cancel-btn {
@@ -819,7 +819,7 @@
 }
 
 .toast-success {
-    background: linear-gradient(135deg, var(--success-color), #20c997);
+    background: linear-gradient(135deg, var(--success-color), #a855f7);
 }
 
 .toast-error {

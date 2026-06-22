@@ -72,6 +72,18 @@ class BookingSystem {
     return 'template_79dq4rl';
   }
 
+  getBrandShortName() {
+    return window.BRAND_SHORT_NAME || "ALC";
+  }
+
+  getBrandFullName() {
+    return window.BRAND_FULL_NAME || "ALC (All-in-one Leisure Club)";
+  }
+
+  getContactEmail() {
+    return window.CONTACT_EMAIL || "noball@courtsideventures.com";
+  }
+
   generateTimeSlots() {
     const slots = [];
     // Workday operates from 2pm (14:00) to 6am (06:00) next day
@@ -209,12 +221,12 @@ class BookingSystem {
     const style = document.createElement('style');
     style.id = 'pricing-info-styles';
     style.textContent = `
-      .pricing-info{margin-top:15px;padding:15px;background:#f8f9fa;border-radius:8px;border-left:4px solid #28a745}
+      .pricing-info{margin-top:15px;padding:15px;background:#f8f9fa;border-radius:8px;border-left:4px solid #8b5cf6}
       .pricing-details{margin-top:10px}
       .price-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #e9ecef}
       .price-row:last-child{border-bottom:none}
       .price-label{font-weight:500;color:#495057;font-size:14px}
-      .price-value{font-weight:bold;color:#28a745;font-size:14px}
+      .price-value{font-weight:bold;color:#8b5cf6;font-size:14px}
       .pricing-info p{margin:0 0 10px;font-weight:600;color:#343a40}
       .promo-code-section{margin:20px 0;padding:20px;background:#f8f9fa;border-radius:12px;border:1px solid #e9ecef}
       .promo-code-section h3{margin:0 0 15px;color:#495057;font-size:1.2rem}
@@ -229,7 +241,7 @@ class BookingSystem {
       .promo-applied{margin-top:15px}
       .alert{padding:12px 16px;border-radius:8px;border:none;margin:0}
       .alert-success{background:#d4edda;color:#155724}
-      .summary-row.discount{color:#28a745;font-weight:600}
+      .summary-row.discount{color:#8b5cf6;font-weight:600}
       .summary-row.final-total{border-top:2px solid #007bff;padding-top:10px;margin-top:10px;font-size:1.1rem}
     `;
     document.head.appendChild(style);
@@ -525,12 +537,12 @@ class BookingSystem {
         // Render to canvas (2x for clarity)
         const canvas = await html2canvas(card, { backgroundColor: '#f9fafb', scale: window.devicePixelRatio || 2 });
         const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 0.95));
-        const file = new File([blob], `noball_booking_${Date.now()}.png`, { type: 'image/png' });
+        const file = new File([blob], `alc_booking_${Date.now()}.png`, { type: 'image/png' });
 
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
           await navigator.share({
             files: [file],
-            title: 'NoBall Booking Summary',
+            title: `${this.getBrandShortName()} Booking Summary`,
             text: 'Booking summary attached.'
           });
         } else {
@@ -939,7 +951,7 @@ class BookingSystem {
   updateWhatsAppLinks() {
     const number = (window.WHATSAPP_NUMBER || '').replace(/[^\d]/g, '');
     if (!number) return;
-    const message = `Hello Noball Sports Club,%0A%0AI have a booking:%0A- Sport: ${this.bookingData.sport}%0A- Court: ${this.bookingData.courtName}%0A- Date/Time: ${this.formatBookingDateTime()}%0A- Name: ${this.bookingData.playerName}%0A- Phone: ${this.bookingData.playerPhone}%0A- Amount: PKR ${this.bookingData.totalAmount.toLocaleString()}%0A%0AI will send the payment screenshot now.`;
+    const message = `Hello ${this.getBrandFullName()},%0A%0AI have a booking:%0A- Sport: ${this.bookingData.sport}%0A- Court: ${this.bookingData.courtName}%0A- Date/Time: ${this.formatBookingDateTime()}%0A- Name: ${this.bookingData.playerName}%0A- Phone: ${this.bookingData.playerPhone}%0A- Amount: PKR ${this.bookingData.totalAmount.toLocaleString()}%0A%0AI will send the payment screenshot now.`;
     const href = `https://wa.me/${number}?text=${message}`;
     const a1 = document.getElementById('whatsapp-link');
     const a2 = document.getElementById('whatsapp-link-confirm');
@@ -998,7 +1010,7 @@ class BookingSystem {
         submission_time: new Date().toLocaleString("en-US", {
           year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: true,
         }),
-        to_email: "noball@courtside-ventures.com",
+        to_email: this.getContactEmail(),
       };
 
       await emailjs.send("service_y85g6ha", "template_ceqhxb3", templateParams);
@@ -1035,7 +1047,7 @@ class BookingSystem {
         customer_email: toEmail,
 
         // footer or note
-        note: "Thank you for booking with The NoBall Sports Club!",
+        note: `Thank you for booking with ${this.getBrandFullName()}!`,
       };
 
       // Send via EmailJS service (same as admin), but using a customer-facing template

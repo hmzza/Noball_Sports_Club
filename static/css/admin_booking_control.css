@@ -72,7 +72,7 @@
     transition: width 0.3s ease;
 }
 
-.action-card.create-card::before { background: #28a745; }
+.action-card.create-card::before { background: #8b5cf6; }
 .action-card.search-card::before { background: #17a2b8; }
 .action-card.bulk-card::before { background: #ffc107; }
 
@@ -97,8 +97,8 @@
     flex-shrink: 0;
 }
 
-.create-card .card-icon { background: linear-gradient(135deg, #28a745, #20c997); }
-.search-card .card-icon { background: linear-gradient(135deg, #17a2b8, #20c997); }
+.create-card .card-icon { background: linear-gradient(135deg, #8b5cf6, #a855f7); }
+.search-card .card-icon { background: linear-gradient(135deg, #17a2b8, #a855f7); }
 .bulk-card .card-icon { background: linear-gradient(135deg, #ffc107, #fd7e14); }
 
 .card-content h3 {
@@ -248,7 +248,7 @@
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--royal-green), #1a5f3f);
+    background: linear-gradient(135deg, var(--royal-green), #4c1d95);
     color: white;
     padding: 1rem 2rem;
     border: none;
@@ -376,7 +376,7 @@
 }
 
 .search-btn:hover {
-    background: #1a5f3f;
+    background: #4c1d95;
     transform: translateY(-2px);
 }
 
@@ -488,7 +488,7 @@
 
 .edit-result-btn { background: #17a2b8; color: white; }
 .delete-result-btn { background: #dc3545; color: white; }
-.confirm-result-btn { background: #28a745; color: white; }
+.confirm-result-btn { background: #8b5cf6; color: white; }
 .cancel-result-btn { background: #6c757d; color: white; }
 
 /* Bulk Operations */
@@ -531,7 +531,7 @@
 }
 
 .filter-btn:hover {
-    background: #1a5f3f;
+    background: #4c1d95;
     transform: translateY(-2px);
 }
 
@@ -576,7 +576,7 @@
     transform: translateY(-2px);
 }
 
-.confirm-bulk { background: #28a745; color: white; }
+.confirm-bulk { background: #8b5cf6; color: white; }
 .cancel-bulk { background: #6c757d; color: white; }
 .delete-bulk { background: #dc3545; color: white; }
 

@@ -1,13 +1,13 @@
 /* admin_schedule.css */
 
 :root {
-    --royal-green: #1b5e20;
+    --royal-green: #5b21b6;
     --dark-text: #212529;
 }
 
 /* Admin Header - Fixed to match dashboard */
 .admin-header {
-    background: linear-gradient(135deg, var(--royal-green), #1a5f3f);
+    background: linear-gradient(135deg, var(--royal-green), #2f1858);
     color: white;
     padding: 1.5rem 0;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
@@ -100,7 +100,7 @@
 }
 
 .date-nav-btn:hover {
-    background: #1a5f3f;
+    background: #4c1d95;
     transform: scale(1.05);
 }
 
@@ -231,7 +231,7 @@
 }
 .legend-color.booked-confirmed { 
     background: #d4edda; 
-    border-color: #28a745;
+    border-color: #8b5cf6;
 }
 .legend-color.booked-conflict { 
     background: #f8d7da; 
@@ -350,7 +350,7 @@
 
 /* Day Headers */
 .day-header, .court-header {
-    background: linear-gradient(135deg, var(--royal-green), #1a5f3f);
+    background: linear-gradient(135deg, var(--royal-green), #4c1d95);
     color: white;
     display: flex;
     align-items: center;
@@ -408,7 +408,7 @@
 .time-slot.booked-confirmed {
     background: #d4edda;
     color: #155724;
-    border: 1px solid #28a745;
+    border: 1px solid #8b5cf6;
 }
 
 .time-slot.booked-conflict {
@@ -501,7 +501,7 @@
 }
 
 .create-booking-btn:hover {
-    background: #1a5f3f;
+    background: #4c1d95;
     transform: translateY(-1px);
     box-shadow: 0 4px 15px rgba(27, 94, 32, 0.3);
 }
@@ -633,10 +633,10 @@
 .u-slot { width:120px; min-width:120px; height:50px; border-right:1px solid #f0f0f0; display:flex; align-items:center; justify-content:center; font-size:.75rem; background:#fff; }
 .u-slot.available { background:#f8f9fa; color:#6c757d; }
 .u-slot.booked-pending { background:#fff3cd; color:#856404; border:1px solid #ffc107; }
-.u-slot.booked-confirmed { background:#d4edda; color:#155724; border:1px solid #28a745; }
+.u-slot.booked-confirmed { background:#d4edda; color:#155724; border:1px solid #8b5cf6; }
 .u-slot.booked-conflict { background:#f8d7da; color:#721c24; border:1px solid #dc3545; }
 .u-slot.blocked { background:#6c757d; color:#fff; }
-.unified-row.separator .time-cell { background:#eef3ee; color:#1b5e20; font-weight:700; }
+.unified-row.separator .time-cell { background:#eef3ee; color:#5b21b6; font-weight:700; }
 .unified-row.separator .u-slot { background:#eef3ee; border:none; }
 
 /* Fixed Excel Layout Structure */
@@ -758,8 +758,8 @@
 
 .excel-time-header.day-separator {
     background: #eef3ee;
-    color: #1b5e20;
-    border-left: 3px solid #1b5e20;
+    color: #5b21b6;
+    border-left: 3px solid #5b21b6;
     border-radius: 0;
     margin: 0;
     font-weight: 700;
@@ -855,7 +855,7 @@
 .excel-slot.booked-confirmed {
     background: #d4edda;
     color: #155724;
-    border: 1px solid #28a745;
+    border: 1px solid #8b5cf6;
 }
 
 .excel-slot.booked-conflict {
@@ -1020,7 +1020,7 @@
     font-weight: 600;
 }
 
-.status-badge.available { background: #e8f5e8; color: #28a745; }
+.status-badge.available { background: #e8f5e8; color: #8b5cf6; }
 .status-badge.booked-pending { background: #fff3cd; color: #856404; }
 .status-badge.booked-confirmed { background: #d4edda; color: #155724; }
 .status-badge.blocked { background: #f8d7da; color: #721c24; }
@@ -1062,7 +1062,7 @@
 }
 
 .save-comment-btn:hover {
-    background: #1a5f3f;
+    background: #4c1d95;
     transform: translateY(-2px);
 }
 
@@ -1093,7 +1093,7 @@
 
 .book-btn { background: var(--royal-green); color: white; }
 .block-btn { background: #6c757d; color: white; }
-.confirm-btn { background: #28a745; color: white; }
+.confirm-btn { background: #8b5cf6; color: white; }
 .decline-btn { background: #dc3545; color: white; }
 .cancel-btn { background: #6c757d; color: white; }
 .edit-btn { background: #17a2b8; color: white; }
@@ -1154,7 +1154,7 @@
 }
 
 .btn-primary:hover {
-    background: #1a5f3f;
+    background: #4c1d95;
     transform: translateY(-2px);
 }
 
@@ -1577,8 +1577,8 @@
 }
 
 .admin-comment-icon {
-    color: #28a745;
-    border: 1px solid #28a745;
+    color: #8b5cf6;
+    border: 1px solid #8b5cf6;
     right: 16px; /* Position next to customer comment if both exist */
 }
 
