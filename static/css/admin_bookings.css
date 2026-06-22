@@ -281,21 +281,21 @@
         display: none;
     }
     .time-display {
-        color: #28a745 !important;
+        color: #8b5cf6 !important;
         font-size: 1.1em !important;
         font-weight: 600 !important;
     }
     
     /* Alternative - more specific selector */
     .booking-date .time-display {
-        color: #28a745 !important;
+        color: #8b5cf6 !important;
         font-size: 1.1em !important;
         font-weight: 600 !important;
     }
     
     /* Or use inline styles if CSS class doesn't work */
     .time-inline {
-        color: #28a745;
+        color: #8b5cf6;
         font-size: 1.1em;
         font-weight: 600;
     }

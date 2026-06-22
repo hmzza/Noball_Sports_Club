@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login - The Noball Sports Club</title>
+    <title>Admin Login - {{ brand.full_name }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <style>
         body {
-            background: linear-gradient(135deg, var(--royal-green), #1a5f3f);
+            background: linear-gradient(135deg, #120d1a, var(--royal-green), var(--light-green));
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -28,7 +28,7 @@
         .login-logo {
             width: 80px;
             height: 80px;
-            background: var(--royal-green);
+            background: linear-gradient(135deg, var(--royal-green), var(--light-green));
             border-radius: 50%;
             margin: 0 auto 2rem;
             display: flex;
@@ -74,12 +74,12 @@
         .form-group input:focus {
             outline: none;
             border-color: var(--royal-green);
-            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+            box-shadow: 0 0 0 3px rgba(91, 33, 182, 0.14);
         }
         
         .login-btn {
             width: 100%;
-            background: linear-gradient(135deg, var(--royal-green), #1a5f3f);
+            background: linear-gradient(135deg, var(--royal-green), var(--light-green));
             color: white;
             padding: 1rem 2rem;
             border: none;
@@ -93,7 +93,7 @@
         
         .login-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(46, 125, 50, 0.3);
+            box-shadow: 0 8px 24px rgba(91, 33, 182, 0.28);
         }
         
         .error-message {
@@ -113,7 +113,7 @@
         }
         
         .back-link:hover {
-            color: #1a5f3f;
+            color: var(--light-green);
         }
     </style>
 </head>
@@ -124,7 +124,7 @@
         </div>
         
         <h1 class="login-title">Admin Login</h1>
-        <p class="login-subtitle">Access the admin dashboard</p>
+        <p class="login-subtitle">Access the {{ brand.short_name }} admin dashboard</p>
         
         {% if error %}
             <div class="error-message">{{ error }}</div>

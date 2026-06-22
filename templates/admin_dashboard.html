@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - The Noball Sports Club</title>
+    <title>Admin Dashboard - {{ brand.full_name }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -250,10 +250,10 @@
                             <div class="activity-details">
                                 {{ booking.court_name }} • {{ booking.formatted_time|safe }} • PKR {{ "{:,}".format(booking.total_amount or 0) }}
                                 {% if booking.promo_code %}
-                                    <br><span style="color: #28a745; font-weight: 600; font-size: 0.9rem;">🎟️ {{ booking.promo_code }} (-PKR {{ "{:,}".format(booking.discount_amount or 0) }})</span>
+                                    <br><span style="color: #8b5cf6; font-weight: 600; font-size: 0.9rem;">🎟️ {{ booking.promo_code }} (-PKR {{ "{:,}".format(booking.discount_amount or 0) }})</span>
                                 {% endif %}
                                 {% if booking.admin_comments %}
-                                    <br><span style="color: #28a745; font-weight: 600; font-size: 0.85rem;"><i class="fas fa-user-tie"></i> {{ booking.admin_comments }}</span>
+                                    <br><span style="color: #8b5cf6; font-weight: 600; font-size: 0.85rem;"><i class="fas fa-user-tie"></i> {{ booking.admin_comments }}</span>
                                 {% elif booking.special_requests %}
                                     <br><span style="color: #007bff; font-style: italic; font-size: 0.85rem;"><i class="fas fa-user"></i> {{ booking.special_requests }}</span>
                                 {% endif %}

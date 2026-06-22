@@ -75,7 +75,7 @@
   text-decoration: none;
 }
 
-.btn-primary { background: linear-gradient(135deg, var(--royal-green), #1a5f3f); color: #fff; }
+.btn-primary { background: linear-gradient(135deg, var(--royal-green), #4c1d95); color: #fff; }
 .btn-secondary { background: #6c757d; color: #fff; }
 .btn:hover { filter: brightness(1.02); transform: translateY(-1px); }
 

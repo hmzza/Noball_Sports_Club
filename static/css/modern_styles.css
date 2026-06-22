@@ -1,4 +1,4 @@
-/* Modern NoBall Sports Club - Loveable Inspired Design */
+/* Modern ALC styling */
 
 * {
     margin: 0;
@@ -7,31 +7,35 @@
 }
 
 :root {
-    /* Modern Color Palette - Dark Theme */
-    --primary-gradient: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
-    --secondary-gradient: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
-    --accent-gradient: linear-gradient(135deg, #84cc16 0%, #65a30d 100%);
-    --success-gradient: linear-gradient(135deg, #84cc16 0%, #65a30d 100%);
-    --warning-gradient: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+    /* ALC Color Palette */
+    --primary-gradient: linear-gradient(135deg, #07070a 0%, #14141b 52%, #252533 100%);
+    --secondary-gradient: linear-gradient(135deg, #f1f1f4 0%, #b1b4c0 48%, #666a78 100%);
+    --accent-gradient: linear-gradient(135deg, #a855f7 0%, #7c3aed 48%, #4c1d95 100%);
+    --success-gradient: linear-gradient(135deg, #e5e7eb 0%, #b7bcc8 100%);
+    --warning-gradient: linear-gradient(135deg, #d8b4fe 0%, #8b5cf6 100%);
+    --brand-accent: #8b5cf6;
+    --brand-accent-dark: #5b21b6;
+    --brand-metal: #d8dbe5;
+    --brand-ink: #09090b;
     
     /* Neutral Colors */
     --white: #ffffff;
     --black: #000000;
-    --gray-50: #f9fafb;
-    --gray-100: #f3f4f6;
-    --gray-200: #e5e7eb;
-    --gray-300: #d1d5db;
-    --gray-400: #9ca3af;
-    --gray-500: #6b7280;
-    --gray-600: #4b5563;
-    --gray-700: #374151;
-    --gray-800: #1f2937;
-    --gray-900: #111827;
+    --gray-50: #f5f5f7;
+    --gray-100: #e7e8ee;
+    --gray-200: #d6d7e0;
+    --gray-300: #b4b8c7;
+    --gray-400: #8b90a3;
+    --gray-500: #6a7085;
+    --gray-600: #4a4f63;
+    --gray-700: #2b2f3f;
+    --gray-800: #181a25;
+    --gray-900: #0d0f16;
     
     /* Glass Effect */
-    --glass-bg: rgba(255, 255, 255, 0.25);
-    --glass-border: rgba(255, 255, 255, 0.18);
-    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    --glass-bg: rgba(255, 255, 255, 0.08);
+    --glass-border: rgba(216, 219, 229, 0.22);
+    --glass-shadow: 0 18px 45px rgba(7, 7, 10, 0.38);
     
     /* Spacing */
     --space-1: 0.25rem;
@@ -76,7 +80,10 @@ body {
     font-family: var(--font-primary);
     line-height: 1.6;
     color: var(--gray-800);
-    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+    background:
+        radial-gradient(circle at top, rgba(139, 92, 246, 0.24), transparent 32%),
+        radial-gradient(circle at 85% 18%, rgba(216, 219, 229, 0.1), transparent 20%),
+        linear-gradient(135deg, #050507 0%, #0b0b11 42%, #151522 100%);
     min-height: 100vh;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
@@ -201,7 +208,9 @@ h1, h2, h3, h4, h5, h6 {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+    background:
+        radial-gradient(circle at top, rgba(139, 92, 246, 0.2), transparent 28%),
+        linear-gradient(135deg, #050507 0%, #0b0b11 45%, #151522 100%);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -303,16 +312,46 @@ h1, h2, h3, h4, h5, h6 {
 .nav-glass {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 var(--space-6);
+    padding: var(--space-3) var(--space-6);
     display: flex;
     align-items: center;
     justify-content: space-between;
+    background: rgba(9, 9, 11, 0.72);
+    backdrop-filter: blur(18px);
+    border: 1px solid rgba(216, 219, 229, 0.14);
+    border-radius: var(--radius-full);
+    box-shadow: var(--glass-shadow);
 }
 
 .nav-brand {
     display: flex;
     align-items: center;
     gap: var(--space-3);
+}
+
+.brand-logo {
+    object-fit: cover;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.brand-logo-nav {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1px solid rgba(216, 219, 229, 0.2);
+}
+
+.brand-logo-footer {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    border: 1px solid rgba(216, 219, 229, 0.16);
+}
+
+.brand-lockup {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
 .brand-icon {
@@ -329,10 +368,17 @@ h1, h2, h3, h4, h5, h6 {
 
 .brand-name {
     font-family: var(--font-display);
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: 700;
-    color: var(--white);
+    color: var(--brand-metal);
     letter-spacing: -0.02em;
+}
+
+.brand-subtitle {
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(216, 219, 229, 0.72);
 }
 
 .nav-links {
@@ -352,7 +398,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .nav-link:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(168, 85, 247, 0.14);
     transform: translateY(-2px);
 }
 
@@ -426,7 +472,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .title-main {
     display: block;
-    background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+    background: linear-gradient(135deg, #ffffff 0%, #d7d9e2 56%, #9ba0b1 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -438,7 +484,7 @@ h1, h2, h3, h4, h5, h6 {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    text-shadow: 0 0 30px rgba(132, 204, 22, 0.3);
+    text-shadow: 0 0 30px rgba(168, 85, 247, 0.28);
 }
 
 .hero-description {
@@ -451,10 +497,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .highlight-gradient {
-    color: #84cc16;
+    color: var(--brand-accent);
     font-weight: 700;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), 0 0 20px rgba(132, 204, 22, 0.4);
-    background: linear-gradient(135deg, #84cc16 0%, #65a30d 100%);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), 0 0 20px rgba(168, 85, 247, 0.38);
+    background: var(--accent-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -505,25 +551,25 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-modern.primary {
-    background: var(--white);
-    color: var(--gray-800);
-    box-shadow: var(--shadow-lg);
+    background: var(--accent-gradient);
+    color: var(--white);
+    box-shadow: 0 18px 40px rgba(91, 33, 182, 0.28);
 }
 
 .btn-modern.primary:hover {
     transform: translateY(-2px);
-    box-shadow: var(--shadow-xl);
+    box-shadow: 0 24px 48px rgba(91, 33, 182, 0.38);
 }
 
 .btn-modern.secondary {
-    background: var(--glass-bg);
+    background: rgba(216, 219, 229, 0.08);
     backdrop-filter: blur(10px);
-    border: 1px solid var(--glass-border);
-    color: var(--white);
+    border: 1px solid rgba(216, 219, 229, 0.18);
+    color: var(--brand-metal);
 }
 
 .btn-modern.secondary:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(216, 219, 229, 0.16);
     transform: translateY(-2px);
 }
 
@@ -585,13 +631,13 @@ h1, h2, h3, h4, h5, h6 {
     height: 300px;
     border-radius: 50%;
     animation: slowRotate 20s linear infinite;
-    filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.3));
+    filter: drop-shadow(0 0 35px rgba(168, 85, 247, 0.22));
     transition: all 0.3s ease;
 }
 
 .rotating-logo:hover {
     animation-duration: 2s;
-    filter: drop-shadow(0 0 50px rgba(255, 255, 255, 0.6));
+    filter: drop-shadow(0 0 50px rgba(168, 85, 247, 0.4));
     transform: scale(1.05);
 }
 
@@ -603,7 +649,7 @@ h1, h2, h3, h4, h5, h6 {
     width: 350px;
     height: 350px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.26) 0%, transparent 70%);
     animation: pulse 3s ease-in-out infinite;
 }
 
@@ -740,7 +786,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .section-badge.dark {
-    background: var(--gray-800);
+    background: rgba(216, 219, 229, 0.12);
+    border: 1px solid rgba(216, 219, 229, 0.16);
 }
 
 .section-title {
@@ -1130,7 +1177,9 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Footer */
 .footer-modern {
-    background: var(--gray-900);
+    background:
+        radial-gradient(circle at top, rgba(168, 85, 247, 0.12), transparent 28%),
+        linear-gradient(180deg, #09090b 0%, #10101a 100%);
     padding: var(--space-16) 0 var(--space-8);
 }
 
@@ -1881,10 +1930,10 @@ h1, h2, h3, h4, h5, h6 {
     }
     
     .nav-link:hover {
-        background: rgba(132, 204, 22, 0.3);
-        border-color: #84cc16;
+        background: rgba(168, 85, 247, 0.18);
+        border-color: var(--brand-accent);
         transform: translateY(-3px) scale(1.05);
-        box-shadow: 0 8px 25px rgba(132, 204, 22, 0.3);
+        box-shadow: 0 8px 25px rgba(168, 85, 247, 0.24);
     }
     
     .mobile-toggle {

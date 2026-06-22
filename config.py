@@ -1,12 +1,18 @@
 """
-Configuration settings for NoBall Sports Club application.
+Configuration settings for ALC (All-in-one Leisure Club).
 """
 
 import os
+from pathlib import Path
 from urllib.parse import urlparse
 import logging
+from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
+
+BASE_DIR = Path(__file__).resolve().parent
+load_dotenv(BASE_DIR / ".env")
+load_dotenv(BASE_DIR / ".env.production")
 
 class Config:
     """Base configuration class"""
@@ -146,6 +152,20 @@ class Config:
     # Contact / WhatsApp configuration
     # Set to digits without + (e.g., 923161439569)
     WHATSAPP_NUMBER = os.environ.get("WHATSAPP_NUMBER", "923293180180")
+    CONTACT_EMAIL = os.environ.get(
+        "CONTACT_EMAIL",
+        os.environ.get("EMAIL_FROM", "noball@courtsideventures.com"),
+    )
+    BRAND_SHORT_NAME = os.environ.get("BRAND_SHORT_NAME", "ALC")
+    BRAND_FULL_NAME = os.environ.get(
+        "BRAND_FULL_NAME",
+        "ALC (All-in-one Leisure Club)",
+    )
+    BRAND_TAGLINE = os.environ.get(
+        "BRAND_TAGLINE",
+        "All-in-one Leisure Club",
+    )
+    BRAND_LOGO_PATH = os.environ.get("BRAND_LOGO_PATH", "images/alc-logo.jpeg")
 
 
 class DevelopmentConfig(Config):

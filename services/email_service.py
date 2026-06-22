@@ -13,6 +13,11 @@ from typing import Dict
 class EmailService:
     """Lightweight SMTP email sender with safe fallbacks."""
 
+    BRAND_FULL_NAME = os.environ.get(
+        "BRAND_FULL_NAME",
+        "ALC (All-in-one Leisure Club)",
+    )
+
     @staticmethod
     def _get_smtp_config():
         return {
@@ -72,7 +77,7 @@ class EmailService:
               <table style="width:100%;border-collapse:collapse">{rows}</table>
             </div>
             <div style="padding:12px 20px;border-top:1px solid #e5e7eb;color:#6b7280;font-size:12px">
-              {footer or 'Thank you for choosing The NoBall Sports Club.'}
+              {footer or f'Thank you for choosing {EmailService.BRAND_FULL_NAME}.'}
             </div>
           </div>
         </div>

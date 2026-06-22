@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book Your Court - NoBall Sports Club</title>
+    <title>Book Your Court - {{ brand.full_name }}</title>
     <link rel="stylesheet" href="static/css/modern_styles.css">
     <link rel="stylesheet" href="static/css/booking_modern.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -43,7 +43,7 @@
     <header class="modern-header">
         <nav class="nav-glass">
             <div class="nav-brand">
-                <img src="static/images/logo.png" alt="NoBall Sports Club" class="brand-logo" style="width: 30px; height: 30px; border-radius: 50%;">
+                <img src="{{ url_for('static', filename=brand.logo_path) }}" alt="{{ brand.full_name }}" class="brand-logo brand-logo-nav">
             </div>
             
             <div class="nav-center">
@@ -91,7 +91,7 @@
         <div class="booking-step active" id="step-1">
             <div class="step-header">
                 <h2 class="step-title">Choose Your Sport & Court</h2>
-                <p class="step-description">Select from our premium sports facilities</p>
+                <p class="step-description">Select from our premium courts and leisure spaces</p>
             </div>
             
             <div class="sports-selection">
@@ -597,7 +597,7 @@
                             <div class="method-details">
                                 <div class="detail-item">
                                     <span class="label">Account Title:</span>
-                                    <span class="value">The Noball Sports Club</span>
+                                    <span class="value">{{ brand.full_name }}</span>
                                 </div>
                                 <div class="detail-item">
                                     <span class="label">Account Number:</span>
@@ -622,7 +622,7 @@
                                 </div>
                                 <div class="detail-item">
                                     <span class="label">Account Title:</span>
-                                    <span class="value">The Noball Sports Club</span>
+                                    <span class="value">{{ brand.full_name }}</span>
                                 </div>
                             </div>
                         </div>
@@ -766,6 +766,9 @@
     <!-- Scripts -->
     <script>
         window.WHATSAPP_NUMBER = '{{ whatsapp_number }}';
+        window.BRAND_SHORT_NAME = {{ brand.short_name|tojson }};
+        window.BRAND_FULL_NAME = {{ brand.full_name|tojson }};
+        window.CONTACT_EMAIL = {{ brand.contact_email|tojson }};
     </script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script src="static/js/modern_scripts.js"></script>

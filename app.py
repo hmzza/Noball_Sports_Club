@@ -1,6 +1,6 @@
 """
 Main Flask application - Professional, clean, and modular.
-NoBall Sports Club Management System
+ALC (All-in-one Leisure Club) Management System
 """
 
 import os
@@ -62,6 +62,19 @@ def create_app(config_name=None):
     app = Flask(__name__)
     app.config.from_object(config[config_name])
 
+    @app.context_processor
+    def inject_branding():
+        return {
+            "brand": {
+                "short_name": Config.BRAND_SHORT_NAME,
+                "full_name": Config.BRAND_FULL_NAME,
+                "tagline": Config.BRAND_TAGLINE,
+                "logo_path": Config.BRAND_LOGO_PATH,
+                "contact_email": Config.CONTACT_EMAIL,
+            },
+            "current_year": datetime.now(ARENA_TZ).year,
+        }
+
     # Register blueprints
     app.register_blueprint(admin_bp)
 
@@ -121,8 +134,8 @@ def register_main_routes(app):
         if not gallery_items:
             gallery_items = [
                 {
-                    "title": "Sports Club",
-                    "description": "Islamabad's first all in one sports club",
+                    "title": "ALC",
+                    "description": "Islamabad's all-in-one leisure club",
                     "image_path": "images/openSpace.jpeg",
                 },
                 {
@@ -171,8 +184,8 @@ def register_main_routes(app):
                     "image_path": "images/pickleball.jpeg",
                 },
                 {
-                    "title": "Sports Club",
-                    "description": "Islamabad's first all in one sports club",
+                    "title": "ALC",
+                    "description": "Islamabad's all-in-one leisure club",
                     "image_path": "images/openSpace2.jpeg",
                 },
             ]
@@ -739,7 +752,7 @@ app = create_app()
 
 if __name__ == "__main__":
     if app:
-        logger.info("Starting NoBall Sports Club application...")
+        logger.info("Starting ALC (All-in-one Leisure Club) application...")
         import os as _os
         app.run(debug=_os.environ.get("FLASK_DEBUG") == "1", host="0.0.0.0", port=int(_os.environ.get("PORT", "5010")))
     else:

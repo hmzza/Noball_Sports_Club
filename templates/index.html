@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Noball Sports Club - Premium Sports Arena</title>
+    <title>{{ brand.full_name }} - Premium Leisure Club</title>
     <link rel="stylesheet" href="static/css/styles.css">
     
     <!-- Loading Screen -->
     <div id="loading-screen" class="loading-screen">
         <div class="loading-content">
-            <img src="static/images/logo_bw.png" alt="The Noball Sports Club" class="loading-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <img src="{{ url_for('static', filename=brand.logo_path) }}" alt="{{ brand.full_name }}" class="loading-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
             <div class="loading-logo-fallback" style="display: none;">N</div>
             <div class="loading-text">Loading Premium Experience...</div>
         </div>
@@ -20,8 +20,8 @@
     <header class="header">
         <nav class="nav-container">
             <div class="logo">
-                <img src="static/images/logo.png" alt="The Noball Sports Club" class="logo-image">
-                <span>The Noball Sports Club</span>
+                <img src="{{ url_for('static', filename=brand.logo_path) }}" alt="{{ brand.full_name }}" class="logo-image">
+                <span>{{ brand.full_name }}</span>
             </div>
             <ul class="nav-menu">
                 <li><a href="#home">Home</a></li>
@@ -48,10 +48,10 @@
         </div>
         <div class="hero-content">
             <div class="hero-logo">
-                <img src="static/images/logo_bw.png" alt="The Noball Sports Club Logo" class="hero-logo-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <img src="{{ url_for('static', filename=brand.logo_path) }}" alt="{{ brand.full_name }} Logo" class="hero-logo-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                 <div class="hero-logo-fallback" style="display: none;"></div>
             </div>
-            <h1 class="hero-title">Welcome to <span class="highlight">The Noball Sports Club</span></h1>
+            <h1 class="hero-title">Welcome to <span class="highlight">{{ brand.full_name }}</span></h1>
             <p class="hero-subtitle">All-in-one Sports Club with Premium Facilities • Open 24/7</p>
             <div class="cta-buttons">
                 <a href="{{ url_for('booking') }}" class="btn btn-primary">Book Now</a>
@@ -173,11 +173,11 @@
     <!-- About Section -->
     <section id="about" class="section about">
         <div class="container">
-            <h2 class="section-title">About The Noball Sports Club</h2>
+            <h2 class="section-title">About {{ brand.full_name }}</h2>
             <div class="about-content">
                 <div class="about-text">
                     <h3>Premium Sports Experience</h3>
-                    <p>The Noball Sports Club stands as a testament to excellence in sports infrastructure. Our world-class facility features premium Mondo PU turf surfaces across all courts, ensuring optimal playing conditions for athletes of all levels.</p>
+                    <p>{{ brand.full_name }} stands as a testament to excellence in leisure and sports infrastructure. Our world-class facility features premium courts, social spaces, and activity zones built for players and groups of every level.</p>
                     
                     <p>Operating 24/7, we provide unmatched accessibility and convenience for our members. Whether you're a professional athlete or a weekend warrior, our facilities cater to your sporting needs with the highest standards of quality and service.</p>
                     
@@ -193,7 +193,7 @@
                     </ul>
                 </div>
                 <div class="about-image">
-                    <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="About The Noball Sports Club">
+                    <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="About {{ brand.full_name }}">
                 </div>
             </div>
         </div>
@@ -233,7 +233,7 @@
                         </div>
                         <div class="contact-details">
                             <h4>Location</h4>
-                            <p>The Noball Sports Club<br>G-12 Main Service Road, Kashmir Highway<br>Islamabad, Pakistan</p>
+                            <p>{{ brand.full_name }}<br>G-12 Main Service Road, Kashmir Highway<br>Islamabad, Pakistan</p>
                             <a href="https://share.google/YuWCEWVAqzenSBcsX" target="_blank" class="maps-link">📍 View on Google Maps</a>
                         </div>
                     </div>
@@ -254,7 +254,7 @@
                         </div>
                         <div class="contact-details">
                             <h4>Email</h4>
-                            <p>info@noballsports.com<br>bookings@noballsports.com</p>
+                            <p>{{ brand.contact_email }}<br>{{ brand.contact_email }}</p>
                         </div>
                     </div>
                     
@@ -313,7 +313,7 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h4>The Noball Sports Club</h4>
+                    <h4>{{ brand.full_name }}</h4>
                     <p style="color: rgba(255, 255, 255, 0.8); line-height: 1.6;">Premium sports arena offering world-class facilities for padel, cricket, futsal, and pickleball. Open 24/7 with professional equipment and café services.</p>
                 </div>
                 
@@ -353,7 +353,7 @@
             </div>
             
             <div class="footer-bottom">
-                <p>&copy; 2025 The Noball Sports Club. All rights reserved. | Premium Sports Arena | Open 24/7</p>
+                <p>&copy; {{ current_year }} {{ brand.full_name }}. All rights reserved. | Premium Leisure Club | Open 24/7</p>
             </div>
         </div>
     </footer>

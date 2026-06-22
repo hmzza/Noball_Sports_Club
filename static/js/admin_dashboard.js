@@ -403,7 +403,7 @@ class AdminDashboard {
     };
 
     const colorMap = {
-      success: "#28a745",
+      success: "#8b5cf6",
       error: "#dc3545",
       info: "#17a2b8",
       warning: "#ffc107",
@@ -630,7 +630,7 @@ if (!document.querySelector("#dashboard-animations")) {
     }
     
     .status-indicator.online {
-      background: #28a745;
+      background: #8b5cf6;
       box-shadow: 0 0 8px rgba(40, 167, 69, 0.4);
     }
     
