@@ -187,9 +187,9 @@ html, body.booking-modern {
 }
 
 .sport-card.selected {
-    border-color: #84cc16;
-    box-shadow: 0 0 0 4px rgba(132, 204, 22, 0.1);
-    background: rgba(132, 204, 22, 0.03);
+    border-color: var(--brand-accent);
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.12);
+    background: rgba(139, 92, 246, 0.04);
 }
 
 .sport-card-modern {
@@ -255,11 +255,11 @@ html, body.booking-modern {
 }
 
 .sport-card.selected .selection-indicator {
-    background: #84cc16;
-    border-color: #84cc16;
+    background: var(--brand-accent);
+    border-color: var(--brand-accent);
     color: var(--white);
     transform: scale(1.1);
-    box-shadow: 0 2px 8px rgba(132, 204, 22, 0.3);
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.32);
 }
 
 /* Court Options */
@@ -286,13 +286,13 @@ html, body.booking-modern {
 }
 
 .court-option:hover {
-    border-color: #84cc16;
+    border-color: var(--brand-accent);
 }
 
 .court-option.selected {
-    border-color: #84cc16;
-    background: rgba(132, 204, 22, 0.1);
-    box-shadow: 0 2px 8px rgba(132, 204, 22, 0.2);
+    border-color: var(--brand-accent);
+    background: rgba(139, 92, 246, 0.1);
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.2);
 }
 
 .court-preview {
@@ -381,8 +381,8 @@ html, body.booking-modern {
 
 .modern-input:focus {
     outline: none;
-    border-color: #84cc16;
-    box-shadow: 0 0 0 4px rgba(132, 204, 22, 0.1);
+    border-color: var(--brand-accent);
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.12);
 }
 
 .date-input-wrapper i {
@@ -597,19 +597,19 @@ html, body.booking-modern {
 }
 
 .time-slot.next-day {
-    background: rgba(132, 204, 22, 0.05);
-    border-color: rgba(132, 204, 22, 0.2);
+    background: rgba(139, 92, 246, 0.05);
+    border-color: rgba(139, 92, 246, 0.22);
     position: relative;
 }
 
 .time-slot.next-day:hover:not(.booked) {
-    background: rgba(132, 204, 22, 0.1);
-    border-color: rgba(132, 204, 22, 0.4);
+    background: rgba(139, 92, 246, 0.1);
+    border-color: rgba(139, 92, 246, 0.4);
 }
 
 .time-slot.next-day.selected {
-    background: rgba(132, 204, 22, 0.9);
-    border-color: #84cc16;
+    background: rgba(139, 92, 246, 0.9);
+    border-color: var(--brand-accent);
 }
 
 /* Day Sections */
@@ -913,8 +913,8 @@ html, body.booking-modern {
 }
 
 .amount-option input:checked + label {
-    border-color: #84cc16;
-    background: rgba(132, 204, 22, 0.05);
+    border-color: var(--brand-accent);
+    background: rgba(139, 92, 246, 0.05);
 }
 
 .option-header {
@@ -931,7 +931,7 @@ html, body.booking-modern {
 
 .option-amount {
     font-weight: 700;
-    color: #84cc16;
+    color: var(--brand-accent);
 }
 
 .option-desc {
@@ -1021,16 +1021,16 @@ html, body.booking-modern {
 }
 
 .booking-step .btn-modern.primary {
-    background: #84cc16;
+    background: var(--brand-accent);
     border: none;
     color: var(--white);
     font-weight: 600;
 }
 
 .booking-step .btn-modern.primary:hover {
-    background: #65a30d;
+    background: var(--brand-accent-dark);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(132, 204, 22, 0.3);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.32);
 }
 
 .btn-modern.small {
@@ -1193,7 +1193,7 @@ html, body.booking-modern {
     width: 30px;
     height: 30px;
     border-radius: var(--radius-full);
-    background: #84cc16;
+    background: var(--brand-accent);
     color: var(--white);
     display: flex;
     align-items: center;
@@ -1231,7 +1231,7 @@ html, body.booking-modern {
     
     .sport-card:active {
         transform: scale(0.98);
-        background: rgba(132, 204, 22, 0.05);
+        background: rgba(139, 92, 246, 0.05);
     }
     
     .court-option {
@@ -1242,7 +1242,7 @@ html, body.booking-modern {
     
     .court-option:active {
         transform: scale(0.98);
-        background: rgba(132, 204, 22, 0.1);
+        background: rgba(139, 92, 246, 0.1);
     }
     
     .progress-tracker {
@@ -1467,7 +1467,7 @@ html, body.booking-modern {
     .sport-price {
         font-size: 1rem;
         font-weight: 700;
-        color: #84cc16;
+        color: var(--brand-accent);
     }
     
     .step-description {

@@ -2,24 +2,24 @@
 
 /* Modern Professional CSS Variables - Dashboard Match */
 :root {
-    /* Primary Theme Colors - Dashboard Green Match */
-    --royal-green: #1B5E20;
-    --light-green: #4CAF50;
-    --accent-green: #81C784;
-    --primary-color: #1B5E20;
-    --primary-dark: #0d2818;
-    --primary-light: #4CAF50;
-    --primary-gradient: linear-gradient(135deg, #1B5E20 0%, #4CAF50 50%, #81C784 100%);
+    /* Primary Theme Colors - ALC Purple/Metal */
+    --royal-green: #5B21B6;
+    --light-green: #8B5CF6;
+    --accent-green: #D8DBE5;
+    --primary-color: #5B21B6;
+    --primary-dark: #2e1065;
+    --primary-light: #8B5CF6;
+    --primary-gradient: linear-gradient(135deg, #140f1d 0%, #5B21B6 55%, #D8DBE5 100%);
     
     /* Status Colors - Booking Logic */
-    --success-color: #4CAF50;      /* Green for confirmed bookings */
-    --success-light: #81C784;
+    --success-color: #8B5CF6;
+    --success-light: #C4B5FD;
     --warning-color: #FFC107;      /* Yellow for pending/reserve bookings */
     --warning-light: #FFEB3B;
     --danger-color: #F44336;       /* Red for conflicts */
     --danger-light: #EF5350;
-    --info-color: #2196F3;
-    --info-light: #64B5F6;
+    --info-color: #A855F7;
+    --info-light: #D8B4FE;
     
     /* Sport-specific Colors - Professional Palette */
     --padel-color: #8b5cf6;

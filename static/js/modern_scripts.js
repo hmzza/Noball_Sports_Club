@@ -1,4 +1,4 @@
-// Modern NoBall Sports Club - Interactive Features
+// Modern ALC interactive features
 
 class ModernNoBall {
     constructor() {
@@ -20,7 +20,7 @@ class ModernNoBall {
         // Performance optimizations
         this.setupIntersectionObserver();
         
-        console.log('🚀 Modern NoBall initialized');
+        console.log('ALC modern UI initialized');
     }
 
     hideLoadingScreen() {
@@ -357,7 +357,8 @@ class ModernNoBall {
                 } else if (iconElement.classList.contains('fa-whatsapp')) {
                     window.open(`https://wa.me/${waNumber}`, '_blank');
                 } else if (iconElement.classList.contains('fa-envelope')) {
-                    window.location.href = 'mailto:noball@courtsideventures.com';
+                    const emailHref = method.querySelector('.method-value a[href^="mailto:"]')?.getAttribute('href');
+                    window.location.href = emailHref || `mailto:${window.CONTACT_EMAIL || ''}`;
                 }
             });
         });

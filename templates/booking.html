@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book Your Court - The Noball Sports Club</title>
+    <title>Book Your Court - {{ brand.full_name }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/booking.css') }}">
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
@@ -14,8 +14,8 @@
     <header class="header">
         <nav class="nav-container">
             <div class="logo">
-                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="The Noball Sports Club" class="logo-image">
-                <span>The Noball Sports Club</span>
+                <img src="{{ url_for('static', filename=brand.logo_path) }}" alt="{{ brand.full_name }}" class="logo-image">
+                <span>{{ brand.full_name }}</span>
             </div>
             <ul class="nav-menu">
                 <li><a href="{{ url_for('index') }}">Home</a></li>
@@ -282,7 +282,7 @@
                             <div class="payment-method">
                                 <h4>💳 Bank Transfer</h4>
                                 <div class="account-details">
-                                    <p><strong>Account Title:</strong> The Noball Sports Club</p>
+                                    <p><strong>Account Title:</strong> {{ brand.full_name }}</p>
                                     <p><strong>Account Number:</strong> 1234567890123456</p>
                                     <p><strong>Bank:</strong> HBL Bank</p>
                                     <p><strong>Branch:</strong> Main Branch</p>
@@ -293,7 +293,7 @@
                                 <h4>📱 JazzCash / EasyPaisa</h4>
                                 <div class="account-details">
                                     <p><strong>Account Number:</strong> 03XX-XXXXXXX</p>
-                                    <p><strong>Account Title:</strong> The Noball Sports Club</p>
+                                    <p><strong>Account Title:</strong> {{ brand.full_name }}</p>
                                 </div>
                             </div>
                         </div>

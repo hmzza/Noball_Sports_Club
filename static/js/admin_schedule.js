@@ -634,7 +634,7 @@ class AdminScheduleManager {
           slot.style.border = "none";
           const statusColors = {
             "booked-pending": "#ffc107",
-            "booked-confirmed": "#28a745",
+            "booked-confirmed": "#8b5cf6",
             "booked-conflict": "#dc3545",
             "booked-cancelled": "#6c757d",
             blocked: "#6c757d",
@@ -683,7 +683,7 @@ class AdminScheduleManager {
 
           const statusColors = {
             "booked-pending": "#ffc107",
-            "booked-confirmed": "#28a745",
+            "booked-confirmed": "#8b5cf6",
             "booked-conflict": "#dc3545",
             "booked-cancelled": "#6c757d",
           };
@@ -733,7 +733,7 @@ class AdminScheduleManager {
         `;
         const statusColors = {
           "booked-pending": "#ffc107",
-          "booked-confirmed": "#28a745",
+          "booked-confirmed": "#8b5cf6",
           "booked-conflict": "#dc3545",
         };
         const statusColor = statusColors[statusClass] || "#007bff";
@@ -2258,7 +2258,7 @@ class AdminScheduleManager {
           slot.innerHTML = `<div style="font-size:.6rem; opacity:.7;">…</div>`;
           const colorMap = {
             "booked-pending": "#ffc107",
-            "booked-confirmed": "#28a745",
+            "booked-confirmed": "#8b5cf6",
             "booked-conflict": "#dc3545",
             "booked-cancelled": "#6c757d",
             blocked: "#6c757d",
@@ -2290,7 +2290,7 @@ class AdminScheduleManager {
               '<i class="fas fa-comment-dots" style="position:absolute;top:1px;right:1px;font-size:.5rem;color:#007bff;background:rgba(255,255,255,.9);border-radius:50%;padding:1px;"></i>';
           if (hasAdmin)
             icons +=
-              '<i class="fas fa-comment-medical" style="position:absolute;top:1px;right:10px;font-size:.5rem;color:#28a745;background:rgba(255,255,255,.9);border-radius:50%;padding:1px;"></i>';
+              '<i class="fas fa-comment-medical" style="position:absolute;top:1px;right:10px;font-size:.5rem;color:#8b5cf6;background:rgba(255,255,255,.9);border-radius:50%;padding:1px;"></i>';
 
           slot.innerHTML = `
             <div style="text-align:center; padding:.2rem; position:relative;">
@@ -2321,7 +2321,7 @@ class AdminScheduleManager {
             '<i class="fas fa-comment-dots" style="position:absolute;top:1px;right:1px;font-size:.5rem;color:#007bff;background:rgba(255,255,255,.9);border-radius:50%;padding:1px;"></i>';
         if (hasAdmin)
           icons +=
-            '<i class="fas fa-comment-medical" style="position:absolute;top:1px;right:10px;font-size:.5rem;color:#28a745;background:rgba(255,255,255,.9);border-radius:50%;padding:1px;"></i>';
+            '<i class="fas fa-comment-medical" style="position:absolute;top:1px;right:10px;font-size:.5rem;color:#8b5cf6;background:rgba(255,255,255,.9);border-radius:50%;padding:1px;"></i>';
 
         slot.innerHTML = `
           <div style="text-align:center; padding:.2rem; position:relative;">
@@ -2601,7 +2601,7 @@ class AdminScheduleManager {
         info: "fa-info-circle",
       }[type] || "fa-info-circle";
     const bg =
-      { success: "#28a745", error: "#dc3545", info: "#17a2b8" }[type] ||
+      { success: "#8b5cf6", error: "#dc3545", info: "#17a2b8" }[type] ||
       "#17a2b8";
     const loading = type === "info" && duration === 0;
 
@@ -2681,7 +2681,7 @@ enhancedStyle.textContent = `
   /* Enhanced styles for merged booking slots */
   .time-slot.group-start { position: relative; z-index: 10; }
   .time-slot.group-continuation { border-top: none !important; border-bottom: none !important; position: relative; z-index: 5; }
-  .time-slot.group-continuation:last-of-type { border-bottom: 8px solid #28a745 !important; border-radius: 0 0 8px 8px !important; }
+  .time-slot.group-continuation:last-of-type { border-bottom: 8px solid #8b5cf6 !important; border-radius: 0 0 8px 8px !important; }
   .merged-booking { padding: 8px; height: 100%; display: flex; flex-direction: column; justify-content: center; text-align: center; }
   .booking-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
   .continuation-marker { height: 100%; background: linear-gradient(90deg, transparent 20%, rgba(255,255,255,0.1) 50%, transparent 80%); }
@@ -2689,8 +2689,8 @@ enhancedStyle.textContent = `
   .time-slot.group-continuation:hover { background: rgba(0,123,255,0.1) !important; }
 
   /* Selection styles */
-  .selection-start { outline: 3px solid #20c997; outline-offset: -3px; }
-  .selection-end { outline: 3px solid #20c997; outline-offset: -3px; }
+  .selection-start { outline: 3px solid #a855f7; outline-offset: -3px; }
+  .selection-end { outline: 3px solid #a855f7; outline-offset: -3px; }
   .selection-between { background: rgba(32,201,151,0.15) !important; }
   .selection-invalid { animation: shake 0.25s linear; }
 
@@ -2741,7 +2741,7 @@ quickBookStyle.id = "quick-book-modal-style";
 quickBookStyle.textContent = `
   /* Enhanced quick book modal styles */
   #quick-book-modal { max-width: 600px; width: 95%; }
-  #quick-book-modal .modal-header { background: linear-gradient(135deg, #28a745, #20c997); color: white; }
+  #quick-book-modal .modal-header { background: linear-gradient(135deg, #8b5cf6, #a855f7); color: white; }
   #quick-book-modal .modal-header h3 { color: white; }
   #quick-book-modal .close-btn { color: white; }
   #quick-book-modal .close-btn:hover { color: #f8f9fa; background: rgba(255,255,255,0.2); }
@@ -2749,7 +2749,7 @@ quickBookStyle.textContent = `
   .form-group { margin-bottom: 1rem; }
   .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #495057; }
   .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid #ced4da; border-radius: 6px; font-size: 0.9rem; transition: border-color 0.3s ease, box-shadow 0.3s ease; }
-  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #28a745; box-shadow: 0 0 0 2px rgba(40,167,69,0.25); }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #8b5cf6; box-shadow: 0 0 0 2px rgba(40,167,69,0.25); }
 
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
   @media (max-width: 768px) { .form-row { grid-template-columns: 1fr; } }
@@ -2757,12 +2757,12 @@ quickBookStyle.textContent = `
   .form-actions { display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #eee; }
   .btn-cancel { padding: 0.75rem 1.5rem; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s ease; }
   .btn-cancel:hover { background: #5a6268; }
-  .btn-primary { padding: 0.75rem 1.5rem; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all 0.3s ease; }
+  .btn-primary { padding: 0.75rem 1.5rem; background: #8b5cf6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all 0.3s ease; }
   .btn-primary:hover { background: #218838; transform: translateY(-1px); }
   .btn-primary:disabled { background: #6c757d; cursor: not-allowed; transform: none; }
 
   .form-group input:invalid { border-color: #dc3545; }
-  .form-group input:valid { border-color: #28a745; }
+  .form-group input:valid { border-color: #8b5cf6; }
 
   .form-group input:disabled, .form-group select:disabled, .form-group textarea:disabled { background-color: #f8f9fa; opacity: 0.6; }
 `;

@@ -435,7 +435,7 @@ class ScheduleManager extends BaseComponent {
         
         const statusColors = {
             'booked-pending': { bg: '#ffc107', border: '#e0a800' },
-            'booked-confirmed': { bg: '#28a745', border: '#1e7e34' },
+            'booked-confirmed': { bg: '#8b5cf6', border: '#6d28d9' },
             'booked-conflict': { bg: '#dc3545', border: '#bd2130' },
             'booked-cancelled': { bg: '#6c757d', border: '#545b62' }
         };
